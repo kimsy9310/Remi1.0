@@ -1,0 +1,2416 @@
+meta:
+  layer: L
+  version: '2.0'
+  date: '2026-08-18'
+  source_of_record: Food_Sensory_Lexicon_v1_1.xlsx (sheets 10-50, 60)
+  spec: remi_ontology_spec_v2.md §2.1, §6.1
+  note: Sole definition point for Layer L. Definitions are context-free, percept-only, one term per entry
+    (Invariants 1,7; lexicon rules). The 'status' field is derived at load time, not authored here.
+  counts:
+    terms: 216
+    by_domain:
+      ap: 30
+      ta: 9
+      ar: 118
+      ch: 16
+      tx: 43
+lexicon_terms:
+- id: L.ap.color_intensity
+  term: color intensity
+  domain: ap
+  subcategory: color
+  definition: Overall depth of color from pale to deep/concentrated.
+  ko: 색 진하기
+  example_foods:
+  - thin broth vs demi-glace
+  source: Spectrum
+  note: 'Scale poles: pale <-> deep'
+- id: L.ap.color_vividness
+  term: color vividness
+  domain: ap
+  subcategory: color
+  definition: Saturation impression from dull to vivid.
+  ko: 색 선명도
+  example_foods:
+  - fresh salsa vs faded paste
+  source: Spectrum
+  note: 'Scale poles: dull <-> vivid'
+- id: L.ap.color_uniformity
+  term: color uniformity
+  domain: ap
+  subcategory: color
+  definition: Evenness of color across the product.
+  ko: 색 균일성
+  example_foods:
+  - evenly colored sauce vs streaky
+  source: Spectrum
+- id: L.ap.browning_degree
+  term: browning degree
+  domain: ap
+  subcategory: color
+  definition: Position on the process-browning continuum (golden -> amber -> brown) signalling Maillard,
+    caramelization or aging.
+  ko: 갈변 정도
+  example_foods:
+  - fried crust
+  - doenjang
+  - black garlic
+  source: Maillard literature
+  note: Process-signal attribute; replaces hue names golden/amber/brown (v1.1)
+- id: L.ap.glossy
+  term: glossy
+  domain: ap
+  subcategory: gloss_surface
+  definition: Surface reflects light evenly; shiny.
+  ko: 윤기 나는
+  example_foods:
+  - teriyaki glaze
+  source: Spectrum
+  legacy_map:
+  - SA.gloss
+- id: L.ap.matte
+  term: matte
+  domain: ap
+  subcategory: gloss_surface
+  definition: Little surface reflection; no shine.
+  ko: 무광
+  example_foods:
+  - fat-free dressing surface
+  source: Spectrum
+  merged_synonyms:
+  - dull (surface)
+- id: L.ap.oily_sheen
+  term: oily sheen
+  domain: ap
+  subcategory: gloss_surface
+  definition: Shine from a floating oil film.
+  ko: 기름 광
+  example_foods:
+  - chili-oil slick on soup
+  source: common usage
+- id: L.ap.smooth_surfaced
+  term: smooth-surfaced
+  domain: ap
+  subcategory: gloss_surface
+  definition: Visually even, unbroken surface.
+  ko: 표면 매끈함
+  example_foods:
+  - panna cotta top
+  source: Spectrum
+- id: L.ap.rough_surfaced
+  term: rough-surfaced
+  domain: ap
+  subcategory: gloss_surface
+  definition: Visually coarse or wrinkled surface.
+  ko: 표면 거침
+  example_foods:
+  - thick paste surface
+  source: Spectrum
+- id: L.ap.clear
+  term: clear
+  domain: ap
+  subcategory: clarity_turbidity
+  definition: Transparent, without haze.
+  ko: 맑음
+  example_foods:
+  - clear stock
+  - cheongju
+  source: ISO 5492
+- id: L.ap.hazy
+  term: hazy
+  domain: ap
+  subcategory: clarity_turbidity
+  definition: Slight fine turbidity between clear and cloudy.
+  ko: 미탁(뿌염)
+  example_foods:
+  - hazy IPA
+  source: beer wheel
+- id: L.ap.cloudy
+  term: cloudy
+  domain: ap
+  subcategory: clarity_turbidity
+  definition: Uniformly turbid; a desired quality in some categories.
+  ko: 탁함(구름감)
+  example_foods:
+  - cloudy juice
+  - makgeolli
+  source: ISO 5492
+  legacy_map:
+  - SA.cloud_opacity
+- id: L.ap.opaque
+  term: opaque
+  domain: ap
+  subcategory: clarity_turbidity
+  definition: Light does not pass through.
+  ko: 불투명
+  example_foods:
+  - mayonnaise
+  source: ISO 5492
+- id: L.ap.translucent
+  term: translucent
+  domain: ap
+  subcategory: clarity_turbidity
+  definition: Semi-transparent.
+  ko: 반투명
+  example_foods:
+  - thin syrup
+  - konjac
+  source: ISO 5492
+- id: L.ap.milky_whiteness
+  term: milky whiteness
+  domain: ap
+  subcategory: clarity_turbidity
+  definition: White opacity from light scattering by fine emulsion droplets; finer droplets read whiter.
+  ko: 백탁(유화 흰빛)
+  example_foods:
+  - whole milk
+  - white mayonnaise
+  source: emulsion literature
+  note: Added in v1.1 from Layer B audit (SA.whiteness)
+  legacy_map:
+  - SA.whiteness
+- id: L.ap.watery_looking
+  term: watery-looking
+  domain: ap
+  subcategory: visual_consistency
+  definition: Looks thin as water when moved.
+  ko: 묽어 보임
+  example_foods:
+  - over-thinned sauce
+  source: Spectrum
+- id: L.ap.runny
+  term: runny
+  domain: ap
+  subcategory: visual_consistency
+  definition: Flows quickly off a spoon.
+  ko: 줄줄 흐름
+  example_foods:
+  - thin syrup
+  source: Spectrum
+- id: L.ap.thick_looking
+  term: thick-looking
+  domain: ap
+  subcategory: visual_consistency
+  definition: Flows slowly; visually heavy-bodied.
+  ko: 되직해 보임
+  example_foods:
+  - thick stew
+  source: Spectrum
+- id: L.ap.gel_set
+  term: gel-set
+  domain: ap
+  subcategory: visual_consistency
+  definition: Holds shape as a gel.
+  ko: 겔로 굳음
+  example_foods:
+  - jelly
+  - set yanggaeng
+  source: Spectrum
+- id: L.ap.chunky
+  term: chunky
+  domain: ap
+  subcategory: visual_consistency
+  definition: Visible large pieces.
+  ko: 건더기 있음
+  example_foods:
+  - chunky salsa
+  source: Spectrum
+- id: L.ap.lumpy
+  term: lumpy
+  domain: ap
+  subcategory: visual_consistency
+  definition: Visible unintended lumps.
+  ko: 덩어리짐
+  example_foods:
+  - lumpy gravy
+  source: Spectrum
+  note: Often defect context
+- id: L.ap.separated
+  term: separated
+  domain: ap
+  subcategory: integrity_defect
+  definition: Phases visibly split; free oil or layers.
+  ko: 분리됨
+  example_foods:
+  - broken dressing
+  source: ADSA/common
+  legacy_map:
+  - SA.phase_separation
+- id: L.ap.oil_ring
+  term: oil ring
+  domain: ap
+  subcategory: integrity_defect
+  definition: Oil ring at container neck or surface edge.
+  ko: 기름 고리
+  example_foods:
+  - aged emulsion beverage
+  source: beverage literature
+  legacy_map:
+  - SA.ring_defect
+- id: L.ap.serum_layer
+  term: serum layer
+  domain: ap
+  subcategory: integrity_defect
+  definition: Clear liquid weeping at surface or edge (syneresis).
+  ko: 웃물(이수)
+  example_foods:
+  - standing salsa
+  - yogurt whey
+  source: dairy literature
+  legacy_map:
+  - SA.serum_separation
+- id: L.ap.sediment
+  term: sediment
+  domain: ap
+  subcategory: integrity_defect
+  definition: Solids settled into a bottom layer; key question is whether it redisperses.
+  ko: 침전
+  example_foods:
+  - suspension beverage
+  source: beverage literature
+  legacy_map:
+  - SA.sediment_layer
+- id: L.ap.skin_film
+  term: skin/film
+  domain: ap
+  subcategory: integrity_defect
+  definition: Film formed on the surface.
+  ko: 표면 피막
+  example_foods:
+  - cooled custard skin
+  source: common usage
+- id: L.ap.darkened
+  term: darkened
+  domain: ap
+  subcategory: integrity_defect
+  definition: Color turned darker in storage (browning etc.).
+  ko: 저장 갈변
+  example_foods:
+  - oxidized pesto
+  source: storage literature
+  legacy_map:
+  - SA.color_darkening
+- id: L.ap.faded
+  term: faded
+  domain: ap
+  subcategory: integrity_defect
+  definition: Color washed out in storage.
+  ko: 퇴색
+  example_foods:
+  - light-struck chili product
+  source: storage literature
+- id: L.ap.curdled
+  term: curdled
+  domain: ap
+  subcategory: integrity_defect
+  definition: Protein coagulated into grainy clumps.
+  ko: 응어리짐
+  example_foods:
+  - acid-split cream sauce
+  source: dairy literature
+- id: L.ap.visible_mold
+  term: visible mold
+  domain: ap
+  subcategory: integrity_defect
+  definition: Mold spots visible on the surface.
+  ko: 곰팡이 반점
+  example_foods:
+  - spoiled paste jar
+  source: QC practice
+- id: L.ta.sweet
+  term: sweet
+  domain: ta
+  subcategory: basic
+  definition: Basic taste from sugars and sweeteners via T1R2/T1R3.
+  ko: 단맛
+  example_foods:
+  - sucrose solution
+  - ripe fruit
+  source: ISO 5492
+  legacy_map:
+  - SA.sweetness
+- id: L.ta.sour
+  term: sour
+  domain: ta
+  subcategory: basic
+  definition: Basic taste from acids (H+).
+  ko: 신맛
+  example_foods:
+  - vinegar
+  - lemon
+  source: ISO 5492
+  legacy_map:
+  - SA.sourness
+- id: L.ta.salty
+  term: salty
+  domain: ta
+  subcategory: basic
+  definition: Basic taste from sodium ions.
+  ko: 짠맛
+  example_foods:
+  - salt
+  - soy sauce
+  source: ISO 5492
+  legacy_map:
+  - SA.saltiness
+- id: L.ta.bitter
+  term: bitter
+  domain: ta
+  subcategory: basic
+  definition: Basic taste from diverse compounds via the T2R family; wide individual variation.
+  ko: 쓴맛
+  example_foods:
+  - caffeine
+  - grapefruit pith
+  source: ISO 5492
+  note: Defect-or-virtue is context (profile layer), not definition
+  legacy_map:
+  - SA.bitterness
+- id: L.ta.umami
+  term: umami
+  domain: ta
+  subcategory: basic
+  definition: Savory basic taste from glutamate and 5'-ribonucleotides; strong synergy between them.
+  ko: 감칠맛
+  example_foods:
+  - dashi
+  - parmesan
+  - soy sauce
+  source: ISO 5492; Yamaguchi 1991
+  legacy_map:
+  - SA.umami
+- id: L.ta.oleogustus
+  term: oleogustus
+  domain: ta
+  subcategory: extended
+  definition: Taste component of non-esterified fatty acids; distinct from textural fattiness. Barely
+    detectable in fresh foods; can rise with lipolysis in fermented/aged products.
+  ko: 지방맛
+  example_foods:
+  - aged cheese edge cases
+  source: Running 2015
+  note: Textural fat feel -> Texture-surface
+- id: L.ta.kokumi
+  term: kokumi
+  domain: ta
+  subcategory: modulator
+  definition: 'Modulating sensation with no own quality: amplifies thickness, continuity and mouthfulness
+    of other tastes (gamma-glutamyl peptides via CaSR). Ligands abundant in fermented/aged foods.'
+  ko: 코쿠미
+  example_foods:
+  - aged cheese
+  - black garlic
+  - fish sauce
+  source: Ueda 1990; Ohsu 2010
+  note: Candidate differentiator vocabulary for BLACK
+- id: L.ta.aftertaste_length
+  term: aftertaste length
+  domain: ta
+  subcategory: temporal
+  definition: Duration of taste/flavor persistence after swallowing (receptor adaptation mechanism).
+  ko: 뒷맛 길이
+  example_foods:
+  - rich broth
+  - dark chocolate
+  source: ISO 5492
+  note: Temporal attribute
+  legacy_map:
+  - SA.aftertaste_length
+- id: L.ta.clean_finish
+  term: clean finish
+  domain: ta
+  subcategory: temporal
+  definition: Taste resolves quickly and without stray notes after swallowing.
+  ko: 깔끔한 마무리
+  example_foods:
+  - clear consomme
+  source: wine/coffee practice
+  note: Temporal attribute
+- id: L.ar.citrus
+  term: citrus (generic)
+  domain: ar
+  subcategory: fruity_citrus
+  definition: Bright citrus peel/juice aromatic family.
+  phase: both
+  ko: 시트러스 향
+  example_foods:
+  - lemon
+  - yuzu
+  source: WCR-style
+  chem_family: terpenes
+- id: L.ar.lemon
+  term: lemon
+  domain: ar
+  subcategory: fruity_citrus
+  definition: Citral-led lemon aromatic.
+  phase: both
+  ko: 레몬 향
+  example_foods:
+  - lemon zest
+  source: WCR-style
+  chem_family: citral
+- id: L.ar.lime
+  term: lime
+  domain: ar
+  subcategory: fruity_citrus
+  definition: Lime peel aromatic; greener and more resinous than lemon.
+  phase: both
+  ko: 라임 향
+  example_foods:
+  - lime zest
+  source: WCR-style
+  legacy_map:
+  - SA.flavor.citrus_lime
+- id: L.ar.orange_peel
+  term: orange peel
+  domain: ar
+  subcategory: fruity_citrus
+  definition: Sweet-bitter orange peel aromatic.
+  phase: both
+  ko: 오렌지 껍질 향
+  example_foods:
+  - orange zest
+  source: WCR-style
+- id: L.ar.grapefruit
+  term: grapefruit
+  domain: ar
+  subcategory: fruity_citrus
+  definition: Grapefruit aromatic with sulfurous-fresh edge.
+  phase: both
+  ko: 자몽 향
+  example_foods:
+  - grapefruit
+  source: WCR-style
+  chem_family: thiols (grapefruit mercaptan)
+- id: L.ar.yuzu
+  term: yuzu
+  domain: ar
+  subcategory: fruity_citrus
+  definition: Yuzu's floral-citrus aromatic between lemon, mandarin and grapefruit.
+  phase: both
+  ko: 유자 향
+  example_foods:
+  - yuzu peel
+  - yuja-cheong
+  source: own (Korean material)
+- id: L.ar.berry
+  term: berry (generic)
+  domain: ar
+  subcategory: fruity_berry
+  definition: Berry aromatic family.
+  phase: both
+  ko: 베리 향
+  example_foods:
+  - mixed berries
+  source: WCR-style
+  chem_family: esters/ketones
+- id: L.ar.strawberry
+  term: strawberry
+  domain: ar
+  subcategory: fruity_berry
+  definition: Fresh strawberry aromatic (incl. retronasal).
+  phase: both
+  ko: 딸기 향
+  example_foods:
+  - fresh strawberry
+  source: WCR-style
+  legacy_map:
+  - SA.flavor.strawberry
+- id: L.ar.raspberry
+  term: raspberry
+  domain: ar
+  subcategory: fruity_berry
+  definition: Raspberry-ketone-led red berry aromatic.
+  phase: both
+  ko: 라즈베리 향
+  example_foods:
+  - raspberry
+  source: WCR-style
+  chem_family: raspberry ketone
+- id: L.ar.dark_berry
+  term: dark berry
+  domain: ar
+  subcategory: fruity_berry
+  definition: Deep dark-berry aromatic.
+  phase: both
+  ko: 다크베리 향
+  example_foods:
+  - blackberry
+  - mulberry
+  source: WCR-style
+- id: L.ar.stone_fruit
+  term: stone fruit (generic)
+  domain: ar
+  subcategory: fruity_stone_pome
+  definition: Stone fruit aromatic family.
+  phase: both
+  ko: 핵과 향
+  example_foods:
+  - peach
+  - plum
+  source: WCR-style
+  chem_family: lactones
+- id: L.ar.peach
+  term: peach
+  domain: ar
+  subcategory: fruity_stone_pome
+  definition: Lactone-led peach aromatic.
+  phase: both
+  ko: 복숭아 향
+  example_foods:
+  - yellow peach
+  source: WCR-style
+  chem_family: gamma-decalactone
+- id: L.ar.apricot
+  term: apricot
+  domain: ar
+  subcategory: fruity_stone_pome
+  definition: Apricot aromatic.
+  phase: both
+  ko: 살구 향
+  example_foods:
+  - dried apricot
+  source: WCR-style
+- id: L.ar.plum_maesil
+  term: plum (maesil)
+  domain: ar
+  subcategory: fruity_stone_pome
+  definition: 'Korean green plum aromatic: tart-sweet syrupy with faint almond (benzaldehyde) edge.'
+  phase: both
+  ko: 매실 향
+  example_foods:
+  - maesil-cheong
+  source: own (Korean material)
+  legacy_map:
+  - SA.flavor.plum_maesil
+- id: L.ar.apple
+  term: apple
+  domain: ar
+  subcategory: fruity_stone_pome
+  definition: Ester-led apple aromatic.
+  phase: both
+  ko: 사과 향
+  example_foods:
+  - fresh apple
+  source: WCR-style
+  chem_family: esters
+- id: L.ar.pear
+  term: pear
+  domain: ar
+  subcategory: fruity_stone_pome
+  definition: Pear aromatic; watery-sweet ester character.
+  phase: both
+  ko: 배 향
+  example_foods:
+  - Korean pear
+  source: WCR-style
+- id: L.ar.tropical
+  term: tropical (generic)
+  domain: ar
+  subcategory: fruity_tropical
+  definition: Tropical fruit aromatic family.
+  phase: both
+  ko: 열대과일 향
+  example_foods:
+  - pineapple
+  - mango
+  source: WCR-style
+- id: L.ar.banana
+  term: banana
+  domain: ar
+  subcategory: fruity_tropical
+  definition: Isoamyl-acetate-led banana aromatic; also a fermentation ester marker.
+  phase: both
+  ko: 바나나 향
+  example_foods:
+  - ripe banana
+  source: WCR-style
+  chem_family: isoamyl acetate
+  note: appears in makgeolli/sake
+- id: L.ar.melon
+  term: melon
+  domain: ar
+  subcategory: fruity_tropical
+  definition: Melon aromatic; fresh watery-sweet.
+  phase: both
+  ko: 멜론 향
+  example_foods:
+  - muskmelon
+  source: WCR-style
+- id: L.ar.coconut
+  term: coconut
+  domain: ar
+  subcategory: fruity_tropical
+  definition: Lactone-led coconut aromatic.
+  phase: both
+  ko: 코코넛 향
+  example_foods:
+  - coconut milk
+  source: WCR-style
+  chem_family: delta-lactones
+- id: L.ar.dried_fruit
+  term: dried fruit
+  domain: ar
+  subcategory: fruity_dried_cooked
+  definition: Concentrated sweet aromatic of dried fruit.
+  phase: both
+  ko: 건과 향
+  example_foods:
+  - raisin
+  - dried persimmon
+  source: WCR-style
+- id: L.ar.raisin
+  term: raisin
+  domain: ar
+  subcategory: fruity_dried_cooked
+  definition: Raisin aromatic; reference point for dried-chili and aged notes.
+  phase: both
+  ko: 건포도 향
+  example_foods:
+  - raisins
+  source: WCR-style
+- id: L.ar.jammy_cooked_fruit
+  term: jammy (cooked fruit)
+  domain: ar
+  subcategory: fruity_dried_cooked
+  definition: Cooked, concentrated, caramelized fruit aromatic.
+  phase: both
+  ko: 잼 같은(조린 과일)
+  example_foods:
+  - strawberry jam
+  - oven tomato
+  source: WCR-style
+  chem_family: Furaneol
+  legacy_map:
+  - SA.flavor.jammy_cooked
+- id: L.ar.floral
+  term: floral (generic)
+  domain: ar
+  subcategory: floral
+  definition: Flower aromatic family.
+  phase: both
+  ko: 꽃 향
+  example_foods:
+  - jasmine tea
+  source: WCR-style
+  chem_family: terpene alcohols
+- id: L.ar.rose
+  term: rose
+  domain: ar
+  subcategory: floral
+  definition: Rose aromatic.
+  phase: both
+  ko: 장미 향
+  example_foods:
+  - rosewater dessert
+  source: wine wheel (Noble)
+  chem_family: geraniol, phenylethanol
+- id: L.ar.jasmine
+  term: jasmine
+  domain: ar
+  subcategory: floral
+  definition: Jasmine aromatic.
+  phase: both
+  ko: 자스민 향
+  example_foods:
+  - jasmine rice
+  - tea
+  source: WCR-style
+- id: L.ar.elderflower
+  term: elderflower
+  domain: ar
+  subcategory: floral
+  definition: Muscat-like elderflower aromatic.
+  phase: both
+  ko: 엘더플라워 향
+  example_foods:
+  - elderflower cordial
+  source: wine wheel
+- id: L.ar.citrus_blossom
+  term: citrus blossom
+  domain: ar
+  subcategory: floral
+  definition: Orange/citrus blossom aromatic bridging floral and citrus.
+  phase: both
+  ko: 시트러스 꽃 향
+  example_foods:
+  - orange blossom water
+  source: wine wheel
+- id: L.ar.green_cut_grass
+  term: green (cut grass)
+  domain: ar
+  subcategory: green_vegetal
+  definition: Fresh-cut grass green aromatic (hexenal family).
+  phase: both
+  ko: 풋내(풀 향)
+  example_foods:
+  - fresh greens
+  source: Flavornet
+  chem_family: C6 aldehydes
+  legacy_map:
+  - SA.flavor.green
+- id: L.ar.leafy
+  term: leafy
+  domain: ar
+  subcategory: green_vegetal
+  definition: Green leafy-vegetable aromatic.
+  phase: both
+  ko: 잎채소 향
+  example_foods:
+  - spinach
+  - lettuce
+  source: Spectrum
+- id: L.ar.green_bell_pepper
+  term: green bell pepper
+  domain: ar
+  subcategory: green_vegetal
+  definition: Methoxypyrazine-led green capsicum aromatic.
+  phase: both
+  ko: 피망 풋향
+  example_foods:
+  - raw bell pepper
+  source: wine wheel (Noble)
+  chem_family: IBMP
+- id: L.ar.fresh_chili_green
+  term: fresh chili (green)
+  domain: ar
+  subcategory: green_vegetal
+  definition: Fresh green-chili capsicum aromatic; lost on cooking/drying.
+  phase: both
+  ko: 생고추 풋향
+  example_foods:
+  - cheongyang
+  - jalapeno
+  source: salsa lexicons
+  legacy_map:
+  - SA.flavor.chili_fresh_green
+- id: L.ar.cucumber
+  term: cucumber
+  domain: ar
+  subcategory: green_vegetal
+  definition: Watermelon-fresh aldehyde aromatic of cucumber.
+  phase: both
+  ko: 오이 향
+  example_foods:
+  - fresh cucumber
+  source: Flavornet
+  chem_family: (E,Z)-2,6-nonadienal
+- id: L.ar.tomato_fresh
+  term: tomato (fresh)
+  domain: ar
+  subcategory: green_vegetal
+  definition: Fresh tomato green aromatic.
+  phase: both
+  ko: 생토마토 향
+  example_foods:
+  - raw tomato
+  source: Spectrum
+- id: L.ar.tomato_cooked
+  term: tomato (cooked)
+  domain: ar
+  subcategory: green_vegetal
+  definition: Sweet concentrated cooked-tomato aromatic; distinct from fresh.
+  phase: both
+  ko: 조린 토마토 향
+  example_foods:
+  - tomato paste
+  source: Spectrum
+  legacy_map:
+  - SA.flavor.tomato_cooked
+- id: L.ar.tomatillo_tart_green
+  term: tomatillo (tart green)
+  domain: ar
+  subcategory: green_vegetal
+  definition: Tart green tomatillo aromatic; salsa verde signature.
+  phase: both
+  ko: 토마티요 향
+  example_foods:
+  - salsa verde
+  source: salsa lexicons
+  legacy_map:
+  - SA.flavor.tomatillo_green
+- id: L.ar.celery
+  term: celery
+  domain: ar
+  subcategory: green_vegetal
+  definition: Phthalide-led celery aromatic; a broth backbone note.
+  phase: both
+  ko: 셀러리 향
+  example_foods:
+  - celery
+  - stock mirepoix
+  source: Flavornet
+  chem_family: phthalides
+- id: L.ar.herbal
+  term: herbal (generic)
+  domain: ar
+  subcategory: herbal
+  definition: Herb-leaf aromatic family.
+  phase: both
+  ko: 허브 향
+  example_foods:
+  - basil
+  - thyme
+  source: Spectrum
+- id: L.ar.basil
+  term: basil
+  domain: ar
+  subcategory: herbal
+  definition: Sweet-anise-green basil aromatic.
+  phase: both
+  ko: 바질 향
+  example_foods:
+  - fresh basil
+  source: Spectrum
+  chem_family: estragole, linalool
+- id: L.ar.mint
+  term: mint
+  domain: ar
+  subcategory: herbal
+  definition: Mint leaf aromatic (aroma component; cooling -> Chemesthesis).
+  phase: both
+  ko: 민트 향
+  example_foods:
+  - fresh mint
+  source: Spectrum
+- id: L.ar.cilantro
+  term: cilantro
+  domain: ar
+  subcategory: herbal
+  definition: Aldehyde-led cilantro leaf aromatic; reads soapy to OR6A2 variant carriers.
+  phase: both
+  ko: 고수 향
+  example_foods:
+  - fresh cilantro
+  source: OR6A2 literature
+  note: Segmentation variable
+  legacy_map:
+  - SA.flavor.herbal_cilantro
+- id: L.ar.perilla_leaf_kkaennip
+  term: perilla leaf (kkaennip)
+  domain: ar
+  subcategory: herbal
+  definition: 'Perilla-leaf aromatic: green-minty-cumin-like, distinct from perilla-seed oil.'
+  phase: both
+  ko: 깻잎 향
+  example_foods:
+  - kkaennip
+  source: own (Korean material)
+  chem_family: perilla ketone
+- id: L.ar.pine_resinous
+  term: pine (resinous)
+  domain: ar
+  subcategory: herbal
+  definition: Pine-resin aromatic.
+  phase: both
+  ko: 솔(수지) 향
+  example_foods:
+  - pine needle tea
+  - rosemary edge
+  source: wine/spirits wheels
+  chem_family: pinenes
+- id: L.ar.hay_dried_herb
+  term: hay (dried herb)
+  domain: ar
+  subcategory: herbal
+  definition: Dried grass/herb aromatic.
+  phase: both
+  ko: 마른 풀 향
+  example_foods:
+  - dried thyme
+  - hay
+  source: wine wheel
+- id: L.ar.roasted
+  term: roasted
+  domain: ar
+  subcategory: roasted_toasted
+  definition: Maillard roast brown aromatic family.
+  phase: both
+  ko: 로스팅 향
+  example_foods:
+  - roasted nuts
+  - coffee beans
+  source: WCR
+  chem_family: pyrazines
+- id: L.ar.toasted
+  term: toasted
+  domain: ar
+  subcategory: roasted_toasted
+  definition: Lightly toasted grain/bread aromatic.
+  phase: both
+  ko: 구운 향
+  example_foods:
+  - toast
+  - roasted barley tea
+  source: WCR
+- id: L.ar.bread_crust
+  term: bread crust
+  domain: ar
+  subcategory: roasted_toasted
+  definition: Fresh bread-crust aromatic.
+  phase: both
+  ko: 빵 껍질 향
+  example_foods:
+  - baguette crust
+  source: bread literature
+  chem_family: 2-acetyl-1-pyrroline adjacent
+- id: L.ar.popcorn
+  term: popcorn
+  domain: ar
+  subcategory: roasted_toasted
+  definition: Popcorn-like toasted aromatic.
+  phase: both
+  ko: 팝콘 향
+  example_foods:
+  - popcorn
+  - some jasmine rice
+  source: rice/cereal literature
+  chem_family: 2-acetyl-1-pyrroline
+- id: L.ar.coffee
+  term: coffee
+  domain: ar
+  subcategory: roasted_toasted
+  definition: Coffee roast aromatic.
+  phase: both
+  ko: 커피 향
+  example_foods:
+  - espresso
+  source: WCR
+- id: L.ar.cocoa
+  term: cocoa
+  domain: ar
+  subcategory: roasted_toasted
+  definition: Cocoa/dark-chocolate aromatic.
+  phase: both
+  ko: 코코아 향
+  example_foods:
+  - cocoa powder
+  source: WCR
+- id: L.ar.smoky
+  term: smoky
+  domain: ar
+  subcategory: smoky_burnt
+  definition: Wood-smoke phenolic aromatic.
+  phase: both
+  ko: 훈연 향
+  example_foods:
+  - smoked paprika
+  - chipotle
+  source: WCR
+  chem_family: guaiacol, syringol
+  legacy_map:
+  - SA.flavor.smoky
+- id: L.ar.charred
+  term: charred
+  domain: ar
+  subcategory: smoky_burnt
+  definition: Deliberate heavy-char aromatic.
+  phase: both
+  ko: 불맛(강한 구움)
+  example_foods:
+  - charred vegetables
+  - yakitori
+  source: salsa lexicons
+- id: L.ar.burnt
+  term: burnt
+  domain: ar
+  subcategory: smoky_burnt
+  definition: Burnt aromatic at the defect boundary of roasting.
+  phase: both
+  ko: 탄내
+  example_foods:
+  - burnt toast
+  source: WCR
+  note: off_note boundary
+- id: L.ar.nutty
+  term: nutty (generic)
+  domain: ar
+  subcategory: nutty
+  definition: Nut aromatic family.
+  phase: both
+  ko: 고소한(견과) 향
+  example_foods:
+  - mixed nuts
+  source: WCR
+  chem_family: pyrazines
+  legacy_map:
+  - SA.flavor.roasted_nutty_note
+- id: L.ar.roasted_sesame
+  term: roasted sesame
+  domain: ar
+  subcategory: nutty
+  definition: Pyrazine-led toasted sesame aromatic.
+  phase: both
+  ko: 참기름 향
+  example_foods:
+  - toasted sesame oil
+  source: own (Korean material)
+  legacy_map:
+  - SA.flavor.roasted_sesame
+- id: L.ar.perilla_oil
+  term: perilla oil
+  domain: ar
+  subcategory: nutty
+  definition: Distinct nutty-green aromatic of pressed perilla seed.
+  phase: both
+  ko: 들기름 향
+  example_foods:
+  - perilla oil
+  source: own (Korean material)
+- id: L.ar.walnut
+  term: walnut
+  domain: ar
+  subcategory: nutty
+  definition: Oily walnut aromatic.
+  phase: both
+  ko: 호두 향
+  example_foods:
+  - raw walnut
+  source: WCR
+- id: L.ar.almond
+  term: almond
+  domain: ar
+  subcategory: nutty
+  definition: Benzaldehyde-led almond aromatic.
+  phase: both
+  ko: 아몬드 향
+  example_foods:
+  - almond
+  - apricot kernel
+  source: WCR
+  chem_family: benzaldehyde
+- id: L.ar.peanut
+  term: peanut
+  domain: ar
+  subcategory: nutty
+  definition: Roasted peanut aromatic.
+  phase: both
+  ko: 땅콩 향
+  example_foods:
+  - peanut butter
+  source: WCR
+- id: L.ar.cooked_rice
+  term: cooked rice
+  domain: ar
+  subcategory: cereal_grain
+  definition: Mild steamed-rice aromatic.
+  phase: both
+  ko: 밥 향
+  example_foods:
+  - fresh steamed rice
+  source: rice sensory literature
+  legacy_map:
+  - SA.flavor.rice_cereal
+- id: L.ar.malty
+  term: malty
+  domain: ar
+  subcategory: cereal_grain
+  definition: Malted grain sweet-toasty aromatic.
+  phase: both
+  ko: 몰트(구수한) 향
+  example_foods:
+  - malt drink
+  - misugaru
+  source: beer wheel (Meilgaard)
+- id: L.ar.beany_raw_cereal
+  term: beany (raw cereal)
+  domain: ar
+  subcategory: cereal_grain
+  definition: Raw bean/green-cereal aromatic common in plant proteins; context decides defect status.
+  phase: both
+  ko: 콩비린내
+  example_foods:
+  - raw soy flour
+  - pea protein
+  source: pulse literature
+  note: Context-dependent
+  legacy_map:
+  - SA.flavor.beany_cereal
+- id: L.ar.scorched_rice_nurungji
+  term: scorched rice (nurungji)
+  domain: ar
+  subcategory: cereal_grain
+  definition: 'Scorched-rice aromatic: toasted-sweet crust of rice (nurungji/sungnyung).'
+  phase: both
+  ko: 누룽지 향
+  example_foods:
+  - nurungji
+  - sungnyung
+  source: own (Korean material)
+  chem_family: 2-acetyl-1-pyrroline + Maillard
+- id: L.ar.black_pepper_aroma
+  term: black pepper (aroma)
+  domain: ar
+  subcategory: spice
+  definition: Pepper aroma component, separated from piperine irritation.
+  phase: both
+  ko: 후추 향
+  example_foods:
+  - cracked pepper
+  source: Spectrum
+  note: Irritation -> Chemesthesis
+- id: L.ar.cinnamon
+  term: cinnamon
+  domain: ar
+  subcategory: spice
+  definition: Cinnamaldehyde-led cinnamon aromatic.
+  phase: both
+  ko: 계피 향
+  example_foods:
+  - cinnamon stick
+  source: WCR
+  chem_family: cinnamaldehyde
+- id: L.ar.clove
+  term: clove
+  domain: ar
+  subcategory: spice
+  definition: Eugenol-led clove aromatic.
+  phase: both
+  ko: 정향 향
+  example_foods:
+  - clove
+  source: WCR
+  chem_family: eugenol
+- id: L.ar.nutmeg
+  term: nutmeg
+  domain: ar
+  subcategory: spice
+  definition: Nutmeg aromatic.
+  phase: both
+  ko: 육두구 향
+  example_foods:
+  - ground nutmeg
+  source: Spectrum
+- id: L.ar.anise_licorice
+  term: anise (licorice)
+  domain: ar
+  subcategory: spice
+  definition: Anethole-led anise/licorice aromatic.
+  phase: both
+  ko: 아니스(감초) 향
+  example_foods:
+  - star anise
+  - fennel
+  source: WCR
+  chem_family: anethole
+- id: L.ar.ginger_aroma
+  term: ginger (aroma)
+  domain: ar
+  subcategory: spice
+  definition: Ginger aroma component, separated from warming irritation.
+  phase: both
+  ko: 생강 향
+  example_foods:
+  - fresh ginger
+  source: Spectrum
+  note: Warming -> Chemesthesis
+- id: L.ar.dried_red_chili
+  term: dried red chili
+  domain: ar
+  subcategory: spice
+  definition: Sweet dried-fruit-like aromatic of dried red chili (gochugaru, ancho); develops on drying,
+    distinct from fresh green chili.
+  phase: both
+  ko: 건고추 향
+  example_foods:
+  - gochugaru steeped in water
+  source: salsa lexicons
+  note: Cross-listed feel with fruity_dried
+  legacy_map:
+  - SA.flavor.chili_dried_red
+- id: L.ar.cumin
+  term: cumin
+  domain: ar
+  subcategory: spice
+  definition: Earthy cumin spice aromatic.
+  phase: both
+  ko: 커민 향
+  example_foods:
+  - cumin seed
+  source: salsa lexicons
+  chem_family: cuminaldehyde
+- id: L.ar.caramel
+  term: caramel
+  domain: ar
+  subcategory: sweet_aromatic
+  definition: Sweet-bitter aromatic of sugar browning.
+  phase: both
+  ko: 카라멜 향
+  example_foods:
+  - caramel sauce
+  source: WCR
+  merged_synonyms:
+  - toffee
+  - butterscotch
+- id: L.ar.vanilla
+  term: vanilla
+  domain: ar
+  subcategory: sweet_aromatic
+  definition: Vanillin-led sweet creamy aromatic; enhances perceived sweetness.
+  phase: both
+  ko: 바닐라 향
+  example_foods:
+  - vanilla extract
+  source: WCR
+  chem_family: vanillin
+  legacy_map:
+  - SA.flavor.vanilla
+- id: L.ar.honey
+  term: honey
+  domain: ar
+  subcategory: sweet_aromatic
+  definition: Floral-waxy sweet aromatic of honey.
+  phase: both
+  ko: 꿀 향
+  example_foods:
+  - acacia honey
+  source: WCR
+- id: L.ar.maple
+  term: maple
+  domain: ar
+  subcategory: sweet_aromatic
+  definition: Maple syrup aromatic.
+  phase: both
+  ko: 메이플 향
+  example_foods:
+  - maple syrup
+  source: WCR
+  chem_family: sotolon adjacent
+- id: L.ar.molasses
+  term: molasses
+  domain: ar
+  subcategory: sweet_aromatic
+  definition: Dark, burnt-edged sweet aromatic of molasses; a core component of black-garlic aroma.
+  phase: both
+  ko: 당밀 향
+  example_foods:
+  - molasses
+  - dark brown sugar
+  source: WCR
+  note: Black-garlic link
+- id: L.ar.milky
+  term: milky
+  domain: ar
+  subcategory: dairy
+  definition: Mild fresh-milk aromatic.
+  phase: both
+  ko: 우유 향
+  example_foods:
+  - whole milk
+  source: dairy lexicons
+- id: L.ar.buttery
+  term: buttery
+  domain: ar
+  subcategory: dairy
+  definition: Diacetyl-led butter aromatic.
+  phase: both
+  ko: 버터 향
+  example_foods:
+  - salted butter
+  source: dairy lexicons
+  chem_family: diacetyl
+- id: L.ar.creamy_dairy_aroma
+  term: creamy (dairy aroma)
+  domain: ar
+  subcategory: dairy
+  definition: Rich cream aromatic; distinct from textural creaminess.
+  phase: both
+  ko: 크림 향
+  example_foods:
+  - fresh cream
+  source: dairy lexicons
+- id: L.ar.cheesy
+  term: cheesy
+  domain: ar
+  subcategory: dairy
+  definition: Fermented cheese aromatic.
+  phase: both
+  ko: 치즈 향
+  example_foods:
+  - cheddar
+  - parmesan
+  source: dairy lexicons
+  note: 'Cross: ferment_animal'
+- id: L.ar.cultured_yogurty
+  term: cultured (yogurty)
+  domain: ar
+  subcategory: dairy
+  definition: Lactic-cultured milk aromatic.
+  phase: both
+  ko: 발효유 향
+  example_foods:
+  - plain yogurt
+  source: dairy lexicons
+  note: 'Cross: ferment_acid'
+- id: L.ar.soy_fermented_jang
+  term: soy-fermented (jang)
+  domain: ar
+  subcategory: ferment_jang_koji
+  definition: 'Jang/koji soybean fermentation aromatic: brothy, malty, brown, faintly alcoholic-estery.'
+  phase: both
+  ko: 장(醬) 발효 향
+  example_foods:
+  - doenjang
+  - ganjang
+  - miso
+  source: soy sauce lexicon (Cherdchu 2014)
+  legacy_map:
+  - SA.flavor.fermented_soy
+- id: L.ar.koji
+  term: koji
+  domain: ar
+  subcategory: ferment_jang_koji
+  definition: Sweet rice-mold flower aromatic of fresh koji.
+  phase: both
+  ko: 코지 향
+  example_foods:
+  - rice koji
+  - amazake
+  source: sake wheel
+  note: Black-rice-koji link
+- id: L.ar.black_garlic_aged_sweet
+  term: black garlic (aged-sweet)
+  domain: ar
+  subcategory: ferment_jang_koji
+  definition: 'Aged-sweet aromatic of black garlic: molasses-tamarind character; raw-garlic sulfur transformed
+    by aging.'
+  phase: both
+  ko: 흑마늘 향
+  example_foods:
+  - black garlic
+  source: own (BLACK core)
+  note: 'Cross: sweet_aromatic, sulfury'
+- id: L.ar.yeasty
+  term: yeasty
+  domain: ar
+  subcategory: ferment_alcoholic
+  definition: Yeast/bread fermentation aromatic.
+  phase: both
+  ko: 효모(빵) 향
+  example_foods:
+  - raw dough
+  - sourdough
+  source: beer wheel (Meilgaard)
+- id: L.ar.alcoholic_estery
+  term: alcoholic (estery)
+  domain: ar
+  subcategory: ferment_alcoholic
+  definition: Fermentation alcohol/ester aromatic.
+  phase: both
+  ko: 주정·에스터 향
+  example_foods:
+  - makgeolli
+  - sake
+  source: sake wheel
+  chem_family: ethyl esters
+- id: L.ar.winey
+  term: winey
+  domain: ar
+  subcategory: ferment_alcoholic
+  definition: Wine-like aged fermentation aromatic.
+  phase: both
+  ko: 와인 향
+  example_foods:
+  - red-wine reduction
+  source: wine wheel
+- id: L.ar.rice_wine_cheongju
+  term: rice wine (cheongju)
+  domain: ar
+  subcategory: ferment_alcoholic
+  definition: 'Clear rice-wine aromatic: soft estery-sweet with koji nuance.'
+  phase: both
+  ko: 청주 향
+  example_foods:
+  - cheongju
+  - junmai sake
+  source: sake wheel; own
+- id: L.ar.vinegar_acetic
+  term: vinegar (acetic)
+  domain: ar
+  subcategory: ferment_acid
+  definition: Sharp volatile acetic aromatic; co-occurs with but distinct from sour taste.
+  phase: both
+  ko: 식초 향
+  example_foods:
+  - brewing vinegar
+  source: Spectrum
+  note: Distinct from Taste-sour
+  legacy_map:
+  - SA.flavor.vinegar_acetic
+- id: L.ar.lactic_cultured
+  term: lactic (cultured)
+  domain: ar
+  subcategory: ferment_acid
+  definition: Soft lactic fermentation aromatic.
+  phase: both
+  ko: 젖산 발효 향
+  example_foods:
+  - sauerkraut brine
+  source: fermentation literature
+- id: L.ar.kimchi_like
+  term: kimchi-like
+  domain: ar
+  subcategory: ferment_acid
+  definition: 'Composite fermented aromatic of ripe kimchi: lactic + garlic + chili.'
+  phase: both
+  ko: 김치 향
+  example_foods:
+  - ripe kimchi
+  source: own (Korean material)
+  note: Composite reference aromatic
+- id: L.ar.funky
+  term: funky
+  domain: ar
+  subcategory: ferment_animal
+  definition: Pungent cheesy-sulfurous aromatic of animal-protein fermentation (VFAs, amines); polarising
+    by exposure.
+  phase: both
+  ko: 꼬릿한 발효취
+  example_foods:
+  - blue cheese
+  - hongeo
+  source: fermentation literature
+  note: Segmentation variable
+  legacy_map:
+  - SA.flavor.fermented_funk
+- id: L.ar.jeotgal_fish_fermented
+  term: jeotgal (fish-fermented)
+  domain: ar
+  subcategory: ferment_animal
+  definition: Savory fermented-seafood aromatic of jeotgal/fish sauce.
+  phase: both
+  ko: 젓갈 향
+  example_foods:
+  - anchovy aekjeot
+  - saeujeot
+  source: fish sauce literature
+  note: 'Cross: marine'
+- id: L.ar.garlic
+  term: garlic
+  domain: ar
+  subcategory: sulfury_alliaceous
+  definition: Sulfurous garlic aromatic; raw (allicin-sharp) to cooked (mellow-sweet).
+  phase: both
+  ko: 마늘 향
+  example_foods:
+  - crushed raw garlic
+  source: Spectrum
+  chem_family: allicin/sulfides
+  legacy_map:
+  - SA.flavor.garlic
+- id: L.ar.roasted_garlic
+  term: roasted garlic
+  domain: ar
+  subcategory: sulfury_alliaceous
+  definition: Sweet nutty aromatic of roasted garlic.
+  phase: both
+  ko: 구운 마늘 향
+  example_foods:
+  - whole roasted garlic
+  source: salsa lexicons
+- id: L.ar.onion
+  term: onion
+  domain: ar
+  subcategory: sulfury_alliaceous
+  definition: Sulfurous onion aromatic; raw-sharp to cooked-sweet.
+  phase: both
+  ko: 양파 향
+  example_foods:
+  - raw/sauteed onion
+  source: Spectrum
+  legacy_map:
+  - SA.flavor.onion_alliaceous
+- id: L.ar.cooked_allium_sweet
+  term: cooked allium (sweet)
+  domain: ar
+  subcategory: sulfury_alliaceous
+  definition: Sweet aromatic of long-cooked alliums.
+  phase: both
+  ko: 익힌 파속 단내
+  example_foods:
+  - caramelized onion
+  source: salsa lexicons
+- id: L.ar.green_onion_leek
+  term: green onion (leek)
+  domain: ar
+  subcategory: sulfury_alliaceous
+  definition: Green-sulfur aromatic of scallion/leek.
+  phase: both
+  ko: 파 향
+  example_foods:
+  - chopped scallion
+  source: own (Korean material)
+- id: L.ar.sulfury
+  term: sulfury
+  domain: ar
+  subcategory: sulfury_alliaceous
+  definition: Boiled-egg/brassica sulfur aromatic.
+  phase: both
+  ko: 유황취
+  example_foods:
+  - boiled egg
+  - blanched cabbage
+  source: Spectrum
+  note: off_note boundary
+- id: L.ar.earthy
+  term: earthy
+  domain: ar
+  subcategory: earthy_musty
+  definition: Soil/geosmin aromatic.
+  phase: both
+  ko: 흙내
+  example_foods:
+  - beet
+  - fresh soil smell
+  source: WCR
+  chem_family: geosmin
+- id: L.ar.mushroom
+  term: mushroom
+  domain: ar
+  subcategory: earthy_musty
+  definition: 1-octen-3-ol-led fresh mushroom aromatic.
+  phase: both
+  ko: 버섯 향
+  example_foods:
+  - raw button mushroom
+  source: Flavornet
+  chem_family: 1-octen-3-ol
+- id: L.ar.dried_shiitake
+  term: dried shiitake
+  domain: ar
+  subcategory: earthy_musty
+  definition: Deep sulfur-savory aromatic of dried shiitake, distinct from fresh mushroom.
+  phase: both
+  ko: 건표고 향
+  example_foods:
+  - dried shiitake
+  source: own (Korean material)
+  chem_family: lenthionine
+- id: L.ar.musty
+  term: musty
+  domain: ar
+  subcategory: earthy_musty
+  definition: Stale-moldy aromatic; context decides defect status.
+  phase: both
+  ko: 묵은내(곰팡내)
+  example_foods:
+  - old grain storage
+  source: WCR
+  merged_synonyms:
+  - moldy
+- id: L.ar.root_vegetable
+  term: root vegetable
+  domain: ar
+  subcategory: earthy_musty
+  definition: Earthy-sweet root vegetable aromatic.
+  phase: both
+  ko: 뿌리채소 향
+  example_foods:
+  - burdock
+  - lotus root
+  source: Spectrum
+- id: L.ar.seaweed
+  term: seaweed
+  domain: ar
+  subcategory: marine
+  definition: Sea-vegetable aromatic.
+  phase: both
+  ko: 해조(김) 향
+  example_foods:
+  - gim
+  - dasima
+  source: seafood lexicons
+- id: L.ar.briny
+  term: briny
+  domain: ar
+  subcategory: marine
+  definition: Clean seawater-salt aromatic.
+  phase: both
+  ko: 갯내(브라이니)
+  example_foods:
+  - fresh oyster
+  - capers
+  source: seafood lexicons
+- id: L.ar.fresh_fish
+  term: fresh fish
+  domain: ar
+  subcategory: marine
+  definition: Mild aromatic of fresh fish; distinct from fishy defect.
+  phase: both
+  ko: 신선 생선 향
+  example_foods:
+  - sashimi
+  source: seafood lexicons
+  note: Defect -> off_note fishy
+- id: L.ar.shellfish
+  term: shellfish
+  domain: ar
+  subcategory: marine
+  definition: Sweet sea aromatic of crustaceans/shellfish.
+  phase: both
+  ko: 조개·갑각 향
+  example_foods:
+  - shrimp
+  - clam broth
+  source: seafood lexicons
+- id: L.ar.rancid_oxidized
+  term: rancid (oxidized)
+  domain: ar
+  subcategory: off_note
+  definition: 'Lipid-oxidation defect: painty, old-oil aromatics; first shelf-life failure of sesame/perilla
+    products.'
+  phase: both
+  ko: 쩐내(산패취)
+  example_foods:
+  - abused oil
+  source: oxidation literature
+  chem_family: hexanal, 2,4-decadienal
+  legacy_map:
+  - SA.flavor.rancid_oxidised
+- id: L.ar.cardboard
+  term: cardboard
+  domain: ar
+  subcategory: off_note
+  definition: Early-oxidation paper/cardboard aromatic.
+  phase: both
+  ko: 판지취
+  example_foods:
+  - old milk powder
+  source: dairy lexicons
+- id: L.ar.metallic
+  term: metallic
+  domain: ar
+  subcategory: off_note
+  definition: Metallic/coin-like off-note; iron-catalysed oxidation or metal contact.
+  phase: both
+  ko: 금속취
+  example_foods:
+  - iron-fortified matrix
+  source: Spectrum
+  legacy_map:
+  - SA.flavor.metallic
+- id: L.ar.fishy_off
+  term: fishy (off)
+  domain: ar
+  subcategory: off_note
+  definition: Stale-seafood defect aromatic (TMA).
+  phase: both
+  ko: 비린내(결함)
+  example_foods:
+  - old fish
+  source: seafood lexicons
+  note: Distinct from marine-fresh fish
+- id: L.ar.rotten_sulfur
+  term: rotten sulfur
+  domain: ar
+  subcategory: off_note
+  definition: Putrid hydrogen-sulfide defect aromatic.
+  phase: both
+  ko: 썩은 유황취
+  example_foods:
+  - spoiled egg
+  source: Spectrum
+- id: L.ar.stale
+  term: stale
+  domain: ar
+  subcategory: off_note
+  definition: Freshness-lost flat aromatic.
+  phase: both
+  ko: 묵은내(신선도 상실)
+  example_foods:
+  - stale snacks
+  - old beans
+  source: WCR
+- id: L.ar.warmed_over
+  term: warmed-over
+  domain: ar
+  subcategory: off_note
+  definition: Reheated-meat oxidation aromatic (WOF).
+  phase: both
+  ko: 재가열취
+  example_foods:
+  - reheated boiled meat
+  source: meat literature
+- id: L.ar.chemical_plastic
+  term: chemical (plastic)
+  domain: ar
+  subcategory: off_note
+  definition: Plastic/solvent off-note.
+  phase: both
+  ko: 화학취
+  example_foods:
+  - packaging-tainted product
+  source: Spectrum
+- id: L.ar.soapy
+  term: soapy
+  domain: ar
+  subcategory: off_note
+  definition: Soap-like off-note (certain fatty acids; also cilantro perception variant).
+  phase: both
+  ko: 비누취
+  example_foods:
+  - crude fats
+  source: Spectrum
+- id: L.ar.phenolic_medicinal
+  term: phenolic (medicinal)
+  domain: ar
+  subcategory: off_note
+  definition: Band-aid/medicinal phenolic note; a defect in most foods, a character in some (peated whisky,
+    Brett wines).
+  phase: both
+  ko: 약품취(페놀)
+  example_foods:
+  - Brett-tainted wine
+  source: wine/beer wheels
+  note: Context-dependent
+- id: L.ch.pungent_hot
+  term: pungent (hot)
+  domain: ch
+  subcategory: burn_heat
+  definition: Burning trigeminal irritation from capsaicinoids/piperine via TRPV1; not a taste; accumulates
+    over repeated intake.
+  ko: 매운맛(작열)
+  example_foods:
+  - chili
+  - black pepper
+  source: Caterina 1997
+  legacy_map:
+  - SA.pungency
+- id: L.ch.burning
+  term: burning
+  domain: ch
+  subcategory: burn_heat
+  definition: High-intensity sustained burn region of pungency.
+  ko: 타는 듯함
+  example_foods:
+  - habanero sauce
+  source: time-intensity literature
+- id: L.ch.nasal_pungent
+  term: nasal-pungent
+  domain: ch
+  subcategory: burn_heat
+  definition: Volatile irritation rising through the nose (isothiocyanates); very fast onset, clears quickly.
+  ko: 코 쏘는 자극
+  example_foods:
+  - wasabi
+  - mustard
+  - raw radish
+  source: AITC literature
+- id: L.ch.peppery_bite
+  term: peppery bite
+  domain: ch
+  subcategory: burn_heat
+  definition: Throat-catching irritation of pepper / extra-virgin olive oil (oleocanthal).
+  ko: 후추 톡 쏨
+  example_foods:
+  - EVOO
+  - cracked pepper
+  source: oleocanthal literature
+- id: L.ch.cooling
+  term: cooling
+  domain: ch
+  subcategory: cooling
+  definition: Cool sensation without temperature change via TRPM8 (menthol family).
+  ko: 청량감
+  example_foods:
+  - mint
+  - menthol candy
+  source: McKemy 2002
+- id: L.ch.minty_cool
+  term: minty-cool
+  domain: ch
+  subcategory: cooling
+  definition: Cooling fused with mint aroma.
+  ko: 민트 시원함
+  example_foods:
+  - peppermint tea
+  source: common usage
+- id: L.ch.tingling
+  term: tingling
+  domain: ch
+  subcategory: tingle_numb
+  definition: Vibratory, buzzing paresthesia from sanshools; mechanism distinct from burn.
+  ko: 저릿함
+  example_foods:
+  - sancho
+  - chopi
+  source: Bryant 1999
+  legacy_map:
+  - SA.numbing_tingle
+- id: L.ch.numbing
+  term: numbing
+  domain: ch
+  subcategory: tingle_numb
+  definition: Anesthetic-like numbness (the 'ma' of mala).
+  ko: 얼얼함(마)
+  example_foods:
+  - mala broth
+  - huajiao
+  source: Bryant 1999
+  legacy_map:
+  - SA.numbing_tingle
+- id: L.ch.astringent
+  term: astringent
+  domain: ch
+  subcategory: astringent
+  definition: Drying, puckering, tightening tactile sensation from polyphenol-salivary-protein precipitation;
+    builds over sips. Untrained assessors often misreport it as bitterness - check astringency first when
+    'bitter' is reported.
+  ko: 떫음
+  example_foods:
+  - strong tea
+  - unripe persimmon
+  source: ISO 5492; Gawel
+  merged_synonyms:
+  - drying
+  - puckering
+  legacy_map:
+  - SA.astringency
+- id: L.ch.carbonation_bite
+  term: carbonation bite
+  domain: ch
+  subcategory: carbonation
+  definition: Sharp sting of dissolved CO2 (carbonic anhydrase mediated).
+  ko: 탄산 자극
+  example_foods:
+  - sparkling water
+  source: Chandrashekar 2009
+- id: L.ch.fizzy
+  term: fizzy
+  domain: ch
+  subcategory: carbonation
+  definition: Light prickle of bursting bubbles.
+  ko: 기포 톡톡함
+  example_foods:
+  - soda
+  source: common usage
+- id: L.ch.warming
+  term: warming
+  domain: ch
+  subcategory: warming
+  definition: Gentle chemical heat from ginger/cinnamon compounds.
+  ko: 온감
+  example_foods:
+  - ginger tea
+  source: Green 2012
+- id: L.ch.alcohol_burn
+  term: alcohol burn
+  domain: ch
+  subcategory: warming
+  definition: Hot chemical sting of ethanol.
+  ko: 주정 화끈함
+  example_foods:
+  - spirits
+  source: literature
+- id: L.ch.heat_onset
+  term: heat onset
+  domain: ch
+  subcategory: temporal
+  definition: Speed from ingestion to first burn; principle-dependent (AITC immediate, capsaicin slow).
+  ko: 매운맛 발현 속도
+  example_foods:
+  - wasabi vs chili comparison
+  source: time-intensity literature
+  note: Temporal attribute
+  legacy_map:
+  - SA.pungency_onset
+- id: L.ch.heat_linger
+  term: heat linger
+  domain: ch
+  subcategory: temporal
+  definition: How long burn persists after swallowing; fat phase lengthens the tail.
+  ko: 매운맛 여운
+  example_foods:
+  - chili-oil sauce
+  source: time-intensity literature
+  note: Temporal attribute
+  legacy_map:
+  - SA.pungency_linger
+- id: L.ch.heat_build_up
+  term: heat build-up
+  domain: ch
+  subcategory: temporal
+  definition: Cumulative rise of burn over repeated intake; enforce rest intervals in evaluation.
+  ko: 매운맛 누적
+  example_foods:
+  - consecutive tasting of hot samples
+  source: time-intensity literature
+  note: Temporal attribute
+- id: L.tx.hardness
+  term: hardness
+  domain: tx
+  subcategory: mechanical
+  definition: Force required for a given deformation; representative axis from soft to hard.
+  ko: 단단함
+  example_foods:
+  - hard candy vs silken tofu
+  source: Szczesniak 1963
+  note: 'Scale poles: soft <-> hard'
+  legacy_map:
+  - SA.hardness
+- id: L.tx.thickness
+  term: thickness
+  domain: tx
+  subcategory: mechanical
+  definition: Flow resistance felt moving product between tongue and palate.
+  ko: 걸쭉함
+  example_foods:
+  - thick stew
+  source: Spectrum
+  merged_synonyms:
+  - perceived viscosity
+  legacy_map:
+  - SA.thickness
+- id: L.tx.body
+  term: body
+  domain: tx
+  subcategory: mechanical
+  definition: Filling weight/substance in the mouth; integrated percept of viscosity + solids + fat.
+  ko: 바디감
+  example_foods:
+  - rich broth vs water
+  source: Langstaff 1993
+  note: Integrated attribute (one entry; no beverage/ice-cream split)
+  legacy_map:
+  - SA.body
+  - SA.body_mouthfeel
+- id: L.tx.cling
+  term: cling
+  domain: tx
+  subcategory: mechanical
+  definition: How the product adheres as a coating to food or a surface (leaf, spoon) instead of running
+    off; yield/viscosity percept judged on food, not in mouth.
+  ko: 코팅성(음식 표면)
+  example_foods:
+  - dressing on a leaf
+  - nappe on a spoon
+  source: dressing lexicons
+  note: Added in v1.1 from Layer B audit; distinct from mouthcoating (oral)
+  legacy_map:
+  - SA.cling
+- id: L.tx.springiness
+  term: springiness
+  domain: tx
+  subcategory: mechanical
+  definition: Recovery after pressing and releasing.
+  ko: 탄력(쫄깃)
+  example_foods:
+  - fish cake
+  - mochi
+  source: Szczesniak 1963
+- id: L.tx.cohesiveness
+  term: cohesiveness
+  domain: tx
+  subcategory: mechanical
+  definition: Tendency to hold together as a bolus while chewing.
+  ko: 응집성
+  example_foods:
+  - rice cake high
+  - biscuit low
+  source: Szczesniak 1963
+- id: L.tx.stickiness
+  term: stickiness
+  domain: tx
+  subcategory: mechanical
+  definition: Adhesion to teeth, palate and surfaces.
+  ko: 들러붙음
+  example_foods:
+  - caramel
+  - chapssaltteok
+  source: Szczesniak 1963
+  merged_synonyms:
+  - adhesiveness
+- id: L.tx.chewiness
+  term: chewiness
+  domain: tx
+  subcategory: mechanical
+  definition: Total effort to masticate to a swallowable state.
+  ko: 씹힘성
+  example_foods:
+  - bagel
+  - squid
+  source: Szczesniak 1963
+- id: L.tx.gumminess
+  term: gumminess
+  domain: tx
+  subcategory: mechanical
+  definition: Semi-solid resists breaking down, balling up gum-like; frequent over-stabilization context.
+  ko: 검성
+  example_foods:
+  - over-gummed sauce
+  source: Szczesniak 1963
+  legacy_map:
+  - SA.gumminess
+- id: L.tx.fracturability
+  term: fracturability
+  domain: tx
+  subcategory: mechanical
+  definition: Breaks or shatters at small deformation.
+  ko: 부서짐성
+  example_foods:
+  - cracker
+  - tempered chocolate
+  source: Szczesniak 1963
+  merged_synonyms:
+  - brittleness
+  - snap
+- id: L.tx.crispness
+  term: crispness
+  domain: tx
+  subcategory: mechanical
+  definition: Thin light structure shattering with a bright sound.
+  ko: 바삭함
+  example_foods:
+  - chips
+  - fried skin
+  source: texture-acoustics literature
+- id: L.tx.crunchiness
+  term: crunchiness
+  domain: tx
+  subcategory: mechanical
+  definition: Dense hard structure bitten through with a lower-pitched sound.
+  ko: 아삭/오독함
+  example_foods:
+  - raw carrot
+  - granola
+  source: texture-acoustics literature
+- id: L.tx.toughness
+  term: toughness
+  domain: tx
+  subcategory: mechanical
+  definition: Strong resistance to cutting and chewing (mostly defect context).
+  ko: 질김
+  example_foods:
+  - tough meat
+  source: Szczesniak 1963
+  note: 'Scale pole: tender'
+- id: L.tx.rubbery
+  term: rubbery
+  domain: tx
+  subcategory: mechanical
+  definition: Excessive elastic resistance, rubber-like (defect context).
+  ko: 고무 같음
+  example_foods:
+  - overcooked squid/egg white
+  source: common usage
+- id: L.tx.pourability
+  term: pourability
+  domain: tx
+  subcategory: mechanical
+  definition: Ease of flowing out of a container (low-shear flow percept).
+  ko: 흐름성
+  example_foods:
+  - pourable dressing
+  source: Spectrum
+  note: Often inverse of thickness
+  legacy_map:
+  - SA.pourability
+- id: L.tx.spreadability
+  term: spreadability
+  domain: tx
+  subcategory: mechanical
+  definition: Ease of scooping and spreading (yield-stress percept).
+  ko: 펴발림성
+  example_foods:
+  - mayonnaise
+  - spreads
+  source: Spectrum
+  merged_synonyms:
+  - scoopability
+  legacy_map:
+  - SA.scoopability
+- id: L.tx.melting
+  term: melting
+  domain: tx
+  subcategory: mechanical
+  definition: Rate and completeness of solid-to-liquid change at mouth temperature.
+  ko: 녹는 성질
+  example_foods:
+  - chocolate
+  - ice cream
+  source: Beckett 2008
+  note: Phase change
+  legacy_map:
+  - SA.meltdown_resistance
+- id: L.tx.dissolving
+  term: dissolving
+  domain: tx
+  subcategory: mechanical
+  definition: Dissolves away in saliva.
+  ko: 용해감
+  example_foods:
+  - cotton candy
+  - hard mint
+  source: literature
+- id: L.tx.denseness
+  term: denseness
+  domain: tx
+  subcategory: mechanical
+  definition: Compact, low-air structure.
+  ko: 치밀함
+  example_foods:
+  - pound cake
+  - muk
+  source: Spectrum
+  note: 'Opposite pole: airy (geometric)'
+- id: L.tx.smoothness
+  term: smoothness
+  domain: tx
+  subcategory: geometric
+  definition: Absence of perceivable particles or friction.
+  ko: 매끄러움
+  example_foods:
+  - silken pudding
+  source: Szczesniak 1963
+  legacy_map:
+  - SA.smoothness
+- id: L.tx.grittiness
+  term: grittiness
+  domain: tx
+  subcategory: geometric
+  definition: Perception of small hard particles (detectable from roughly 30 micron d90).
+  ko: 꺼끌거림
+  example_foods:
+  - pear stone cells
+  - under-milled sauce
+  source: Szczesniak 1963
+  merged_synonyms:
+  - graininess (fine band)
+  legacy_map:
+  - SA.grittiness
+- id: L.tx.lumpiness
+  term: lumpiness
+  domain: tx
+  subcategory: geometric
+  definition: Perception of large soft clumps.
+  ko: 덩어리짐
+  example_foods:
+  - lumpy mash
+  source: Spectrum
+- id: L.tx.fibrousness
+  term: fibrousness
+  domain: tx
+  subcategory: geometric
+  definition: Long tough fibers or skins that resist chewing.
+  ko: 섬유질감
+  example_foods:
+  - celery
+  - pepper skins
+  source: Szczesniak 1963
+  legacy_map:
+  - SA.fibrousness
+- id: L.tx.flakiness
+  term: flakiness
+  domain: tx
+  subcategory: geometric
+  definition: Thin layers separating along the grain.
+  ko: 결(플레이키)
+  example_foods:
+  - croissant
+  - cooked fish
+  source: Szczesniak 1963
+- id: L.tx.crumbliness
+  term: crumbliness
+  domain: tx
+  subcategory: geometric
+  definition: Breaks into small tender fragments.
+  ko: 포슬거림
+  example_foods:
+  - scone
+  - feta
+  source: Szczesniak 1963
+- id: L.tx.powdery
+  term: powdery
+  domain: tx
+  subcategory: geometric
+  definition: Dry fine-powder perception.
+  ko: 분질감
+  example_foods:
+  - starch dusting
+  - floury potato
+  source: Spectrum
+- id: L.tx.airy
+  term: airy
+  domain: tx
+  subcategory: geometric
+  definition: Light, open, many-celled structure.
+  ko: 폭신함(기공감)
+  example_foods:
+  - chiffon cake
+  - meringue
+  source: Szczesniak 1963
+  note: Cellular family
+- id: L.tx.foamy
+  term: foamy
+  domain: tx
+  subcategory: geometric
+  definition: Foam-structure perception.
+  ko: 거품감
+  example_foods:
+  - cappuccino foam
+  - mousse
+  source: Spectrum
+- id: L.tx.icy
+  term: icy
+  domain: tx
+  subcategory: geometric
+  definition: Coarse perception of ice crystals.
+  ko: 얼음 씹힘
+  example_foods:
+  - heat-shocked ice cream
+  source: ADSA
+  note: Crystalline family
+  legacy_map:
+  - SA.iciness
+- id: L.tx.stringy
+  term: stringy
+  domain: tx
+  subcategory: geometric
+  definition: Strings that stretch or catch.
+  ko: 실처럼 늘어남
+  example_foods:
+  - melted mozzarella
+  - natto
+  source: Spectrum
+- id: L.tx.pulpy
+  term: pulpy
+  domain: tx
+  subcategory: geometric
+  definition: Soft fruit-flesh particle perception.
+  ko: 과육감
+  example_foods:
+  - pulpy juice
+  - tomato salsa
+  source: Spectrum
+- id: L.tx.perceived_piece_size
+  term: perceived piece size
+  domain: tx
+  subcategory: geometric
+  definition: Size of identifiable pieces above the grit band; positioning attribute, not a defect axis.
+  ko: 건더기 크기
+  example_foods:
+  - chunky vs smooth salsa
+  source: Spectrum
+  note: JAR target comes from concept
+  legacy_map:
+  - SA.particle_size_perceived
+- id: L.tx.moistness
+  term: moistness
+  domain: tx
+  subcategory: surface
+  definition: Perception of water content and release.
+  ko: 촉촉함
+  example_foods:
+  - moist cake
+  source: Szczesniak 1963
+  note: 'Scale pole: dry'
+- id: L.tx.juiciness
+  term: juiciness
+  domain: tx
+  subcategory: surface
+  definition: Juice released on chewing.
+  ko: 즙 많음
+  example_foods:
+  - watermelon
+  - juicy meat
+  source: literature
+- id: L.tx.oiliness
+  term: oiliness
+  domain: tx
+  subcategory: surface
+  definition: Perception of flowing liquid fat.
+  ko: 기름짐(유동)
+  example_foods:
+  - oily dressing
+  source: Szczesniak 1963
+  legacy_map:
+  - SA.oiliness
+- id: L.tx.greasiness
+  term: greasiness
+  domain: tx
+  subcategory: surface
+  definition: Solid/semi-solid fat coating the oral surfaces; frequent defect context.
+  ko: 기름짐(도포)
+  example_foods:
+  - cooled fried-food film
+  source: Szczesniak 1963
+  legacy_map:
+  - SA.oiliness
+- id: L.tx.creaminess
+  term: creaminess
+  domain: tx
+  subcategory: surface
+  definition: 'Integrated percept: smoothness + viscous flow + fat lubrication + dairy aroma.'
+  ko: 크리미함
+  example_foods:
+  - cream soup
+  - ice cream
+  source: Frost & Janhoj 2007
+  note: Integrated attribute
+  legacy_map:
+  - SA.creaminess
+- id: L.tx.mouthcoating
+  term: mouthcoating
+  domain: tx
+  subcategory: surface
+  definition: Film left on oral surfaces while eating.
+  ko: 입안 코팅감
+  example_foods:
+  - rich fat sauce
+  source: Spectrum
+  note: Distinct from cling (on-food)
+- id: L.tx.mouthcoating_persistence
+  term: mouthcoating persistence
+  domain: tx
+  subcategory: surface
+  definition: How long the coating film remains after swallowing (physical residue mechanism).
+  ko: 코팅 잔류
+  example_foods:
+  - full-fat mayonnaise
+  source: Spectrum
+  note: Temporal attribute
+  legacy_map:
+  - SA.mouthcoating_persistence
+- id: L.tx.slippery
+  term: slippery
+  domain: tx
+  subcategory: surface
+  definition: Low-friction gliding feel.
+  ko: 미끄러움
+  example_foods:
+  - konjac
+  - nameko
+  source: Spectrum
+- id: L.tx.waxy
+  term: waxy
+  domain: tx
+  subcategory: surface
+  definition: Wax-like film feel.
+  ko: 밀랍감
+  example_foods:
+  - some coating fats
+  - waxy potato
+  source: Spectrum
+- id: L.tx.cold_perceived
+  term: cold (perceived)
+  domain: tx
+  subcategory: thermal
+  definition: Somatosensory cold of the food as served; mechanism distinct from menthol cooling.
+  ko: 차가움(온도)
+  example_foods:
+  - ice cream
+  - naengguk
+  source: somatosensory literature
+  note: Added via Layer B audit (thermal gap)
+  legacy_map:
+  - SA.coldness
+- id: L.tx.hot_perceived
+  term: hot (perceived)
+  domain: tx
+  subcategory: thermal
+  definition: Somatosensory heat of the food as served; distinct from capsaicin burn.
+  ko: 뜨거움(온도)
+  example_foods:
+  - hot soup
+  source: somatosensory literature
+  note: Added via Layer B audit

@@ -1,0 +1,114 @@
+# [layerC2 - spec v2 migration 2026-08-18] SA.* targets rewritten to L.* per
+# remi_ontology_spec_v2.md §6.3; v1 lesson ids renamed L.<x> -> LESSON.<x>
+# (namespace collision with Layer L). Source file frozen per Invariant 3.
+# =============================================================================
+# LAYER C - EXTENSION: USER INGREDIENT PACK #1   |  v0.1 seed
+# -----------------------------------------------------------------------------
+# Test: absorb 6 user-supplied ingredients into the existing 2-tier schema.
+# Result: 5/6 fit existing tags cleanly; 1 (rice protein) revealed a needed
+#   tag generalization (FT.milk_protein -> FT.protein with source descriptor).
+# Extends layerC_ingredient_function.yaml + reformulation/flavor packs.
+# =============================================================================
+
+# ---- Schema refinement surfaced by this pack ----
+function_tags_ext:
+  - id: FT.protein
+    label: "Protein (functional)"
+    definition: "Amphiphilic biopolymer: emulsification, foam stabilization, water-binding, gelation/body."
+    descriptor_relevance: [charge, solubility, source]
+    generalizes: FT.milk_protein     # RECONCILED v0.2: milk_protein == FT.protein(source: milk); skim_milk_powder now dual-tagged
+    effects:
+      - { to: P.overrun,       direction: increase, magnitude: medium, scoped_to_structure_class: SC.frozen.ice_cream,   source_type: prior, confidence: medium, note: "foam/air-cell stabilization" }
+      - { to: P.mix_viscosity, direction: increase, magnitude: medium, scoped_to_structure_class: SC.frozen.ice_cream,   source_type: prior, confidence: medium }
+      - { to: P.creaming_index, direction: decrease, magnitude: weak,  scoped_to_structure_class: SC.emulsion.ow.sauce,  source_type: prior, confidence: low, note: "partial emulsification" }
+
+ingredients_ext:
+
+  # 1) 농축 쌀 엑기스 — clean-label syrup (glucose/maltose/maltotriose)
+  - id: ING.rice_syrup
+    label: "Concentrated rice extract / rice syrup"
+    function_tags: [FT.sweetener, FT.bulking_agent, FT.flavorant]
+    descriptors: { composition: "glucose/maltose/maltotriose", sweetness: "mild (< sucrose)", MW: "mixed low-moderate" }
+    overrides:
+      - { to: P.freezing_point_depression, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: medium, source_type: prior, confidence: medium, note: "mixed saccharides -> moderate FPD (between dextrose and glucose syrup)" }
+    flavor_profile:
+      - { to: L.ar.cooked_rice, direction: increase, intensity: weak, scoped_to_structure_class: any, source_type: prior, confidence: medium }
+    note: "clean-label partial sucrose replacement (bulk + mild sweet + some FPD)"
+    substitutes: [ING.glucose_syrup, ING.sucrose]
+
+  # 2) 현미추출분말 — natural flavor/bulking/carrier powder
+  - id: ING.brown_rice_extract_powder
+    label: "Brown rice extract powder"
+    function_tags: [FT.flavorant, FT.bulking_agent]
+    descriptors: { actives: "cereal/roasted volatiles + fiber/solids", carrier: true }
+    flavor_profile:
+      - { to: L.ar.nutty, direction: increase, intensity: medium, scoped_to_structure_class: any, source_type: prior, confidence: medium }
+      - { to: L.ar.cooked_rice,   direction: increase, intensity: medium, scoped_to_structure_class: any, source_type: prior, confidence: medium }
+    note: "natural flavor + solids; also used as clean-label carrier/anti-caking"
+    substitutes: []
+
+  # 3) 쌀단백질 — plant protein (SCHEMA STRESS -> FT.protein)
+  - id: ING.rice_protein
+    label: "Rice protein"
+    function_tags: [FT.protein]
+    descriptors: { source: plant, charge: variable, solubility: "low-moderate" }
+    flavor_profile:
+      - { to: L.ar.beany_raw_cereal, direction: increase, intensity: weak, scoped_to_structure_class: any, source_type: prior, confidence: medium, note: "off-note risk" }
+    limitations:
+      - { type: quality, statement: "lower solubility than dairy protein; beany/cereal off-note + grittiness risk at high level" }
+    note: "revealed FT.protein generalization (milk_protein is the source:milk instance)"
+    substitutes: [ING.skim_milk_powder]
+
+  # 4) 자당지방산에스테르 — tunable-HLB emulsifier
+  - id: ING.sucrose_ester
+    label: "Sucrose fatty acid ester (SE / E473)"
+    function_tags: [FT.emulsifier]
+    descriptors: { HLB: "1-16 tunable (monoester 10-16 -> O/W; diester 7-10; triester 3-7 -> W/O)", solubility: "HLB-dependent" }
+    overrides:
+      - { to: P.fat_destabilization, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: medium, source_type: prior, confidence: medium, note: "like other emulsifiers - promotes fat destabilization (context inversion)" }
+      - { to: P.overrun,            scoped_to_structure_class: SC.frozen.ice_cream, direction: increase, magnitude: medium, source_type: prior, confidence: medium, note: "stabilizes air in ice cream" }
+    note: "HLB choice sets O/W vs W/O; wide applicability (beverage/dairy/ice cream)"
+    substitutes: [ING.mono_diglycerides, ING.polysorbate_80, ING.lecithin]
+
+  # 5) 에리스리톨 — polyol (instance of sugar_alcohol) with cooling
+  - id: ING.erythritol
+    label: "Erythritol"
+    function_tags: [FT.sweetener, FT.fpd_agent, FT.bulking_agent]
+    descriptors: { MW: 122, sweetness: "60-70%", calorie: "~0", cooling_effect: true }
+    specializes: ING.sugar_alcohol
+    overrides:
+      - { to: P.freezing_point_depression, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: strong, source_type: prior, confidence: high }
+    limitations:
+      - { type: quality, statement: "endothermic COOLING effect (unpleasant in an already-cold dessert); crystallization/grittiness at high level", scoped_to_structure_class: SC.frozen.ice_cream }
+    substitutes: [ING.sugar_alcohol, ING.allulose]
+
+  # 6) 알룰로스 — rare sugar, near-complete SUGAR MIMIC
+  - id: ING.allulose
+    label: "Allulose (D-psicose)"
+    function_tags: [FT.sweetener, FT.bulking_agent, FT.fpd_agent]
+    descriptors: { sweetness: "~70%", calorie: "0.4 kcal/g", browning: true, cooling_effect: false }
+    labeling_kr: { sugars_dangryu: excluded, total_carbohydrate: included, kcal_per_g: "0~0.4", note: "한국 표시기준상 당류(단당류+이당류)에는 미산입, 총탄수화물에는 산입. 사용자 확인 2026-07-28. 저당 클레임 계산에서 제외할 것" }
+    overrides:
+      - { to: P.freezing_point_depression, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: strong, source_type: prior, confidence: high, note: "~1.9x sucrose FPD -> softer/scoopable; too soft at high dose" }
+    note: >
+      NEAR-COMPLETE SUGAR MIMIC: fills all THREE sucrose roles (sweetness + bulk +
+      FPD) in one ingredient, plus browning and clean sweetness with no cooling.
+      Contrast with high_intensity_sweetener (sweetness only) - the tag combination
+      captures WHY allulose is prized for sugar reduction.
+    limitations:
+      - { type: process, statement: "strong FPD -> product too soft at high dose; browns (Maillard)" }
+    substitutes: [ING.sucrose, ING.erythritol]
+
+# ---- New flavor notes referenced (-> Layer B manifest) ----
+flavor_notes_introduced:
+  - { id: L.ar.cooked_rice,   modality: flavor, category: cereal_grain, default_goal: context }
+  - { id: L.ar.nutty, modality: flavor, category: roasted_nutty, default_goal: target }
+  - { id: L.ar.beany_raw_cereal,  modality: flavor, category: cereal_grain, default_goal: minimize, note: "typical plant-protein off-note" }
+
+provenance:
+  method: "absorb user ingredients into 2-tier scoped schema; descriptor vectors"
+  supporting_evidence:
+    - "Allulose: 0.7x sweetness, ~1.9x FPD of sucrose, browns, ~0.4 kcal/g, clean sweetness, no cooling, similar meltdown"
+    - "Erythritol: ~60-70% sweetness, ~0 cal, endothermic cooling, strong FPD control, crystallization risk"
+    - "Sucrose esters: HLB 1-16 (monoester 10-16 O/W ... triester 3-7 W/O); stabilize air in ice cream"
+  status: "seed v0.2 - prior edges; FT.protein/milk_protein reconciliation DONE (skim_milk_powder dual-tagged FT.protein+FT.milk_protein with source:milk; FT.milk_protein specializes FT.protein)"

@@ -1,0 +1,32 @@
+# [layerC2 - spec v2 migration 2026-08-18] SA.* targets rewritten to L.* per
+# remi_ontology_spec_v2.md §6.3; v1 lesson ids renamed L.<x> -> LESSON.<x>
+# (namespace collision with Layer L). Source file frozen per Invariant 3.
+# =============================================================================
+# LAYER C - EXTENSION: ICE-CREAM EMULSIFIER OPTIONS   |  v0.1
+# Small-molecule / natural emulsifiers for ice cream. In ice cream, emulsifiers
+# DESTABILIZE fat (partial coalescence) -> dry, stiff, creamy, slow-melt (context
+# inversion, already in ontology). Low-HLB drives destabilization most.
+# =============================================================================
+ingredients_ext:
+  - id: ING.sucrose_ester_s1170
+    label: "Sucrose fatty acid ester S-1170 (HLB 11)"
+    function_tags: [FT.emulsifier]
+    origin: synthetic
+    allergen: none
+    vegan_ok: true
+    descriptors: { HLB: 11, solubility: "intermediate", grade: "S-1170", note: "mid-HLB -> between emulsification and fat structuring" }
+    substitutes: [ING.sucrose_ester_s1670, ING.dmg95]
+
+  - id: ING.soyacell
+    label: "Soyacell (soy-derived amphiphilic partial emulsifier)"
+    function_tags: [FT.emulsifier]
+    origin: plant
+    allergen: soy
+    vegan_ok: true
+    descriptors: { type: "amphiphilic (hydrophilic + lipophilic groups)", note: "natural/clean-label co-emulsifier; aids initial emulsification + some fat structuring" }
+    substitutes: [ING.dmg95, ING.mono_diglycerides]
+    overrides:
+      - { to: P.fat_destabilization, scoped_to_structure_class: SC.frozen.ice_cream, direction: increase, magnitude: weak, source_type: prior, confidence: low, note: "partial emulsifier -> mild fat structuring" }
+
+# low-HLB DMG95 is the strongest fat destabilizer in ice cream (override to strong)
+ingredient_overrides_note: "DMG95(HLB4) 저HLB -> ice cream fat_destabilization 강; S-1670(16)/S-1170(11) 중~고HLB -> 유화 위주"

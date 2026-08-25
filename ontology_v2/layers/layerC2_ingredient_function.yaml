@@ -1,0 +1,209 @@
+# [layerC2 - spec v2 migration 2026-08-18] SA.* targets rewritten to L.* per
+# remi_ontology_spec_v2.md §6.3; v1 lesson ids renamed L.<x> -> LESSON.<x>
+# (namespace collision with Layer L). Source file frozen per Invariant 3.
+# =============================================================================
+# LAYER C - INGREDIENT FUNCTION ONTOLOGY   |  v0.1 seed
+# -----------------------------------------------------------------------------
+# JOB: the EDGES that connect ingredients to Layer A physical params and
+#   Layer B sensory attributes. An effect is CONDITIONAL, never scalar.
+#
+# LOCKED DECISIONS:
+#   - 2-TIER: generic effects live on FUNCTION TAGS (prior backbone + enables
+#     new-ingredient generalization via descriptors); specific ingredients add
+#     OVERRIDES only where they deviate.
+#   - Every effect edge carries scoped_to_structure_class (MANDATORY). There is
+#     NO global effect. This resolves CONTEXT INVERSION (same tag, opposite
+#     effect in different structures - e.g. emulsifier stabilizes droplets in
+#     sauce/beverage but destabilizes fat in ice cream).
+#   - Effect fields: to, direction, magnitude, scoped_to_structure_class,
+#     concentration_window, dose_response_shape (monotonic|threshold|saturating|
+#     non_monotonic), conditions, source_type (prior|learned), confidence.
+#   - Ingredients are DESCRIPTOR VECTORS (HLB, MW, charge, solubility, gel/melt
+#     temp) so the model can extrapolate to new ingredients.
+# =============================================================================
+
+descriptor_schema:                # starter set for the ingredient feature vector
+  - { key: HLB,          desc: "hydrophilic-lipophilic balance 0-20 (emulsifier behavior)" }
+  - { key: MW,           desc: "molecular weight (thickening/gelling power)" }
+  - { key: charge,       desc: "net charge / pI (electrostatic stabilization, protein interaction)" }
+  - { key: solubility,   desc: "aqueous/oil solubility (phase partition)" }
+  - { key: gel_melt_temp, desc: "gelation / melting temperature (structure at temp)" }
+
+# =============================================================================
+# TIER 1 - FUNCTION TAGS (generic, scoped effects = the prior backbone)
+# =============================================================================
+function_tags:
+
+  - id: FT.emulsifier
+    label: "Emulsifier"
+    definition: "Interfacially active; adsorbs at oil-water interface."
+    descriptor_relevance: [HLB]
+    effects:
+      - { to: P.creaming_index,     direction: decrease, magnitude: strong, scoped_to_structure_class: SC.emulsion.ow.sauce,    concentration_window: "0.1-1.0%", dose_response_shape: saturating, source_type: prior, confidence: high }
+      - { to: P.droplet_size_d32,   direction: decrease, magnitude: medium, scoped_to_structure_class: SC.emulsion.ow.sauce,    dose_response_shape: saturating, source_type: prior, confidence: medium }
+      - { to: P.creaming_index,     direction: decrease, magnitude: strong, scoped_to_structure_class: SC.emulsion.ow.beverage, concentration_window: "10-100 ppm", dose_response_shape: saturating, source_type: prior, confidence: medium }
+      # --- CONTEXT INVERSION: opposite sign in ice cream ---
+      - { to: P.fat_destabilization, direction: increase, magnitude: strong, scoped_to_structure_class: SC.frozen.ice_cream,    concentration_window: "0.2-0.3% total", dose_response_shape: non_monotonic, conditions: "aging/ageing + shear", source_type: prior, confidence: high, note: "protein displacement from fat globule -> partial coalescence" }
+      - { to: L.tx.creaminess,        direction: increase, magnitude: medium, scoped_to_structure_class: SC.frozen.ice_cream,    source_type: prior, confidence: medium }
+
+  - id: FT.thickener
+    label: "Thickener / hydrocolloid"
+    definition: "Raises continuous(aqueous)-phase viscosity; non-interfacial. VISCOSITY/thickness ONLY - time-stability effects moved to FT.stabilizer (see layerC_ext_stabilizer.yaml, merged v0.2)."
+    descriptor_relevance: [MW, solubility]
+    effects:
+      - { to: P.apparent_viscosity, direction: increase, magnitude: strong, scoped_to_structure_class: SC.emulsion.ow.sauce,    concentration_window: "0.1-0.5%", dose_response_shape: saturating, source_type: prior, confidence: high }
+      - { to: P.mix_viscosity,      direction: increase, magnitude: medium, scoped_to_structure_class: SC.frozen.ice_cream,    source_type: prior, confidence: medium, note: "body/mix viscosity only; recrystallization control is FT.stabilizer" }
+    # RECONCILED v0.2: stabilization effects (creaming_index@sauce, ring_formation@beverage,
+    # ice_recrystallization@ice_cream) retired here and now owned by FT.stabilizer.
+
+  - id: FT.sweetener
+    label: "Sweetener / sugar"
+    definition: "Delivers sweetness; sugars also add solids/body and depress freezing point."
+    descriptor_relevance: [MW, solubility]
+    effects:
+      - { to: L.ta.sweet,             direction: increase, magnitude: strong, scoped_to_structure_class: any, dose_response_shape: saturating, source_type: prior, confidence: high }
+      - { to: P.apparent_viscosity,     direction: increase, magnitude: weak,   scoped_to_structure_class: SC.emulsion.ow.beverage, source_type: prior, confidence: medium, note: "bulk/body; low-sugar -> watery" }
+      - { to: P.freezing_point_depression, direction: increase, magnitude: strong, scoped_to_structure_class: SC.frozen.ice_cream, conditions: "depends on molar concentration -> low MW depresses more", source_type: prior, confidence: high, note: "TRIPLE role: FPD + body + sweetness" }
+
+  - id: FT.weighting_agent
+    label: "Weighting agent"
+    definition: "Raises dispersed oil-droplet density to match the aqueous phase."
+    descriptor_relevance: [solubility]
+    effects:
+      - { to: P.density_difference, direction: decrease, magnitude: strong, scoped_to_structure_class: SC.emulsion.ow.beverage, source_type: prior, confidence: high }
+      - { to: P.ring_formation,     direction: decrease, magnitude: strong, scoped_to_structure_class: SC.emulsion.ow.beverage, source_type: prior, confidence: high }
+
+  - id: FT.acidulant
+    label: "Acidulant"
+    definition: "Lowers pH / raises titratable acidity."
+    effects:
+      - { to: P.pH,                direction: decrease, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+      - { to: P.titratable_acidity, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+
+# =============================================================================
+# TIER 2 - INGREDIENTS (descriptor vectors + tags + OVERRIDES only)
+# =============================================================================
+ingredients:
+
+  - id: ING.mono_diglycerides
+    label: "Mono- and diglycerides (MDG)"
+    external_ref: { foodon: pending_lookup, usda_fdc: "n/a (additive)" }   # URI mapping = verification-pending (do not assert unverified IDs)
+    function_tags: [FT.emulsifier]
+    descriptors: { HLB: "3-6", solubility: lipophilic }
+    origin: plant_or_animal            # source-dependent (specify per supplier)
+    allergen: none
+    vegan_ok: conditional
+    limitations: []
+    substitutes: [ING.polysorbate_80, ING.lecithin]
+    overrides:
+      - { to: P.fat_destabilization, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: medium, source_type: prior, confidence: high, note: "weaker fat destabilizer than polysorbate 80" }
+
+  - id: ING.polysorbate_80
+    label: "Polysorbate 80"
+    external_ref: { foodon: pending_lookup, usda_fdc: "n/a (additive)" }
+    function_tags: [FT.emulsifier]
+    descriptors: { HLB: "15", solubility: hydrophilic }
+    origin: synthetic
+    allergen: none
+    vegan_ok: true
+    limitations:
+      - { type: regulatory_limit, statement: "use level regulated; region-specific max" }
+    substitutes: [ING.mono_diglycerides]
+    overrides:
+      - { to: P.fat_destabilization, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: strong, source_type: prior, confidence: high, note: "displaces MORE protein -> stronger destabilization; best in blend with MDG" }
+
+  - id: ING.egg_yolk
+    label: "Egg yolk"
+    external_ref: { foodon: pending_lookup, usda_fdc: pending_lookup }   # legacy SR ~01125 (egg yolk raw) - verify FDC ID before asserting
+    function_tags: [FT.emulsifier]
+    descriptors: { HLB: "~10 (lecithin+lipoprotein)", solubility: amphiphilic }
+    origin: animal
+    allergen: egg
+    vegan_ok: false
+    limitations: []
+    substitutes: [ING.lecithin]
+    overrides:
+      - { to: P.droplet_size_d32, scoped_to_structure_class: SC.emulsion.ow.sauce, magnitude: strong, source_type: prior, confidence: high, note: "classic mayonnaise O/W emulsifier" }
+
+  - id: ING.xanthan_gum
+    label: "Xanthan gum"
+    external_ref: { foodon: pending_lookup, usda_fdc: "n/a (additive)" }
+    function_tags: [FT.thickener, FT.stabilizer]   # dual role (merged v0.2)
+    descriptors: { MW: "high (~2-50 MDa)", charge: anionic, solubility: hydrophilic }
+    origin: microbial
+    allergen: none
+    vegan_ok: true
+    limitations:
+      - { type: ingredient_upper_limit, statement: "> ~0.5% -> slimy/stringy ('long') mouthfeel", scoped_to_structure_class: SC.emulsion.ow.sauce }
+    substitutes: [ING.guar_gum, ING.locust_bean_gum]
+
+  - id: ING.guar_gum
+    label: "Guar gum"
+    external_ref: { foodon: pending_lookup, usda_fdc: "n/a (additive)" }
+    function_tags: [FT.thickener, FT.stabilizer]   # dual role (merged v0.2)
+    descriptors: { MW: "high", charge: nonionic, structure: "galactomannan M/G ~1.5" }
+    origin: plant
+    allergen: none
+    vegan_ok: true
+    substitutes: [ING.xanthan_gum, ING.locust_bean_gum]
+
+  - id: ING.locust_bean_gum
+    label: "Locust bean gum (LBG)"
+    external_ref: { foodon: "to map", usda_fdc: "n/a (additive)" }
+    function_tags: [FT.thickener, FT.stabilizer]   # dual role (merged v0.2)
+    descriptors: { MW: "high", charge: nonionic, structure: "galactomannan M/G ~3.5" }
+    origin: plant
+    allergen: none
+    vegan_ok: true
+    substitutes: [ING.guar_gum]
+
+  - id: ING.sucrose
+    label: "Sucrose"
+    external_ref: { foodon: pending_lookup, usda_fdc: pending_lookup }   # legacy SR ~19335 (sugars, granulated) - verify FDC ID before asserting
+    function_tags: [FT.sweetener]
+    descriptors: { MW: "342", solubility: hydrophilic }
+    origin: plant
+    allergen: none
+    vegan_ok: true
+    substitutes: [ING.glucose_syrup, ING.high_intensity_sweetener]
+    overrides:
+      - { to: P.freezing_point_depression, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: strong, source_type: prior, confidence: high, note: "low-MW -> strong FPD; replacing with high-intensity sweetener LOSES FPD + body -> harder, icier, thin" }
+
+# =============================================================================
+# INTERACTIONS (ingredient<->ingredient synergy/antagonism; scoped)
+# =============================================================================
+interactions:
+  - id: IX.xanthan_guar
+    between: [ING.xanthan_gum, ING.guar_gum]
+    type: synergy
+    on_target: P.apparent_viscosity
+    scoped_to_structure_class: [SC.emulsion.ow.sauce, SC.emulsion.ow.beverage]
+    effect: "supra-additive viscosity -> hit target at lower total gum (mitigates xanthan sliminess limit)"
+    source_type: prior
+    confidence: high
+
+  - id: IX.xanthan_lbg
+    between: [ING.xanthan_gum, ING.locust_bean_gum]
+    type: synergy
+    on_target: gelation
+    scoped_to_structure_class: [SC.emulsion.ow.sauce]
+    effect: "stronger than xanthan+guar (LBG M/G ~3.5, junction-zone 'lock-and-key' + H-bonds) -> can form a gel"
+    source_type: prior
+    confidence: high
+
+  - id: IX.ps80_mdg
+    between: [ING.polysorbate_80, ING.mono_diglycerides]
+    type: synergy
+    on_target: P.fat_destabilization
+    scoped_to_structure_class: [SC.frozen.ice_cream]
+    effect: "20% PS80 + 80% MDG at 0.2-0.3% total outperforms either alone (protein displacement)"
+    source_type: prior
+    confidence: high
+
+provenance:
+  method: "2-tier (function-tag prior + ingredient override), scoped effects, descriptor vectors"
+  supporting_evidence:
+    - "HLB: MDG 3-6, lecithin 4-7, polysorbate 80 = 15 (0-20 scale)"
+    - "Ice-cream emulsifiers displace protein from fat globules -> controlled destabilization; PS80 > MDG; 20:80 blend at 0.2-0.3%"
+    - "Xanthan-galactomannan synergy: LBG (M/G ~3.5) > guar (M/G ~1.5); junction-zone + H-bond mechanism"
+  status: "seed v0.2 - MERGED additive refinements into base: FT.thickener stabilization effects retired to FT.stabilizer; origin/allergen/vegan_ok folded onto base ingredients; xanthan/guar/LBG dual-tagged FT.stabilizer; FoodOn/USDA external_ref stubs added. All edges source_type=prior; promote to 'learned' as user experiments accrue; pending domain-expert review of seed numbers."

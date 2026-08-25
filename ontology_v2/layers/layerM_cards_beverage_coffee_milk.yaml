@@ -1,0 +1,139 @@
+meta:
+  layer: M
+  version: '2.0'
+  date: '2026-08-18'
+  profile: Oil-in-water emulsion beverage
+  product: coffee milk (product-level activation)
+  spec: remi_ontology_spec_v2.md §2.3, §5.7
+  note: PRODUCT-LEVEL ACTIVATION FILE. Spec §2.3 defines activation context as profile identity only (SC x APP x
+    ST) - there is no product dimension, so this file layers product cards over the profile base. See migration
+    log F7.
+  counts:
+    cards: 11
+    core: 7
+    monitored: 4
+    sample_aged: 2
+measurement_cards:
+- term_id: L.ta.sweet
+  active_in: &id001
+  - SC.emulsion.ow|APP.beverage
+  tier: core
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+  jar_target: match benchmark
+  evaluation_note: 'Serve at drinking temperature: cold suppresses sweetness (R-2 cold->sweet).'
+- term_id: L.ta.sour
+  active_in: *id001
+  tier: core
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+  jar_target: match benchmark
+- term_id: L.tx.body
+  active_in: *id001
+  tier: core
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: medium
+  evidence_required: sample
+  jar_target: match benchmark
+  note: Term body (absorbs v1 body_mouthfeel). Sugar reduction -> watery defect.
+- term_id: L.ap.cloudy
+  active_in: *id001
+  tier: core
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+  note: Identity attribute for cloudy beverages; visual, easily askable.
+- term_id: L.ta.aftertaste_length
+  active_in: *id001
+  tier: monitored
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: low
+  evidence_required: sample
+- term_id: L.ap.color_intensity
+  active_in: *id001
+  tier: monitored
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+  note: Represents v1 SA.color (match-to-target). vividness/uniformity cards available if needed.
+- term_id: L.ar.rancid_oxidized
+  active_in: *id001
+  tier: monitored
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: minimize
+  reliability: low
+  evidence_required: sample_aged
+  jar_target: none detectable
+  note: Representative defect-watch card for v1 SA.off_flavor (decomposed into off_note terms); oxidation is the
+    beverage-relevant failure.
+- term_id: L.ap.oil_ring
+  active_in: *id001
+  tier: monitored
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: minimize
+  reliability: high
+  evidence_required: sample_aged
+  jar_target: no visible ring
+  evaluation_note: Aged pass/fail check on the set-aside bottle (§5.8).
+- term_id: L.ta.bitter
+  active_in:
+  - SC.emulsion.ow|APP.beverage
+  tier: core
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: target
+  reliability: low
+  evidence_required: sample
+  jar_target: as bitter as the benchmark
+  evaluation_note: 'Product-level activation: bitterness is a defect watch in the base beverage profile but a POSITIONING
+    axis in coffee milk. Detection thresholds vary widely between people - use duplicates.'
+  note: 'Activated for product: coffee milk.'
+- term_id: L.ar.coffee
+  active_in:
+  - SC.emulsion.ow|APP.beverage
+  tier: core
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: target
+  reliability: medium
+  evidence_required: sample
+  slot: flavor_user_slot_1
+  note: 'User-selected flavor slot for product: coffee milk.'
+- term_id: L.ar.milky
+  active_in:
+  - SC.emulsion.ow|APP.beverage
+  tier: core
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: medium
+  evidence_required: sample
+  slot: flavor_user_slot_2
+  note: 'User-selected flavor slot for product: coffee milk.'

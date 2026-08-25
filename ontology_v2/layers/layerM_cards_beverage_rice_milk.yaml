@@ -1,0 +1,164 @@
+meta:
+  layer: M
+  version: '2.0'
+  date: '2026-08-25'
+  profile: Oil-in-water emulsion beverage
+  product: rice milk / plant beverage (product-level activation)
+  spec: remi_ontology_spec_v2.md §2.3, §5.7
+  note: >-
+    PRODUCT-LEVEL ACTIVATION FILE, same pattern as layerM_cards_beverage_coffee_milk.yaml
+    (migration finding F7). The profile base card set (layerM_cards_beverage.yaml) activates
+    sweet / sour / body / cloudy, which is the generic O/W beverage read. The rice-milk track
+    was actually evaluated on a different six axes, documented in HANDOFF_remi_project.md §3.1
+    and used verbatim as the column headers of RM_warmloop_260720_fixed.xlsx. Without this
+    file the recorded panel data cannot enter the model at all - only 2 of its 6 axes exist
+    in the base profile.
+  status: DRAFT - authored 2026-08-25 from existing panel data, needs domain review
+  review_items:
+    - >-
+      L.tx.oiliness is the mapping chosen for the panel axis "oil flavor". Layer L has no
+      generic vegetable-oil AROMA term (nearest neighbours: L.ta.oleogustus - fatty-acid
+      taste, too technical; L.ar.rancid_oxidized - already used by the separate oxidation
+      axis). Oiliness is a texture percept, and the panel axis is named "flavor". For an
+      untrained benchmark-relative score the two are hard to separate, so this is defensible,
+      but confirm before treating the coefficient as an aroma effect. The alternative is to
+      append a new L.ar term, which is a deliberate Layer L change.
+    - >-
+      L.ar.rancid_oxidized is set evidence_required=sample, not sample_aged. The base profile
+      quarantines it as sample_aged per spec §5.8, but the recorded panel scored it on FRESH
+      samples. On fresh product the score mostly reads raw-material and oil-type quality
+      rather than developed oxidation, which is still a genuine composition response. Do not
+      mix these scores with aged-storage rancidity readings in one response vector.
+    - >-
+      All six are tier=core, which sits at the top of the 5-20 experiment guidance in §5.7.
+      With n=20 recorded samples this is acceptable; if a later batch is smaller, demote
+      rice flavour and oxidation to monitored first.
+  counts:
+    cards: 6
+    core: 6
+    monitored: 0
+    sample_aged: 0
+
+measurement_cards:
+
+- term_id: L.ta.sweet
+  active_in: ['SC.emulsion.ow|APP.beverage']
+  tier: core
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+  anchors:
+    '-3': markedly less sweet than the benchmark
+    '0': indistinguishable from the benchmark
+    '+3': markedly sweeter than the benchmark
+  evaluation_note: >-
+    Serve at drinking temperature. Cold suppresses sweetness (R-2 cold -> sweet), so a
+    sample tasted colder than the benchmark scores low for a reason that is not composition.
+  legacy_column: sens_sweet
+
+- term_id: L.ar.cooked_rice
+  active_in: ['SC.emulsion.ow|APP.beverage']
+  tier: core
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: target
+  reliability: medium
+  evidence_required: sample
+  anchors:
+    '-3': rice character much weaker than the benchmark
+    '0': indistinguishable from the benchmark
+    '+3': rice character much stronger than the benchmark
+  evaluation_note: >-
+    This is the product's identity axis, not a defect axis - a target, not a maximise.
+    Retronasal; assess after swallowing, not from the headspace.
+  pitfalls:
+    - Sweetness raises perceived rice character; score the two in separate passes.
+  legacy_column: sens_rice flavor
+
+- term_id: L.tx.oiliness
+  active_in: ['SC.emulsion.ow|APP.beverage']
+  tier: core
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: decrease
+  reliability: medium
+  evidence_required: sample
+  mapping_status: draft_confirm
+  anchors:
+    '-3': much less oily than the benchmark
+    '0': indistinguishable from the benchmark
+    '+3': much oilier than the benchmark
+  evaluation_note: >-
+    The fresh-oil read, kept separate from L.ar.rancid_oxidized. Score the coating left on
+    the palate rather than the aroma, since that is what this L term defines.
+  pitfalls:
+    - >-
+      A broken emulsion reads as high oiliness for a physical reason (free oil), not a
+      dose reason. Record creaming/separation alongside so the two can be told apart.
+  legacy_column: sens_oil flavor
+
+- term_id: L.ar.rancid_oxidized
+  active_in: ['SC.emulsion.ow|APP.beverage']
+  tier: core
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: decrease
+  reliability: low
+  evidence_required: sample
+  anchors:
+    '-3': markedly cleaner than the benchmark
+    '0': indistinguishable from the benchmark
+    '+3': clearly rancid / cardboard / painty against the benchmark
+  evaluation_note: >-
+    Scored on FRESH samples in this track - see review_items. Reliability is low because
+    untrained panels detect oxidation late and inconsistently; treat a small difference as
+    noise. Blind duplicates are required if this axis drives a decision (§5.4).
+  pitfalls:
+    - Sunflower oil is oxidation-prone; an oil-type change confounds this axis with dose.
+  legacy_column: sens_oxidated oil
+
+- term_id: L.tx.body
+  active_in: ['SC.emulsion.ow|APP.beverage']
+  tier: core
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: increase
+  reliability: medium
+  evidence_required: sample
+  anchors:
+    '-3': much thinner / more watery than the benchmark
+    '0': indistinguishable from the benchmark
+    '+3': much fuller-bodied than the benchmark
+  evaluation_note: >-
+    The panel column is "mouthfeel"; Layer L folds SA.body_mouthfeel into L.tx.body
+    (see _deprecated_aliases.yaml), so this is a direct legacy mapping, not a judgement call.
+  legacy_column: sens_mouthfeel
+
+- term_id: L.tx.creaminess
+  active_in: ['SC.emulsion.ow|APP.beverage']
+  tier: core
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: increase
+  reliability: medium
+  evidence_required: sample
+  anchors:
+    '-3': much less creamy than the benchmark
+    '0': indistinguishable from the benchmark
+    '+3': much creamier than the benchmark
+  evaluation_note: >-
+    Distinct from body: body is thickness, creaminess is the smooth fat-like quality.
+    Panels conflate them, so ask body first and creaminess second, in that order.
+  pitfalls:
+    - >-
+      Gum-built thickness reads as body but not as creaminess; if both move together the
+      panel is probably answering one question twice.
+  legacy_column: sens_creaminess

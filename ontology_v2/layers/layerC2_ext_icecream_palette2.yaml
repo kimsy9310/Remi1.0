@@ -1,0 +1,100 @@
+# [layerC2 - spec v2 migration 2026-08-18] SA.* targets rewritten to L.* per
+# remi_ontology_spec_v2.md §6.3; v1 lesson ids renamed L.<x> -> LESSON.<x>
+# (namespace collision with Layer L). Source file frozen per Invariant 3.
+# =============================================================================
+# LAYER C - EXTENSION: ICE-CREAM PALETTE (신규 재료 등록)   |  v0.1
+# =============================================================================
+function_tags_ext:
+  - id: FT.preservative
+    label: "Preservative (antimicrobial)"
+    definition: "Inhibits microbial growth; microbial stability (not physical). Effects deferred."
+    descriptor_relevance: []
+
+ingredients_ext:
+  # ---- 유지 ----
+  - id: ING.prima_creamer
+    label: "Prima creamer (비건, 분말유지+시럽 블렌드)"
+    function_tags: [FT.fat_source, FT.emulsifier]
+    origin: plant
+    allergen: none
+    vegan_ok: true
+    descriptors: { note: "비건 크리머(식물성 경화유+글루코스시럽+유화제); 당류 소량 기여 가능" }
+    substitutes: [ING.vegan_creamer]
+  - id: ING.refined_coconut_oil
+    label: "Refined coconut oil (정제야자유=코코넛)"
+    function_tags: [FT.fat_source]
+    origin: plant
+    allergen: none
+    vegan_ok: true
+    descriptors: { source: plant, oxidative_stability: high, note: "코코넛 정제유(무향/정제); 포화지방 높아 산화안정·구조 유리" }
+    substitutes: [ING.coconut_oil]
+  - id: ING.rice_bran_oil
+    label: "Rice bran oil (현미유)"
+    function_tags: [FT.fat_source]
+    origin: plant
+    allergen: none
+    vegan_ok: true
+    descriptors: { source: plant, oxidative_stability: medium, note: "오리자놀 함유(항산화)이나 PUFA 있음; 은은한 쌀/곡물 뉘앙스" }
+  - id: ING.hydrogenated_palm_kernel_oil
+    label: "Hydrogenated palm kernel oil (팜핵경화유)"
+    function_tags: [FT.fat_source]
+    origin: plant
+    allergen: none
+    vegan_ok: true
+    descriptors: { source: plant, oxidative_stability: high, sfc: "very high", note: "경질지방(샤프 멜트) — 구조/코팅/용해저항에 유리" }
+  # ---- 증점제 ----
+  - id: ING.gellan_gum
+    label: "Gellan gum (겔란검)"
+    function_tags: [FT.stabilizer, FT.thickener]
+    origin: microbial
+    allergen: none
+    vegan_ok: true
+    descriptors: { note: "겔화형; 소량으로 구조·현탁" }
+    substitutes: [ING.carrageenan, ING.xanthan_gum]
+  - id: ING.lambda_carrageenan
+    label: "Lambda carrageenan (람다 카라기난)"
+    function_tags: [FT.thickener, FT.stabilizer]
+    origin: plant
+    allergen: none
+    vegan_ok: true
+    descriptors: { note: "비겔화(증점형); 단백 반응성; 크리미 바디" }
+    substitutes: [ING.carrageenan]
+  # ---- 벌크 ----
+  - id: ING.resistant_maltodextrin
+    label: "Resistant maltodextrin (난소화성 말토덱스트린)"
+    function_tags: [FT.bulking_agent]
+    origin: plant
+    allergen: none
+    vegan_ok: true
+    descriptors: { fiber: true, glycemic: low, note: "가용성 식이섬유; 저당에서 바디/고형분 보강(당류 아님)" }
+    substitutes: [ING.maltodextrin, ING.polydextrose]
+  - id: ING.dextrin
+    label: "Dextrin (덱스트린)"
+    function_tags: [FT.bulking_agent]
+    origin: plant
+    allergen: none
+    vegan_ok: true
+    descriptors: { note: "고형분/캐리어; 약한 바디" }
+    substitutes: [ING.maltodextrin]
+  # ---- 기타 ----
+  - id: ING.calcium_lactate
+    label: "Calcium lactate (젖산칼슘)"
+    function_tags: []
+    origin: synthetic
+    allergen: none
+    vegan_ok: true
+    descriptors: { role: "완충염(약알칼리)·칼슘강화; 산과 함께 pH 완충. 단독으론 산성화 안 함", raises_pH_slightly: true }
+  - id: ING.potassium_sorbate
+    label: "Potassium sorbate (소브산칼륨)"
+    function_tags: [FT.preservative]
+    origin: synthetic
+    allergen: none
+    vegan_ok: true
+    descriptors: { role: "항균 보존제(곰팡이/효모); 미생물 안정성(물성 아님). pH<6에서 효과" }
+  - id: ING.rice_extract
+    label: "Rice extract / 쌀 농축액 (필수 base)"
+    function_tags: [FT.flavorant, FT.bulking_agent, FT.sweetener]
+    origin: plant
+    allergen: none
+    vegan_ok: true
+    descriptors: { role: "제품 필수 base(쌀 풍미+고형분). 내재 당류(맥아당/포도당) 있어 저당 회계에 반영 필요", note: "당류 함량 확정 필요" }

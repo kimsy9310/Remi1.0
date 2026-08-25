@@ -1,0 +1,64 @@
+# [layerC2 - spec v2 migration 2026-08-18] SA.* targets rewritten to L.* per
+# remi_ontology_spec_v2.md §6.3; v1 lesson ids renamed L.<x> -> LESSON.<x>
+# (namespace collision with Layer L). Source file frozen per Invariant 3.
+# =============================================================================
+# LAYER C - EXTENSION: BEVERAGE pH / EMULSIFIER PACK   |  v0.1
+# New ingredients for the rice-beverage fine-tuning round:
+#  - two emulsifiers forming an HLB pair (high + low HLB)
+#  - two pH regulators (acid down / base up), for the pH<=4.6 safety constraint
+# Effects inherit from function tags (beverage-scoped: emulsifier -> creaming down).
+# =============================================================================
+ingredients_ext:
+  - id: ING.sucrose_ester_s1670
+    label: "Sucrose fatty acid ester S-1670 (HLB 16)"
+    function_tags: [FT.emulsifier]
+    origin: synthetic
+    allergen: none
+    vegan_ok: true
+    descriptors: { HLB: 16, solubility: hydrophilic, grade: "S-1670", note: "high-HLB -> strong O/W emulsification, fine droplets" }
+    substitutes: [ING.sucrose_ester, ING.polysorbate_80]
+
+  - id: ING.dmg95
+    label: "Distilled monoglyceride DMG95 (HLB 4-5)"
+    function_tags: [FT.emulsifier]
+    origin: plant
+    allergen: none
+    vegan_ok: true
+    descriptors: { HLB: "4-5", solubility: lipophilic, grade: "DMG95", note: "low-HLB -> interfacial/W-O side; pairs with high-HLB for HLB tuning" }
+    substitutes: [ING.mono_diglycerides]
+
+  - id: ING.citric_acid_anhydrous
+    label: "Citric acid (anhydrous)"
+    function_tags: [FT.acidulant]
+    origin: plant
+    allergen: none
+    vegan_ok: true
+    descriptors: { form: anhydrous, role: "lowers pH / raises titratable acidity" }
+    substitutes: [ING.citric_acid, ING.lactic_acid]
+
+  - id: ING.calcium_carbonate
+    label: "Calcium carbonate (acidity regulator / base)"
+    function_tags: []
+    origin: mineral
+    allergen: none
+    vegan_ok: true
+    descriptors: { role: "acidity regulator (raises pH), calcium source, opacity/whitening", raises_pH: true, insoluble: true }
+    overrides:
+      - { to: P.pH, scoped_to_structure_class: SC.emulsion.ow.beverage, direction: increase, magnitude: medium, source_type: prior, confidence: medium, note: "base -> neutralizes acid; balances citric acid to hit target pH" }
+
+# ---- HLB-pair emulsifier synergy (beverage) ----
+interactions:
+  - id: IX.hlb_pair_s1670_dmg95
+    between: [ING.sucrose_ester_s1670, ING.dmg95]
+    type: synergy
+    on_target: P.creaming_index
+    scoped_to_structure_class: [SC.emulsion.ow.beverage]
+    effect: "blending high-HLB (16) + low-HLB (4-5) tunes system HLB toward the emulsion optimum -> better stability (lower creaming) than either alone"
+    source_type: prior
+    confidence: medium
+
+provenance:
+  method: "beverage fine-tuning pack; two emulsifiers (HLB pair) + two pH regulators"
+  project_constraint: "HARD: product pH <= 4.6 (acidified-food safety). citric acid lowers pH, calcium carbonate raises it; pH measured per run and gated."
+  removed_from_palette: ["calcium lactate (젖산칼슘) - excluded this round"]
+  status: "seed v0.1 - PREPARED, awaiting final recipe + lever ranges + confirmed sensory target"

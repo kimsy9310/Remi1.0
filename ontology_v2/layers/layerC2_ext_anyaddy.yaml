@@ -1,0 +1,22 @@
+# [layerC2 - spec v2 migration 2026-08-18] SA.* targets rewritten to L.* per
+# remi_ontology_spec_v2.md §6.3; v1 lesson ids renamed L.<x> -> LESSON.<x>
+# (namespace collision with Layer L). Source file frozen per Invariant 3.
+# =============================================================================
+# LAYER C - EXTENSION: AnyAddy AN15 (HPMC)   |  v0.1
+# LOTTE Fine Chemical HPMC (E464), AN type, low viscosity (15 mPa·s @2%).
+# Non-ionic cellulose ether from wood pulp. Ice-cream datasheet roles:
+# freeze-thaw stability, mouthfeel enhancement, foam/overrun, fat replacement.
+# =============================================================================
+ingredients_ext:
+  - id: ING.anyaddy_an15
+    label: "AnyAddy AN15 (HPMC, low-viscosity cellulose ether)"
+    function_tags: [FT.stabilizer, FT.fat_replacer, FT.emulsifier]
+    origin: plant
+    allergen: none
+    vegan_ok: true
+    descriptors: { type: "HPMC (hydroxypropylmethylcellulose, E464)", grade: "AN15 low-viscosity (15 mPa.s, 2%)", thermo_gelling: "gel point ~60C", note: "low-viscosity -> mild thickening, low gummy risk; foam/emulsion stabilizer" }
+    overrides:
+      - { to: P.ice_recrystallization, scoped_to_structure_class: SC.frozen.ice_cream, direction: decrease, magnitude: strong, source_type: prior, confidence: medium, note: "excellent freeze-thaw stability (datasheet)" }
+      - { to: P.overrun,               scoped_to_structure_class: SC.frozen.ice_cream, direction: increase, magnitude: medium, source_type: prior, confidence: medium, note: "foam stabilizer -> gas retention / overrun" }
+      - { to: L.tx.creaminess,           scoped_to_structure_class: SC.frozen.ice_cream, direction: increase, magnitude: weak,   source_type: prior, confidence: medium, note: "mouthfeel enhancement / partial fat replacement" }
+    substitutes: [ING.cmc, ING.microcrystalline_cellulose]

@@ -1,0 +1,22 @@
+# [layerC2 - spec v2 migration 2026-08-18] SA.* targets rewritten to L.* per
+# remi_ontology_spec_v2.md §6.3; v1 lesson ids renamed L.<x> -> LESSON.<x>
+# (namespace collision with Layer L). Source file frozen per Invariant 3.
+# =============================================================================
+# LAYER C - EXTENSION: misc beverage ingredients (referenced but undefined)
+# =============================================================================
+ingredients_ext:
+  - id: ING.lactic_acid
+    label: "Lactic acid"
+    function_tags: [FT.acidulant]
+    origin: plant
+    allergen: none
+    vegan_ok: true
+    descriptors: { role: "lowers pH / raises titratable acidity; mild dairy-ish note" }
+    substitutes: [ING.citric_acid_anhydrous]
+  - id: ING.plant_extract
+    label: "Plant extract (functionally inert here)"
+    function_tags: []
+    origin: plant
+    allergen: none
+    vegan_ok: true
+    descriptors: { role: "no significant sensory/physical effect per user; label/marketing" }

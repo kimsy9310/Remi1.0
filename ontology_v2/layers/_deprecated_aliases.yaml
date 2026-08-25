@@ -1,0 +1,84 @@
+meta:
+  purpose: Machine-readable deprecation map (spec v2 §6.6, Invariant 3). v1 SA.* ids and lesson L.* ids are deprecated
+    aliases; v1 files frozen unedited.
+  date: '2026-08-18'
+deprecated_sa_to_l:
+  SA.aftertaste_length: L.ta.aftertaste_length
+  SA.astringency: L.ch.astringent
+  SA.bitterness: L.ta.bitter
+  SA.body: L.tx.body
+  SA.body_mouthfeel: L.tx.body
+  SA.cling: L.tx.cling
+  SA.cloud_opacity: L.ap.cloudy
+  SA.coldness: L.tx.cold_perceived
+  SA.color_darkening: L.ap.darkened
+  SA.creaminess: L.tx.creaminess
+  SA.fibrousness: L.tx.fibrousness
+  SA.flavor.beany_cereal: L.ar.beany_raw_cereal
+  SA.flavor.chili_dried_red: L.ar.dried_red_chili
+  SA.flavor.chili_fresh_green: L.ar.fresh_chili_green
+  SA.flavor.citrus_lime: L.ar.lime
+  SA.flavor.fermented_funk: L.ar.funky
+  SA.flavor.fermented_soy: L.ar.soy_fermented_jang
+  SA.flavor.garlic: L.ar.garlic
+  SA.flavor.green: L.ar.green_cut_grass
+  SA.flavor.herbal_cilantro: L.ar.cilantro
+  SA.flavor.jammy_cooked: L.ar.jammy_cooked_fruit
+  SA.flavor.metallic: L.ar.metallic
+  SA.flavor.onion_alliaceous: L.ar.onion
+  SA.flavor.plum_maesil: L.ar.plum_maesil
+  SA.flavor.rancid_oxidised: L.ar.rancid_oxidized
+  SA.flavor.rice_cereal: L.ar.cooked_rice
+  SA.flavor.roasted_nutty_note: L.ar.nutty
+  SA.flavor.roasted_sesame: L.ar.roasted_sesame
+  SA.flavor.smoky: L.ar.smoky
+  SA.flavor.strawberry: L.ar.strawberry
+  SA.flavor.tomatillo_green: L.ar.tomatillo_tart_green
+  SA.flavor.tomato_cooked: L.ar.tomato_cooked
+  SA.flavor.vanilla: L.ar.vanilla
+  SA.flavor.vinegar_acetic: L.ar.vinegar_acetic
+  SA.gloss: L.ap.glossy
+  SA.grittiness: L.tx.grittiness
+  SA.gumminess: L.tx.gumminess
+  SA.hardness: L.tx.hardness
+  SA.iciness: L.tx.icy
+  SA.meltdown_resistance: L.tx.melting
+  SA.mouthcoating_persistence: L.tx.mouthcoating_persistence
+  SA.numbing_tingle: L.ch.numbing
+  SA.oiliness: L.tx.greasiness
+  SA.particle_size_perceived: L.tx.perceived_piece_size
+  SA.phase_separation: L.ap.separated
+  SA.pourability: L.tx.pourability
+  SA.pungency: L.ch.pungent_hot
+  SA.pungency_linger: L.ch.heat_linger
+  SA.pungency_onset: L.ch.heat_onset
+  SA.ring_defect: L.ap.oil_ring
+  SA.saltiness: L.ta.salty
+  SA.scoopability: L.tx.spreadability
+  SA.sediment_layer: L.ap.sediment
+  SA.serum_separation: L.ap.serum_layer
+  SA.smoothness: L.tx.smoothness
+  SA.sourness: L.ta.sour
+  SA.sweetness: L.ta.sweet
+  SA.thickness: L.tx.thickness
+  SA.umami: L.ta.umami
+  SA.whiteness: L.ap.milky_whiteness
+deprecated_sa_special:
+  SA.numbing_tingle: L.ch.tingling + L.ch.numbing (split)
+  SA.oiliness: L.tx.oiliness + L.tx.greasiness (split)
+  SA.richness: R-3 DC.0003 (edges retargeted to L.tx.body)
+  SA.off_flavor: L.ar.rancid_oxidized (representative) / off_note subcategory
+  SA.color: L.ap.color_intensity (representative of 4 color attributes)
+  SA.flavor.sweet_aromatic_note: L.ar.caramel (representative leaf)
+deprecated_lesson_ids:
+  L.sugar_triple_role: LESSON.sugar_triple_role
+  L.overrun_bounds: LESSON.overrun_bounds
+  L.stabilizer_overdose: LESSON.stabilizer_overdose
+  L.emulsifier_inverse_role: LESSON.emulsifier_inverse_role
+  L.weighting_agent_regulatory: LESSON.weighting_agent_regulatory
+  L.emulsifier_load_vs_size: LESSON.emulsifier_load_vs_size
+  L.dilute_oil: LESSON.dilute_oil
+  L.oil_reduction_floor: LESSON.oil_reduction_floor
+  L.xanthan_max: LESSON.xanthan_max
+  L.ph_safety: LESSON.ph_safety
+  L.emulsifier_required: LESSON.emulsifier_required

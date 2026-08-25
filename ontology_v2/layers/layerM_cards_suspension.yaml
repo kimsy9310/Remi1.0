@@ -1,0 +1,239 @@
+meta:
+  layer: M
+  version: '2.0'
+  date: '2026-08-18'
+  profile: 'Suspension (solid-in-liquid dispersion) - default product: fermented hot sauce'
+  spec: remi_ontology_spec_v2.md §2.3, §5.7, §5.8, §6.2
+  counts:
+    cards: 19
+    core: 10
+    monitored: 9
+    sample_aged: 4
+  inactive_no_card:
+  - SA.pungency_onset (askability fail - knowledge kept in C edges / R-1, not asked)
+  - 'SA.numbing_tingle (promotable per product: sancho/chopi sauces)'
+  - SA.astringency (askability fail - folded into bitterness evaluation_note)
+  - SA.cloud_opacity, SA.color (excluded per tiering decision 2026-08-18)
+  - SA.fibrousness (no current actuator; awaits O layer)
+  flavor_slots: 2 user-selectable at onboarding; defaults chili_dried_red + fermented_soy
+measurement_cards:
+- term_id: L.ch.pungent_hot
+  active_in: &id001
+  - SC.suspension
+  tier: core
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: target
+  reliability: low_absolute_high_relative
+  evidence_required: sample
+  jar_target: as hot as the benchmark
+  anchors:
+  - intensity: 2
+    reference: sweet paprika - warmth only
+    source: expert
+    confidence: low
+  - intensity: 10
+    reference: jalapeno-level table hot sauce
+    source: expert
+    confidence: low
+  evaluation_note: 'Heat accumulates across samples: enforce rest intervals and re-taste the benchmark between samples.'
+- term_id: L.ch.heat_linger
+  active_in: *id001
+  tier: core
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: target
+  reliability: medium
+  evidence_required: sample
+  jar_target: lingers like the benchmark
+  evaluation_note: 'Ask after swallowing: "did the heat stay longer than the benchmark?" Fat phase lengthens the
+    tail.'
+- term_id: L.ta.salty
+  active_in: *id001
+  tier: core
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+  jar_target: match benchmark
+- term_id: L.ta.sour
+  active_in: *id001
+  tier: core
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+  jar_target: match benchmark
+- term_id: L.ta.sweet
+  active_in: *id001
+  tier: core
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+  jar_target: match benchmark
+- term_id: L.ta.umami
+  active_in: *id001
+  tier: core
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: target
+  reliability: medium
+  evidence_required: sample
+  jar_target: match or exceed benchmark
+  note: 'target (not maintain): fermented positioning axis for Ranita products.'
+- term_id: L.tx.thickness
+  active_in: *id001
+  tier: core
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+- term_id: L.tx.grittiness
+  active_in: *id001
+  tier: core
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: minimize
+  reliability: high
+  evidence_required: sample
+  jar_target: as smooth as the benchmark
+  anchors:
+  - intensity: 0
+    reference: smooth ketchup
+    source: expert
+    confidence: medium
+  - intensity: 8
+    reference: coarse gochugaru sauce - clearly grainy
+    source: expert
+    confidence: low
+- term_id: L.ar.dried_red_chili
+  active_in: *id001
+  tier: core
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: target
+  reliability: medium
+  evidence_required: sample
+  slot: flavor_user_slot_1
+  note: User-selectable at project onboarding; default for fermented hot sauce. Swappable.
+- term_id: L.ar.soy_fermented_jang
+  active_in: *id001
+  tier: core
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: target
+  reliability: medium
+  evidence_required: sample
+  slot: flavor_user_slot_2
+  note: User-selectable at project onboarding; default for fermented hot sauce. Swappable.
+- term_id: L.ta.bitter
+  active_in: *id001
+  tier: monitored
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: minimize
+  reliability: low
+  evidence_required: sample
+  jar_target: none detectable
+  evaluation_note: Defect watch. If bitterness is reported, check astringency (drying/puckering) first - untrained
+    assessors conflate the two. Astringency itself holds no card (askability fail).
+- term_id: L.ta.aftertaste_length
+  active_in: *id001
+  tier: monitored
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: low
+  evidence_required: sample
+  evaluation_note: Temporal - highest variance; use extra replicates if ever promoted.
+- term_id: L.tx.pourability
+  active_in: *id001
+  tier: monitored
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+  note: Promotable per product (pourable-style sauces). Correlated with thickness (R-2) and shear thinning (R-1);
+    never core together with thickness.
+- term_id: L.tx.perceived_piece_size
+  active_in: *id001
+  tier: monitored
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: target
+  reliability: high
+  evidence_required: sample
+  note: Positioning attribute; becomes a fixed spec once product concept locks.
+- term_id: L.tx.cling
+  active_in: *id001
+  tier: monitored
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: medium
+  evidence_required: sample
+  jar_target: coats like benchmark
+- term_id: L.ap.serum_layer
+  active_in: *id001
+  tier: monitored
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: minimize
+  reliability: high
+  evidence_required: sample_aged
+  evaluation_note: '3-day pass/fail check on a set-aside bottle (§5.8). Stokes rule: no serum at 3 days predicts
+    largely none at 28.'
+- term_id: L.ap.sediment
+  active_in: *id001
+  tier: monitored
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: minimize
+  reliability: high
+  evidence_required: sample_aged
+  evaluation_note: '3-day pass/fail. What matters is redispersion: a shake-back settle passes, a firm cake fails.'
+- term_id: L.ap.darkened
+  active_in: *id001
+  tier: monitored
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: fresh_sample
+  default_goal: minimize
+  reliability: high
+  evidence_required: sample_aged
+- term_id: L.ar.rancid_oxidized
+  active_in:
+  - SC.suspension
+  tier: monitored
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: minimize
+  reliability: low
+  evidence_required: sample_aged
+  jar_target: none detectable
+  note: Restored from v1 roster (off_flavor + flavor.rancid_oxidised). First shelf-life failure mode for sesame/perilla-oil
+    sauces.

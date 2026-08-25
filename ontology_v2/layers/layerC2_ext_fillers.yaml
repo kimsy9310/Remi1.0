@@ -1,0 +1,10 @@
+# [layerC2 - spec v2 migration 2026-08-18] New file: filler ingredient for §5.1.
+# ING.water did not exist in v1 Layer C; every profile's filler references it.
+ingredients_ext:
+  - id: ING.water
+    label: "Water (continuous phase / filler)"
+    function_tags: []
+    origin: mineral
+    allergen: none
+    vegan_ok: true
+    descriptors: { role: "profile filler (spec v2 §5.1): the ingredient displaced by default; all edge magnitudes are read relative to it (Invariant 8). Carries no effect edges by definition." }

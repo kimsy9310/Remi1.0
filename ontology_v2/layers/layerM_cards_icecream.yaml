@@ -1,0 +1,128 @@
+meta:
+  layer: M
+  version: '2.0'
+  date: '2026-08-18'
+  profile: Ice cream (aerated frozen dairy dessert)
+  spec: remi_ontology_spec_v2.md §2.3, §5.7, §5.8, §6.2
+  counts:
+    cards: 10
+    core: 5
+    monitored: 5
+    sample_aged: 0
+  dropped:
+  - 'SA.richness -> no M card: holistic term, handled by R-3 decomposition (creaminess + dairy aromatics + body
+    already covered)'
+measurement_cards:
+- term_id: L.ta.sweet
+  active_in: &id001
+  - SC.emulsion.ow|APP.dessert|ST.frozen
+  tier: core
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+  jar_target: match benchmark
+  evaluation_note: 'Strong cold suppression: evaluate at serving temperature, never ambient-melted.'
+- term_id: L.tx.creaminess
+  active_in: *id001
+  tier: core
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: medium
+  evidence_required: sample
+  jar_target: match benchmark
+  anchors:
+  - intensity: 3
+    reference: icy low-fat ice-milk
+    source: expert
+  - intensity: 14
+    reference: premium high-fat, high fat-destabilization
+    source: expert
+- term_id: L.tx.hardness
+  active_in: *id001
+  tier: core
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+  temperature_dependent: true
+  evaluation_note: Judge at serving temperature ("harder to scoop than benchmark?"). Low-sugar raises ice fraction
+    -> harder.
+- term_id: L.tx.icy
+  active_in: *id001
+  tier: core
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: minimize
+  reliability: medium
+  evidence_required: sample
+  jar_target: as smooth as benchmark or smoother
+- term_id: L.tx.body
+  active_in: *id001
+  tier: core
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: medium
+  evidence_required: sample
+  jar_target: match benchmark
+  note: Term body (absorbs v1 SA.body). Sugar/fat removal weakens body.
+- term_id: L.tx.smoothness
+  active_in: *id001
+  tier: monitored
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: medium
+  evidence_required: sample
+  note: Near-inverse of iciness (R-2); never core together with iciness.
+- term_id: L.tx.gumminess
+  active_in: *id001
+  tier: monitored
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: minimize
+  reliability: medium
+  evidence_required: sample
+  jar_target: not gummy
+  evaluation_note: 'Defect watch: over-stabilization (excess hydrocolloid).'
+- term_id: L.tx.cold_perceived
+  active_in: *id001
+  tier: monitored
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+  note: Interacts with sweetness (R-2 suppress); serving-temperature lever.
+- term_id: L.tx.melting
+  active_in: *id001
+  tier: monitored
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+  note: Term melting (v1 framed as meltdown resistance). Cheap objective drip-weight test exists - candidate for
+    instrumental promotion.
+- term_id: L.ta.aftertaste_length
+  active_in: *id001
+  tier: monitored
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: low
+  evidence_required: sample

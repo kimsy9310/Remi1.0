@@ -1,0 +1,759 @@
+# =============================================================================
+# LAYER S — 제형 프로파일 (STRUCTURE PROFILES)   v1.0 | 2026-08-13
+# -----------------------------------------------------------------------------
+# 제형 × 용도 × 상태 하나가 프로파일 하나다.
+#
+# 왜 Layer A 에서 떼어냈나
+#   Layer A 파일 셋이 전부 id: SC.emulsion.ow 였고, 어느 용도인지는 파일명에만
+#   있었다. 내보내기가 relevant_attributes 35개를 29개로 합쳐 버렸고, 어느 목표가
+#   어느 용도의 것인지 사라졌다.
+#   같은 O/W 에멀전이라도 지배하는 것이 다르다 —
+#       아이스크림  오버런 · 녹음 · 빙결정
+#       음료        크리밍 · 넥링 · 탁도
+#       소스        점도 · 클링 · 유분리
+#
+# 여기 있는 것
+#   parameters           이 프로파일이 쓰는 P 와 범위 · 지배 기전 · 무엇이 움직이나
+#                        (P 가 무엇인지는 layerA_parameters.yaml)
+#   relevant_attributes  엔진이 맞추려는 목표 (SA 또는 P)
+#                        ★ 비어 있으면 엔진 반응 변수가 0 이 되어 최적화가 성립하지 않는다
+#
+# 새 프로파일을 추가할 때 물성을 다시 정의하지 않는다. 사전의 id 를 참조하고
+# 범위만 적는다.
+# =============================================================================
+
+# [layerS2 - spec v2 migration 2026-08-18] filler added (§5.1/§6.4);
+# relevant_attributes now mirror M cards (id=L.*, tier, goal); lesson ids -> LESSON.*
+structure_profiles:
+- structure_class: SC.emulsion.ow
+  application: APP.dessert
+  state: ST.frozen
+  label: Ice cream (aerated frozen dairy dessert)
+  definition: 'A partially frozen, aerated O/W system: air cells and ice crystals dispersed in a viscous, freeze-concentrated
+    aqueous serum, with a partially-coalesced fat globule network. Structure exists only below its melting range.'
+  dominant_axes:
+  - continuous_phase
+  - dispersed_phase
+  - stabilization
+  - physical_state
+  - process_structuring
+  - temperature_dependence
+  boundary_note: ''
+  source_file: ice_cream_layerA.yaml
+  parameters:
+  - id: P.overrun
+    question_origin: defining
+    plausible_range: 25 - 120 (premium low ~25-50; economy high ~100-120)
+    range_source: literature
+    range_confidence: medium
+    governing_mechanism: Air phase fraction; small cells aid fat destabilization -> stronger network, slower melt.
+    driven_by:
+    - aeration_process
+    - emulsifier
+    - protein
+    role: primary
+  - id: P.fat_content
+    question_origin: defining
+    plausible_range: 10 - 16 (standard ice cream; lower = ice-milk/low-fat class)
+    range_source: literature
+    range_confidence: medium
+    governing_mechanism: Substrate for the partially-coalesced fat network; richness & creaminess.
+    driven_by:
+    - cream
+    - milk_fat
+    - fat_source
+    role: primary
+  - id: P.fat_destabilization
+    question_origin: defining
+    governing_mechanism: Partial coalescence of fat globules around air cells builds the network; more -> creamier,
+      less icy, slower melt, better shape retention.
+    driven_by:
+    - emulsifier
+    - shear
+    - freezing
+    role: primary
+  - id: P.ice_phase_volume
+    question_origin: defining
+    governing_mechanism: Fraction of water frozen at serving temp; set by water content and freezing-point depression
+      (sugars).
+    driven_by:
+    - water
+    - sugar
+    - freezing_point_depression
+    role: primary
+  - id: P.ice_crystal_size
+    question_origin: defining
+    plausible_range: < 50 for smooth (>50 perceived icy/coarse)
+    range_source: literature
+    range_confidence: medium
+    governing_mechanism: Set by freezing rate, stabilizers and storage; small = smooth, large = icy.
+    driven_by:
+    - freezing_rate
+    - stabilizer_hydrocolloid
+    - storage_temperature
+    role: primary
+  - id: P.freezing_point_depression
+    question_origin: defining
+    governing_mechanism: 'Sugars depress the freezing point -> control how much ice forms at a given temperature
+      -> directly set hardness/scoopability. Central to low-sugar work.
+
+      '
+    driven_by:
+    - sugar
+    - sweetener_MW
+    - bulking_agent
+    role: primary
+  - id: P.ice_recrystallization
+    question_origin: failure
+    governing_mechanism: Crystal growth during temperature fluctuation; primary cause of icy defect over shelf life.
+    driven_by:
+    - stabilizer_hydrocolloid
+    - Tg_serum
+    - temperature_fluctuation
+    role: primary
+  - id: P.meltdown_rate
+    question_origin: failure
+    governing_mechanism: Rate of collapse/drip when warmed; slowed by fat network, high overrun (small cells) and
+      mix viscosity.
+    driven_by:
+    - fat_destabilization
+    - overrun
+    - mix_viscosity
+    role: primary
+  - id: P.Tg_serum
+    question_origin: failure
+    governing_mechanism: Below Tg' the serum is glassy and recrystallization is arrested; sets storage stability.
+    driven_by:
+    - sugar
+    - sweetener_MW
+    - solids
+    role: secondary
+  - id: P.hardness
+    question_origin: perception
+    governing_mechanism: Set by ice fraction, crystal size, overrun and fat network at serving temperature.
+    driven_by:
+    - ice_phase_volume
+    - overrun
+    - fat_destabilization
+    role: primary
+  - id: P.mix_viscosity
+    question_origin: perception
+    governing_mechanism: Body and meltdown resistance; set by stabilizers, fat and total solids.
+    driven_by:
+    - stabilizer_hydrocolloid
+    - fat_content
+    - solids
+    role: secondary
+  - id: P.serving_temperature
+    question_origin: perception
+    governing_mechanism: Sets ice fraction/hardness at eating; cold also SUPPRESSES sweetness perception.
+    driven_by:
+    - storage_temperature
+    role: secondary
+  - id: P.soluble_solids_brix
+    question_origin: perception
+    governing_mechanism: Sweetness + body; ALSO drives freezing_point_depression (coupled structural role).
+    driven_by:
+    - sugar
+    - sweetener
+    role: primary
+  relevant_attributes:
+  - id: L.ta.sweet
+    tier: core
+    default_goal: maintain
+  - id: L.tx.creaminess
+    tier: core
+    default_goal: maintain
+  - id: L.tx.hardness
+    tier: core
+    default_goal: maintain
+  - id: L.tx.icy
+    tier: core
+    default_goal: minimize
+  - id: L.tx.body
+    tier: core
+    default_goal: maintain
+  - id: L.tx.smoothness
+    tier: monitored
+    default_goal: maintain
+  - id: L.tx.gumminess
+    tier: monitored
+    default_goal: minimize
+  - id: L.tx.cold_perceived
+    tier: monitored
+    default_goal: maintain
+  - id: L.tx.melting
+    tier: monitored
+    default_goal: maintain
+  - id: L.ta.aftertaste_length
+    tier: monitored
+    default_goal: maintain
+  constraints:
+  - id: LESSON.sugar_triple_role
+    statement: Sugar simultaneously sets freezing-point depression (hardness), body/solids, and sweetness. Reducing
+      it requires 3-way compensation or the product becomes hard, icy and thin.
+    type: reformulation_dependency
+  - id: LESSON.overrun_bounds
+    statement: Too-high overrun -> weak/foamy/fast-shrinking; too-low -> dense/heavy/cold. Bounded per product profile.
+    type: process_bound
+  - id: LESSON.stabilizer_overdose
+    statement: Excess hydrocolloid stabilizer -> gummy/chewy, heavy meltdown defect.
+    type: ingredient_upper_limit
+  - id: LESSON.emulsifier_inverse_role
+    statement: Unlike sauce/beverage, emulsifier here PROMOTES fat destabilization (partial coalescence). Same function
+      tag, opposite goal - must be context-scoped by structure class.
+    type: context_inversion
+  filler: ING.water
+  filler_note: filler = aqueous phase of the mix (water); displaced by solids/fat additions
+- structure_class: SC.emulsion.ow
+  application: APP.beverage
+  state: null
+  label: Oil-in-water emulsion beverage
+  definition: A DILUTE O/W emulsion (oil often ppm-to-low-percent) dispersed in a drinkable aqueous phase. Oil droplets
+    carry flavor oil, cloud, color or fat-soluble actives. Key quality is a STABLE CLOUD (uniform turbidity) with
+    no visible oil ring; the system is low-viscosity and consumed as a liquid.
+  dominant_axes:
+  - continuous_phase
+  - dispersed_phase
+  - stabilization
+  - physical_state
+  boundary_note: ''
+  source_file: ow_emulsion_beverage_layerA.yaml
+  parameters:
+  - id: P.oil_phase_fraction
+    question_origin: defining
+    plausible_range: 0.0001 - 0.15 (dilute; flavor/cloud emulsions often 10-100 ppm oil in final drink)
+    range_basis: Beverage emulsions are dilute; high phi belongs to sauce class.
+    range_source: literature
+    range_confidence: medium
+    governing_mechanism: Sets cloud intensity and flavor load; far lower than sauce.
+    driven_by:
+    - flavor_oil
+    - cloud_oil
+    role: primary
+  - id: P.droplet_size_d32
+    question_origin: defining
+    plausible_range: 0.1 - 1.0 (sub-micron needed for cloud stability; 0.2-0.5 typical)
+    range_basis: Sub-micron droplets resist creaming and give stable cloud; >1 um creams/rings quickly.
+    range_source: literature
+    range_confidence: high
+    governing_mechanism: Smaller droplets = slower creaming + more uniform cloud; must be matched by enough emulsifier
+      to cover interface.
+    driven_by:
+    - emulsifier
+    - process_homogenization
+    role: primary
+  - id: P.density_difference
+    question_origin: defining
+    governing_mechanism: 'Creaming rate is proportional to delta-rho (Stokes). Flavor oils are less dense than water
+      -> droplets rise -> ring. Weighting agents raise droplet density to match water and near-eliminate creaming.
+
+      '
+    driven_by:
+    - weighting_agent
+    - oil_type
+    role: primary
+  - id: P.ring_formation
+    question_origin: failure
+    governing_mechanism: Gravitational rise of droplets forms a white/oily ring at the container neck - a major
+      beverage defect.
+    driven_by:
+    - density_difference
+    - droplet_size_d32
+    - thickener_optional
+    role: primary
+  - id: P.creaming_index
+    question_origin: failure
+    target: minimize
+    governing_mechanism: Bulk droplet migration; suppressed by small d32 and density matching.
+    driven_by:
+    - density_difference
+    - droplet_size_d32
+    role: primary
+  - id: P.ostwald_ripening
+    question_origin: failure
+    driven_by:
+    - flavor_oil
+    - droplet_size_d32
+    role: primary
+  - id: P.turbidity_cloud
+    question_origin: perception
+    governing_mechanism: Light scattering by droplets; a DESIRED appearance in cloudy beverages. Set by droplet
+      number, size and oil load.
+    driven_by:
+    - oil_phase_fraction
+    - droplet_size_d32
+    - cloud_oil
+    role: primary
+  - id: P.apparent_viscosity
+    question_origin: perception
+    governing_mechanism: Low in beverages; minor body/mouthfeel contribution; sugar contributes here (low-sugar
+      -> watery).
+    driven_by:
+    - sugar
+    - thickener_optional
+    role: secondary
+  - id: P.soluble_solids_brix
+    question_origin: perception
+    governing_mechanism: Sweetness AND body/density; sugar reduction gives 'watery' defect (mouthfeel loss).
+    driven_by:
+    - sugar
+    - sweetener
+    role: primary
+  - id: P.pH
+    question_origin: perception
+    governing_mechanism: Sourness onset; also affects emulsifier charge & microbial stability.
+    driven_by:
+    - acid
+    role: secondary
+  relevant_attributes:
+  - id: L.ta.sweet
+    tier: core
+    default_goal: maintain
+  - id: L.ta.sour
+    tier: core
+    default_goal: maintain
+  - id: L.tx.body
+    tier: core
+    default_goal: maintain
+  - id: L.ap.cloudy
+    tier: core
+    default_goal: maintain
+  - id: L.ta.aftertaste_length
+    tier: monitored
+    default_goal: maintain
+  - id: L.ap.color_intensity
+    tier: monitored
+    default_goal: maintain
+  - id: L.ar.rancid_oxidized
+    tier: monitored
+    default_goal: minimize
+    evidence_required: sample_aged
+  - id: L.ap.oil_ring
+    tier: monitored
+    default_goal: minimize
+    evidence_required: sample_aged
+  constraints:
+  - id: LESSON.weighting_agent_regulatory
+    statement: Weighting agents are regulated and region-specific (e.g., BVO withdrawn in many markets; SAIB/ester
+      gum have use limits). Choice constrained by target market.
+    type: regulatory_bound
+  - id: LESSON.emulsifier_load_vs_size
+    statement: Reducing droplet size without increasing emulsifier under-covers the interface -> instability. Stabilizer
+      dose must track oil load & size.
+    type: functional_coupling
+  - id: LESSON.dilute_oil
+    statement: Oil load is low (ppm-low%); high phi would make it a sauce/dressing, not a beverage.
+    type: class_boundary
+  filler: ING.water
+- structure_class: SC.emulsion.ow
+  application: APP.sauce
+  state: null
+  label: Oil-in-water emulsion sauce
+  definition: A two-phase system with a continuous aqueous phase and dispersed oil droplets, kinetically stabilized
+    by interfacial emulsifier and by aqueous-phase thickening. Covers pourable dressings through semi-solid mayonnaise-type
+    sauces.
+  dominant_axes:
+  - continuous_phase
+  - dispersed_phase
+  - stabilization
+  - physical_state
+  boundary_note: ''
+  source_file: ow_emulsion_sauce_layerA.yaml
+  parameters:
+  - id: P.oil_phase_fraction
+    question_origin: defining
+    plausible_range: 0.05 - 0.75 (w/w)
+    range_basis: O/W stable across wide phi; near random close packing (~0.64-0.74) crowding/phase-inversion risk
+      rises without HIPE-style formulation. Product targets -> profiles file.
+    range_source: literature
+    range_confidence: high
+    governing_mechanism: Volume fraction sets droplet packing, viscosity, opacity, richness.
+    driven_by:
+    - oil
+    - fat_source
+    role: primary
+  - id: P.droplet_size_d32
+    question_origin: defining
+    plausible_range: 0.5 - 100 micrometre (macroemulsion; <0.2 = nanoemulsion class)
+    range_basis: Below ~0.2 um = nanoemulsion (distinct structure class); above ~100 um coarse/unstable.
+    range_source: literature
+    range_confidence: medium
+    governing_mechanism: Set by emulsifier coverage and homogenization energy; smaller = whiter, creamier, more
+      stable.
+    driven_by:
+    - emulsifier
+    - process_homogenization
+    role: primary
+  - id: P.creaming_index
+    question_origin: failure
+    target: minimize (0 = no serum separation)
+    governing_mechanism: Gravity-driven droplet migration; suppressed by aqueous-phase viscosity and small d32.
+    driven_by:
+    - thickener
+    - oil
+    - emulsifier
+    role: primary
+  - id: P.coalescence_rate
+    question_origin: failure
+    governing_mechanism: Rupture of interfacial film when droplets contact; irreversible droplet merging.
+    driven_by:
+    - emulsifier
+    - process_homogenization
+    role: secondary
+  - id: P.flocculation
+    question_origin: failure
+    governing_mechanism: Droplet aggregation without merging; driven by charge screening / bridging.
+    driven_by:
+    - emulsifier
+    - salt
+    - pH
+    role: secondary
+  - id: P.ostwald_ripening
+    question_origin: failure
+    governing_mechanism: Diffusion of oil from small to large droplets (Laplace pressure).
+    driven_by:
+    - oil
+    role: secondary
+  - id: P.apparent_viscosity
+    question_origin: perception
+    governing_mechanism: Aqueous-phase thickening + droplet crowding; primary driver of thickness/cling.
+    driven_by:
+    - thickener
+    - oil
+    - droplet_packing
+    role: primary
+  - id: P.yield_stress
+    question_origin: perception
+    governing_mechanism: Thickener/particle network + high-phi packing; enables standing/scoopable texture.
+    driven_by:
+    - thickener
+    - oil_phase_fraction
+    role: primary
+  - id: P.gloss_optical
+    question_origin: perception
+    governing_mechanism: Surface reflectance and light scattering set by droplet size and oil fraction.
+    driven_by:
+    - oil_phase_fraction
+    - droplet_size_d32
+    role: secondary
+  - id: P.pH
+    question_origin: perception
+    governing_mechanism: Sets emulsifier/protein charge & stability; onset/sharpness of sour taste.
+    driven_by:
+    - acid
+    - vinegar
+    role: secondary
+  - id: P.soluble_solids_brix
+    question_origin: perception
+    governing_mechanism: Dissolved sugars/solids; objective correlate of sweetness; also adds body/viscosity.
+    driven_by:
+    - sugar
+    - sweetener
+    - bulking_agent
+    role: primary
+  - id: P.titratable_acidity
+    question_origin: perception
+    governing_mechanism: Total acid available to neutralize; magnitude/duration of sour taste (complements pH, which
+      sets onset).
+    driven_by:
+    - acid
+    - vinegar
+    role: secondary
+  - id: P.sodium_content
+    question_origin: perception
+    governing_mechanism: Objective correlate of saltiness; also modulates perceived thickness and suppresses bitterness.
+    driven_by:
+    - salt
+    role: secondary
+  - id: P.flavor_release_dynamics
+    question_origin: perception
+    governing_mechanism: 'Partitioning & diffusion of tastants/aromatics from the matrix. Fat retains lipophilic
+      aroma (slower release, longer lingering); thickeners slow diffusion. Key driver of aftertaste length and mouthcoating
+      persistence.
+
+      '
+    driven_by:
+    - oil_phase_fraction
+    - thickener
+    role: secondary
+  relevant_attributes:
+  - id: L.ta.salty
+    tier: core
+    default_goal: maintain
+  - id: L.ta.sour
+    tier: core
+    default_goal: maintain
+  - id: L.ta.sweet
+    tier: core
+    default_goal: maintain
+  - id: L.ta.umami
+    tier: core
+    default_goal: maintain
+  - id: L.tx.thickness
+    tier: core
+    default_goal: maintain
+  - id: L.tx.creaminess
+    tier: core
+    default_goal: maintain
+  - id: L.tx.cling
+    tier: core
+    default_goal: maintain
+  - id: L.ap.glossy
+    tier: monitored
+    default_goal: maintain
+  - id: L.ap.milky_whiteness
+    tier: monitored
+    default_goal: maintain
+  - id: L.tx.oiliness
+    tier: monitored
+    default_goal: minimize
+  - id: L.tx.spreadability
+    tier: monitored
+    default_goal: maintain
+  - id: L.tx.mouthcoating_persistence
+    tier: monitored
+    default_goal: maintain
+  - id: L.ta.aftertaste_length
+    tier: monitored
+    default_goal: maintain
+  - id: L.ta.bitter
+    tier: monitored
+    default_goal: minimize
+  - id: L.tx.pourability
+    tier: monitored
+    default_goal: maintain
+  - id: L.ap.separated
+    tier: monitored
+    default_goal: minimize
+    evidence_required: sample_aged
+  constraints:
+  - id: LESSON.oil_reduction_floor
+    statement: Reducing phi below ~0.30 generally requires viscosity/creaminess compensation (thickener + fat replacer).
+    type: reformulation_dependency
+  - id: LESSON.xanthan_max
+    statement: Xanthan gum effective ~0.1-0.5%; above ~0.5% risks slimy/stringy ('long') mouthfeel.
+    type: ingredient_upper_limit
+    substitution_hint: combine with guar (synergistic thickening) to reach target viscosity at lower total gum.
+  - id: LESSON.ph_safety
+    statement: Acidified dressings held at pH ~3.5-4.2 for microbial safety; constrains acid reduction.
+    type: safety_bound
+  - id: LESSON.emulsifier_required
+    statement: An interfacial emulsifier (egg yolk, lecithin, or mono-/diglycerides) is required to form/stabilize
+      droplets.
+    type: functional_requirement
+  filler: ING.water
+- structure_class: SC.suspension
+  application: null
+  state: null
+  label: Suspension (solid-in-liquid dispersion)
+  definition: Insoluble solid particles dispersed in a continuous liquid phase; opaque, no distinct oil layer, no
+    gel network required.
+  dominant_axes:
+  - dispersion
+  - stability
+  - appearance
+  - rheology
+  boundary_note: 'Against SC.solution: a solution is transparent and has no dispersed phase. Against SC.emulsion.ow:
+    the dispersed phase is solid, not liquid - it will not coalesce and cannot be refined by emulsifier choice.
+    Against SC.gel: a gel is self-supporting throughout; a suspension flows. A high-solids suspension that develops
+    a yield stress sits on that boundary and is best described as a suspension WITH yield stress rather than as
+    a gel.'
+  source_file: suspension_layerA.yaml
+  parameters:
+  - id: P.solids_volume_fraction
+    question_origin: defining
+    plausible_range: 0.02 - 0.60 (v/v)
+    range_basis: Below ~0.02 the product reads as a cloudy liquid. Near random close packing (~0.58-0.64) particles
+      jam, a yield stress appears and settling stops; above that the product is a paste.
+    range_source: literature
+    range_confidence: medium
+    governing_mechanism: Sets opacity, body, and whether the system settles at all or jams into a network.
+    driven_by:
+    - FT.particulate
+    role: primary
+  - id: P.particle_size_d50
+    question_origin: defining
+    plausible_range: 5 - 5000 micrometre
+    range_basis: Below ~5 um most food mills cannot reach without wet colloid milling. Above ~3000 um pieces are
+      seen and chewed individually rather than felt as texture.
+    range_source: literature
+    range_confidence: medium
+    governing_mechanism: Squared term in Stokes settling; also sets perceived piece size.
+    driven_by:
+    - FT.particulate
+    - process_milling
+    role: primary
+    cross_links:
+    - L.tx.perceived_piece_size
+  - id: P.particle_size_d90
+    question_origin: derived
+    plausible_range: 10 - 8000 micrometre
+    range_basis: Oral grit detection begins near 30 um. Perception tracks the COARSE TAIL, not the mean - a product
+      with a fine d50 and a coarse d90 is perceived as gritty.
+    range_source: literature
+    range_confidence: medium
+    governing_mechanism: The largest particles determine perceived grittiness; the mean does not.
+    role: primary
+    cross_links:
+    - L.tx.grittiness
+    note: Reporting only a mean particle size is the standard mistake here. Two batches with the same d50 can differ
+      completely in mouthfeel.
+  - id: P.sedimentation_rate
+    question_origin: defining
+    plausible_range: 0 - 20 mm/day
+    range_basis: Zero when jammed or yield-stress-stabilised. Consumer-visible settling in a 200 mm bottle appears
+      within days above ~2 mm/day.
+    range_source: expert
+    range_confidence: low
+    governing_mechanism: 'Stokes: proportional to d^2 and to density difference, inversely to continuous-phase viscosity.
+      Suppressed entirely above the jamming threshold or above the yield stress needed to support a particle.'
+    driven_by:
+    - P.particle_size_d50
+    - P.density_difference
+    - P.apparent_viscosity
+    - P.yield_stress
+    role: primary
+    cross_links:
+    - L.ap.sediment
+    note: Cheap to measure and slow to reveal itself. This is exactly the parameter a keeping trial exists for -
+      it cannot be answered at T0 by anyone.
+  - id: P.serum_separation_index
+    question_origin: defining
+    plausible_range: 0 - 30 %
+    range_basis: Above roughly 5% a clear rim is obvious in a transparent container and is read as spoilage.
+    range_source: expert
+    range_confidence: low
+    governing_mechanism: Water expelled from a weakly flocculated network, or released from soft particles that
+      shrink on standing.
+    driven_by:
+    - FT.thickener
+    - FT.particulate
+    role: primary
+    cross_links:
+    - L.ap.serum_layer
+  - id: P.pH
+    question_origin: defining
+    plausible_range: 2.5 - 7.0
+    range_basis: 4.6 is the regulatory and microbiological dividing line for acidified shelf-stable foods; below
+      ~3.0 most products are too sour to eat as a sauce.
+    range_source: literature
+    range_confidence: high
+    governing_mechanism: Governs C. botulinum outgrowth and most spoilage; also directly changes perceived sourness,
+      colour of anthocyanin and chlorophyll systems, and hydrocolloid behaviour.
+    driven_by:
+    - FT.acidulant
+    - FT.fermented_paste
+    role: primary
+    note: 'EQUILIBRIUM pH, not the pH of the liquid poured off. A chunky product can read 4.2 in the serum while
+      the inside of a pepper piece is still above 4.6, and the piece is where growth happens. Measure after homogenising,
+      and after the product has stood long enough for the pieces to equilibrate.
+
+      '
+  - id: P.water_activity
+    question_origin: defining
+    plausible_range: 0.60 - 0.99
+    range_basis: C. botulinum growth is inhibited below 0.93; most bacteria below 0.91; moulds and osmophilic yeasts
+      persist to ~0.61.
+    range_source: literature
+    range_confidence: high
+    governing_mechanism: Available water for microbial growth. A hurdle that combines multiplicatively with pH and
+      temperature rather than substituting for either.
+    driven_by:
+    - FT.aw_depressant
+    role: primary
+  - id: P.salt_in_water_phase
+    question_origin: derived
+    plausible_range: 0 - 25 %
+    range_basis: Roughly 10% water-phase salt approaches the aw threshold that inhibits C. botulinum.
+    range_source: literature
+    range_confidence: medium
+    governing_mechanism: Microbial inhibition depends on concentration in the water, not on the whole-product figure.
+    driven_by:
+    - FT.aw_depressant
+    - FT.umami_source
+    role: secondary
+    note: Routinely confused with total salt. In a 40% oil sauce the water-phase salt is nearly double the label
+      figure, and it is the water-phase figure that preserves.
+  - id: P.capsaicinoid_shu
+    question_origin: defining
+    plausible_range: 0 - 50,000 SHU
+    range_basis: Table sauces span roughly 500-30,000 SHU; above that the category is a specialty extract product.
+    range_source: literature
+    range_confidence: medium
+    governing_mechanism: Capsaicinoid concentration drives TRPV1 activation. Perceived heat is sublinear in concentration
+      and is blunted by fat and by sugar.
+    driven_by:
+    - FT.pungent_principle
+    - P.oil_phase_fraction
+    role: primary
+    cross_links:
+    - L.ch.pungent_hot
+    note: Calculating from raw-material SHU is only meaningful with a certificated raw material. Whole chillies
+      vary severalfold pod to pod, so a calculated SHU from fresh produce is an estimate, not a value.
+  relevant_attributes:
+  - id: L.ch.pungent_hot
+    tier: core
+    default_goal: target
+  - id: L.ch.heat_linger
+    tier: core
+    default_goal: target
+  - id: L.ta.salty
+    tier: core
+    default_goal: maintain
+  - id: L.ta.sour
+    tier: core
+    default_goal: maintain
+  - id: L.ta.sweet
+    tier: core
+    default_goal: maintain
+  - id: L.ta.umami
+    tier: core
+    default_goal: target
+  - id: L.tx.thickness
+    tier: core
+    default_goal: maintain
+  - id: L.tx.grittiness
+    tier: core
+    default_goal: minimize
+  - id: L.ar.dried_red_chili
+    tier: core
+    default_goal: target
+    slot: flavor_user_slot_1
+  - id: L.ar.soy_fermented_jang
+    tier: core
+    default_goal: target
+    slot: flavor_user_slot_2
+  - id: L.ta.bitter
+    tier: monitored
+    default_goal: minimize
+  - id: L.ta.aftertaste_length
+    tier: monitored
+    default_goal: maintain
+  - id: L.tx.pourability
+    tier: monitored
+    default_goal: maintain
+  - id: L.tx.perceived_piece_size
+    tier: monitored
+    default_goal: target
+  - id: L.tx.cling
+    tier: monitored
+    default_goal: maintain
+  - id: L.ap.serum_layer
+    tier: monitored
+    default_goal: minimize
+    evidence_required: sample_aged
+  - id: L.ap.sediment
+    tier: monitored
+    default_goal: minimize
+    evidence_required: sample_aged
+  - id: L.ap.darkened
+    tier: monitored
+    default_goal: minimize
+    evidence_required: sample_aged
+  - id: L.ar.rancid_oxidized
+    tier: monitored
+    default_goal: minimize
+    evidence_required: sample_aged
+  constraints: []
+  filler: ING.water

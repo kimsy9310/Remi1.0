@@ -1,0 +1,12 @@
+# [layerC2 hotfix 2026-08-18] Gap found by mayonnaise smoke test:
+# FT.fat_source carried ONLY ice-cream-scoped edges, so in an o/w sauce the oil
+# phase moved nothing - fatal for mayonnaise, whose defining variable is oil level.
+# Appended as a scope-extension alias tag (originals frozen, Invariant 3).
+function_tags_ext:
+  - id: FT.fat_source_sauce_scope
+    label: "Fat source (sauce scope extension)"
+    definition: "Scope extension only: sauce-scoped edges for the oil phase. Merge-time alias of FT.fat_source."
+    alias_of: FT.fat_source
+    effects:
+      - { to: P.oil_phase_fraction, direction: increase, magnitude: strong, scoped_to_structure_class: SC.emulsion.ow.sauce, source_type: prior, confidence: high, note: "oil level IS the oil phase fraction" }
+      - { to: P.apparent_viscosity, direction: increase, magnitude: medium, scoped_to_structure_class: SC.emulsion.ow.sauce, source_type: prior, confidence: medium, note: "packed-droplet viscosity rises steeply above ~65% phase volume (mayonnaise regime)" }

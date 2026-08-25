@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+*.bak_*
+.venv/
+venv/
+.streamlit/secrets.toml
+
+# 로컬 데이터 — 실험 이력은 각자 PC 에 남는다
+data/remi.db
+
+# 엑셀 잠금 파일
+~$*.xlsx
+.~lock.*#

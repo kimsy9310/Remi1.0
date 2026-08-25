@@ -1,0 +1,196 @@
+# [layerC2 - spec v2 migration 2026-08-18] SA.* targets rewritten to L.* per
+# remi_ontology_spec_v2.md §6.3; v1 lesson ids renamed L.<x> -> LESSON.<x>
+# (namespace collision with Layer L). Source file frozen per Invariant 3.
+# =============================================================================
+# LAYER C - EXTENSION: REFORMULATION INGREDIENT PACK   |  v0.1 seed
+# -----------------------------------------------------------------------------
+# Fills the gaps surfaced by (a) the BO dry-run (a FAT REPLACER is needed to push
+# oil below the creaminess floor) and (b) the ice-cream labeling exercise
+# (fat_source / milk_protein / bulking_agent tags + sugar-replacement ingredients).
+#
+# EXTENDS layerC_ingredient_function.yaml (same schema: 2-tier, scoped effects,
+# descriptor vectors, source_type prior|learned). Merge on load.
+# =============================================================================
+
+# ---- NEW function tags (Tier 1 generic, scoped) ----
+function_tags_ext:
+
+  - id: FT.fat_replacer
+    label: "Fat replacer"
+    definition: "Mimics fat's contribution to creaminess/body without fat; forms water-trapping microgel/gel network (~1 cal/g vs 9)."
+    descriptor_relevance: [particle_size, water_binding]
+    effects:
+      - { to: L.tx.creaminess,        direction: increase, magnitude: medium, scoped_to_structure_class: SC.emulsion.ow.sauce,  dose_response_shape: saturating, source_type: prior, confidence: high, note: "partial fat mimetic; fills dry-run low-oil gap" }
+      - { to: P.apparent_viscosity, direction: increase, magnitude: medium, scoped_to_structure_class: SC.emulsion.ow.sauce,  source_type: prior, confidence: high }
+      - { to: L.tx.creaminess,        direction: increase, magnitude: medium, scoped_to_structure_class: SC.frozen.ice_cream,   source_type: prior, confidence: medium }
+      - { to: P.meltdown_rate,      direction: increase, magnitude: weak,   scoped_to_structure_class: SC.frozen.ice_cream,   source_type: prior, confidence: low, note: "some fat replacers give faster melt" }
+
+  - id: FT.bulking_agent
+    label: "Bulking agent"
+    definition: "Adds solids/body/bulk WITHOUT sweetness and with little freezing-point effect (high MW)."
+    descriptor_relevance: [MW]
+    effects:
+      - { to: P.mix_viscosity, direction: increase, magnitude: medium, scoped_to_structure_class: SC.frozen.ice_cream,   source_type: prior, confidence: high, note: "restores solids/body when sugar removed" }
+      - { to: P.apparent_viscosity, direction: increase, magnitude: weak, scoped_to_structure_class: SC.emulsion.ow.beverage, source_type: prior, confidence: medium, note: "restores body lost with sugar reduction" }
+
+  - id: FT.fpd_agent
+    label: "Freezing-point depressant"
+    definition: "Colligative freezing-point control DECOUPLED from sweetness (e.g., polyols); lower MW = stronger FPD per weight."
+    descriptor_relevance: [MW]
+    effects:
+      - { to: P.freezing_point_depression, direction: increase, magnitude: strong, scoped_to_structure_class: SC.frozen.ice_cream, conditions: "colligative: per mole; monosaccharide ~2x disaccharide", source_type: prior, confidence: high }
+      - { to: P.hardness, direction: decrease, magnitude: strong, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: high, note: "more FPD -> less ice -> softer/scoopable" }
+
+  - id: FT.fat_source
+    label: "Fat source"
+    definition: "Structuring fat; substrate for the partially-coalesced fat network."
+    descriptor_relevance: [gel_melt_temp]
+    effects:
+      - { to: P.fat_content, direction: increase, magnitude: strong, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: high }
+      - { to: L.tx.body,   direction: increase, magnitude: strong, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: high }
+
+  - id: FT.milk_protein
+    label: "Milk protein / MSNF"
+    definition: "Milk solids-not-fat: casein/whey (+ lactose). Foam & emulsion stabilization, body."
+    specializes: FT.protein            # RECONCILED v0.2: == FT.protein(source: milk); dairy-specific effects (lactose FPD/sandiness) below
+    descriptor_relevance: [charge]
+    effects:
+      - { to: P.overrun,      direction: increase, magnitude: medium, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: medium, note: "protein stabilizes air cells" }
+      - { to: P.mix_viscosity, direction: increase, magnitude: medium, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: medium }
+      - { to: P.freezing_point_depression, direction: increase, magnitude: weak, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: low, note: "lactose contributes minor FPD + sandiness risk" }
+
+# ---- NEW ingredients (Tier 2) ----
+ingredients_ext:
+
+  - id: ING.modified_starch
+    label: "Modified food starch"
+    function_tags: [FT.thickener, FT.fat_replacer, FT.stabilizer]   # freeze-thaw stabilizer (merged v0.2)
+    origin: plant
+    allergen: none
+    vegan_ok: true
+    descriptors: { MW: high, water_binding: high, particle: "granules mimic fat-droplet size/shape" }
+    limitations:
+      - { type: ingredient_upper_limit, statement: "excess -> pasty/starchy, gummy body", scoped_to_structure_class: SC.emulsion.ow.sauce }
+    substitutes: [ING.maltodextrin, ING.inulin]
+    overrides:
+      - { to: L.tx.creaminess, scoped_to_structure_class: SC.emulsion.ow.sauce, magnitude: strong, source_type: prior, confidence: high, note: "~4x more effective fat replacer than maltodextrin; enables oil below the creaminess floor" }
+
+  - id: ING.maltodextrin
+    label: "Maltodextrin"
+    function_tags: [FT.bulking_agent, FT.fat_replacer]
+    descriptors: { MW: "moderate-high (low DE)", sweetness: low, water_binding: high }
+    substitutes: [ING.polydextrose, ING.inulin]
+    overrides:
+      - { to: P.freezing_point_depression, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: weak, source_type: prior, confidence: high, note: "little FPD effect -> good pure bulk/solids" }
+
+  - id: ING.inulin
+    label: "Inulin"
+    function_tags: [FT.bulking_agent, FT.fat_replacer]
+    descriptors: { MW: moderate, fiber: true }
+    substitutes: [ING.maltodextrin, ING.polydextrose]
+
+  - id: ING.polydextrose
+    label: "Polydextrose"
+    function_tags: [FT.bulking_agent]
+    descriptors: { MW: moderate, fiber: true, sweetness: low }
+    substitutes: [ING.maltodextrin, ING.inulin]
+
+  - id: ING.sugar_alcohol
+    label: "Sugar alcohol / polyol (erythritol, maltitol, xylitol)"
+    function_tags: [FT.fpd_agent, FT.sweetener]
+    descriptors: { MW: low, sweetness: "partial", cooling_effect: true }
+    substitutes: [ING.dextrose]
+    overrides:
+      - { to: P.freezing_point_depression, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: strong, source_type: prior, confidence: high, note: "stronger FPD than sugar per weight -> lower dose; blends tune the freezing curve" }
+
+  - id: ING.dextrose
+    label: "Dextrose (glucose)"
+    function_tags: [FT.sweetener, FT.fpd_agent]
+    descriptors: { MW: 180, sweetness: moderate }
+    substitutes: [ING.sugar_alcohol]
+    overrides:
+      - { to: P.freezing_point_depression, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: strong, source_type: prior, confidence: high, note: "monosaccharide ~2x FPD of sucrose per mole" }
+
+  - id: ING.glucose_syrup
+    label: "Glucose syrup / corn syrup solids"
+    function_tags: [FT.sweetener, FT.bulking_agent]
+    descriptors: { DE: variable, sweetness: "low-moderate" }
+    substitutes: [ING.maltodextrin]
+    overrides:
+      - { to: P.mix_viscosity, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: medium, source_type: prior, confidence: medium, note: "raises Tg' (storage stability), body; less sweet, moderate FPD" }
+
+  - id: ING.high_intensity_sweetener
+    label: "High-intensity sweetener (sucralose, stevia)"
+    function_tags: [FT.sweetener]
+    descriptors: { potency: "100-600x sucrose", contributes_solids: false }
+    substitutes: []
+    overrides:
+      - { to: L.ta.sweet, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: strong, source_type: prior, confidence: high, note: "sweetness ONLY - NO body, NO FPD; must pair with bulking_agent + fpd_agent (see LESSON.sugar_triple_role)" }
+
+  - id: ING.carrageenan
+    label: "Carrageenan (리파인드 — 카파형 가정)"
+    function_tags: [FT.stabilizer, FT.thickener]   # PRIMARY stabilizer (anti-wheying); weak thickener (merged v0.2)
+    origin: plant                                  # seaweed-derived
+    allergen: none
+    vegan_ok: true
+    descriptors: { charge: anionic (sulfated), type: "카파(kappa) 가정 — 스펙 미표기, 사용자 합의로 카파 전제(2026-07-28)", ice_cream_role: "secondary stabilizer(유청분리 방지), 극소량 0.01~0.03% 사용", dose_note: "과량시 겔/이수 위험" }
+    substitutes: [ING.cmc]
+    overrides:
+      - { to: P.creaming_index, scoped_to_structure_class: SC.frozen.ice_cream, direction: decrease, magnitude: medium, source_type: prior, confidence: medium, note: "secondary stabilizer: prevents wheying-off / serum separation" }
+
+  - id: ING.cmc
+    label: "Carboxymethyl cellulose (CMC)"
+    function_tags: [FT.thickener, FT.stabilizer]   # dual role (merged v0.2)
+    origin: plant                                  # cellulose-derived
+    allergen: none
+    vegan_ok: true
+    descriptors: { charge: anionic, MW: high }
+    substitutes: [ING.guar_gum, ING.carrageenan]
+
+  - id: ING.cream
+    label: "Cream / milk fat"
+    function_tags: [FT.fat_source]
+    descriptors: { source: milk, gel_melt_temp: "milk-fat SFC profile" }   # FT.fat_source source:milk (merged v0.2)
+    origin: animal
+    allergen: milk
+    vegan_ok: false
+    substitutes: [ING.coconut_oil]
+
+  - id: ING.skim_milk_powder
+    label: "Skim milk powder (MSNF)"
+    function_tags: [FT.protein, FT.milk_protein]   # RECONCILED v0.2: milk_protein == FT.protein(source:milk)
+    descriptors: { source: milk, charge: "casein/whey", lactose: true }
+    origin: animal
+    allergen: milk
+    vegan_ok: false
+    substitutes: [ING.pea_protein_isolate, ING.rice_protein]
+
+  - id: ING.lecithin
+    label: "Lecithin"
+    function_tags: [FT.emulsifier]
+    descriptors: { HLB: "4-7", solubility: amphiphilic }
+    origin: plant
+    allergen: soy
+    vegan_ok: true
+    substitutes: [ING.mono_diglycerides, ING.egg_yolk]
+
+# ---- Reformulation patterns (encode the multi-ingredient compensation logic) ----
+reformulation_patterns:
+  - id: RP.low_fat_sauce
+    target: "reduce oil while maintaining creaminess/thickness"
+    structure_class: SC.emulsion.ow.sauce
+    compensation: [ING.modified_starch, ING.xanthan_gum, ING.guar_gum]
+    rationale: "fat replacer restores creaminess (water-trapping microgel) + gums restore viscosity; lifts the creaminess floor the dry-run hit."
+  - id: RP.low_sugar_ice_cream
+    target: "reduce sugar while maintaining sweetness, body, and scoopability"
+    structure_class: SC.frozen.ice_cream
+    compensation: [ING.polydextrose, ING.sugar_alcohol, ING.high_intensity_sweetener]
+    rationale: "sucrose's TRIPLE role split across 3 agents: bulking (body/solids) + fpd_agent/polyol (freezing curve) + high-intensity sweetener (sweetness). Matches ontology LESSON.sugar_triple_role."
+
+provenance:
+  method: "extension of Layer C 2-tier schema; gaps from BO dry-run + ice-cream labeling"
+  supporting_evidence:
+    - "Fat replacers (modified starch, maltodextrin, inulin) form water-trapping microgels -> fat-like mouthfeel (1 vs 9 cal/g); modified starch ~4x maltodextrin efficacy"
+    - "Low-sugar ice cream: bulking (polydextrose/maltodextrin, little FPD/sweetness) + polyol FPD control (erythritol/maltitol, stronger FPD/weight) + high-intensity sweetener"
+    - "FPD is colligative: monosaccharide ~2x FPD of disaccharide per mole"
+  status: "seed v0.2 - MERGED: origin/allergen/vegan_ok folded onto cream/skim_milk_powder/carrageenan/cmc/modified_starch/lecithin; stabilizer dual-tags added; FT.milk_protein specializes FT.protein; skim_milk_powder dual-tagged FT.protein(source:milk). Prior edges; pending domain-expert review of seed numbers."

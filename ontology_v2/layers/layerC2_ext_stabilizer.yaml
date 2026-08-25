@@ -1,0 +1,56 @@
+# [layerC2 - spec v2 migration 2026-08-18] SA.* targets rewritten to L.* per
+# remi_ontology_spec_v2.md §6.3; v1 lesson ids renamed L.<x> -> LESSON.<x>
+# (namespace collision with Layer L). Source file frozen per Invariant 3.
+# =============================================================================
+# LAYER C - REFINEMENT: split STABILIZER out of THICKENER   |  v0.1
+# -----------------------------------------------------------------------------
+# Surfaced by review: FT.thickener conflated two distinct functions.
+#   - THICKENING  = raise continuous-phase viscosity (thickness/body)
+#   - STABILIZING = maintain the dispersed structure over time
+#                   (ice recrystallization, creaming, serum separation, syneresis)
+# Same hydrocolloids often do BOTH, but the roles differ and some ingredients
+# (e.g., carrageenan) are primarily stabilizers. So stabilizing becomes its own
+# function tag; ingredients carry both tags where applicable.
+# Additive refactor (like FT.protein). Merge on load.
+# =============================================================================
+
+function_tags_ext:
+  - id: FT.stabilizer
+    label: "Stabilizer"
+    definition: "Maintains a dispersion/structure over TIME: controls ice recrystallization, water binding/syneresis, creaming and serum (whey) separation. Distinct from thickener (viscosity)."
+    descriptor_relevance: [MW, charge, water_binding, gelation]
+    reconciles: >
+      Stabilizing effects formerly attached to FT.thickener move here.
+      FT.thickener now denotes VISCOSITY/thickness only; FT.stabilizer denotes
+      time-stability. Ingredients may carry both.
+    effects:
+      - { to: P.ice_recrystallization, direction: decrease, magnitude: strong, scoped_to_structure_class: SC.frozen.ice_cream,   conditions: "controls crystal growth over storage/thaw", source_type: prior, confidence: high }
+      - { to: P.meltdown_rate,         direction: decrease, magnitude: medium, scoped_to_structure_class: SC.frozen.ice_cream,   source_type: prior, confidence: medium }
+      - { to: P.creaming_index,        direction: decrease, magnitude: medium, scoped_to_structure_class: SC.frozen.ice_cream,   source_type: prior, confidence: medium, note: "prevents serum/whey separation (wheying-off)" }
+      - { to: P.creaming_index,        direction: decrease, magnitude: medium, scoped_to_structure_class: SC.emulsion.ow.sauce,  source_type: prior, confidence: high, note: "water immobilization + network" }
+      - { to: P.ring_formation,        direction: decrease, magnitude: medium, scoped_to_structure_class: SC.emulsion.ow.beverage, source_type: prior, confidence: medium }
+
+# ---- Additive re-tagging of existing ingredients (merge: append these tags) ----
+# (leaves original entries intact; a loader unions function_tags)
+tag_additions:
+  - { ingredient: ING.xanthan_gum,       add_tags: [FT.stabilizer], role: "thickener + stabilizer" }
+  - { ingredient: ING.guar_gum,          add_tags: [FT.stabilizer], role: "thickener + stabilizer" }
+  - { ingredient: ING.locust_bean_gum,   add_tags: [FT.stabilizer], role: "thickener + stabilizer (freeze-thaw)" }
+  - { ingredient: ING.cmc,               add_tags: [FT.stabilizer], role: "thickener + stabilizer" }
+  - { ingredient: ING.carrageenan,       add_tags: [FT.stabilizer], role: "PRIMARY stabilizer (anti-wheying); weak thickener" }
+  - { ingredient: ING.modified_starch,   add_tags: [FT.stabilizer], role: "also freeze-thaw stabilizer" }
+
+# ---- Effects to RETIRE from FT.thickener (moved to FT.stabilizer) ----
+# documentation of the reconciliation; apply when editing the base file:
+thickener_effects_moved_to_stabilizer:
+  - { from_tag: FT.thickener, to_tag: FT.stabilizer, target: P.creaming_index,        scoped: SC.emulsion.ow.sauce }
+  - { from_tag: FT.thickener, to_tag: FT.stabilizer, target: P.ring_formation,         scoped: SC.emulsion.ow.beverage }
+  - { from_tag: FT.thickener, to_tag: FT.stabilizer, target: P.ice_recrystallization,  scoped: SC.frozen.ice_cream }
+thickener_retains: "P.apparent_viscosity / P.mix_viscosity (viscosity, thickness, body) ONLY"
+
+provenance:
+  method: "function-role separation (thickening vs stabilizing); additive re-tag"
+  supporting_evidence:
+    - "Food hydrocolloids commonly serve dual thickening + stabilizing roles; carrageenan primarily stabilizes (anti-wheying, protein reactivity)"
+    - "Ice-cream stabilizers control recrystallization & meltdown independent of bulk viscosity"
+  status: "seed v0.2 - MERGED: FT.thickener base-file cleanup DONE (3 stabilization effects retired in base, now owned by FT.stabilizer here); xanthan/guar/LBG dual-tagged in base, cmc/carrageenan/modified_starch dual-tagged in reformulation ext. FT.stabilizer effects remain defined in this file."

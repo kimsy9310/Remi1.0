@@ -1,0 +1,108 @@
+# [layerC2 - spec v2 migration 2026-08-18] SA.* targets rewritten to L.* per
+# remi_ontology_spec_v2.md §6.3; v1 lesson ids renamed L.<x> -> LESSON.<x>
+# (namespace collision with Layer L). Source file frozen per Invariant 3.
+# =============================================================================
+# LAYER C - EXTENSION: VEGAN / DIETARY GAPS   |  v0.1 seed
+# -----------------------------------------------------------------------------
+# Fills gaps surfaced by the vegan ice-cream dry-run:
+#   (1) ORIGIN / dietary metadata on ingredients -> makes the vegan/allergen
+#       filter DATA-DRIVEN (the dry-run had to hardcode exclusions).
+#   (2) plant FT.fat_source ingredient (coconut oil) - only 'cream' (animal)
+#       existed. FT.fat_source generalizes with a source descriptor (cf. FT.protein).
+#   (3) higher-functionality / lower-off-note plant proteins to LOWER the beany
+#       floor: pea/soy isolates foam better (need less -> less beany); deflavoring
+#       addresses the off-note directly.
+# =============================================================================
+
+# ---- Schema convention added to Ingredient ----
+ingredient_field_conventions:
+  origin: "animal | plant | microbial | synthetic"      # enables vegan/veg filters
+  allergen: "milk | egg | soy | tree_nut | none | ..."  # enables allergen filters
+  derived:
+    vegan_ok: "origin != animal AND allergen not in {milk, egg}"
+
+# ---- ORIGIN annotations for EXISTING ingredients (merge onto entries) ----
+origin_annotations:
+  - { ingredient: ING.cream,            origin: animal,   allergen: milk, vegan_ok: false }
+  - { ingredient: ING.skim_milk_powder, origin: animal,   allergen: milk, vegan_ok: false }
+  - { ingredient: ING.egg_yolk,         origin: animal,   allergen: egg,  vegan_ok: false }
+  - { ingredient: ING.mono_diglycerides, origin: plant_or_animal, note: "source-dependent; specify per supplier", vegan_ok: "conditional" }
+  - { ingredient: ING.lecithin,         origin: plant,    allergen: soy,  vegan_ok: true }
+  - { ingredient: ING.polysorbate_80,   origin: synthetic, allergen: none, vegan_ok: true }
+  - { ingredient: ING.sucrose_ester,    origin: synthetic, allergen: none, vegan_ok: true }
+  - { ingredient: ING.carrageenan,      origin: plant,    allergen: none, vegan_ok: true }  # seaweed
+  - { ingredient: ING.xanthan_gum,      origin: microbial, allergen: none, vegan_ok: true }
+  - { ingredient: ING.guar_gum,         origin: plant,    allergen: none, vegan_ok: true }
+  - { ingredient: ING.rice_protein,     origin: plant,    allergen: none, vegan_ok: true }
+  - { ingredient: ING.sucrose,          origin: plant,    allergen: none, vegan_ok: true }
+  - { ingredient: ING.allulose,         origin: plant,    allergen: none, vegan_ok: true }
+
+# ---- FT.fat_source generalization note ----
+function_tag_refinements:
+  - { tag: FT.fat_source, add_descriptor: source, values: "milk | plant", note: "cf. FT.protein; ING.cream = source:milk, ING.coconut_oil = source:plant" }
+
+# ---- NEW ingredients ----
+ingredients_ext:
+
+  - id: ING.coconut_oil
+    label: "Coconut oil"
+    function_tags: [FT.fat_source]
+    origin: plant
+    allergen: none
+    vegan_ok: true
+    descriptors: { source: plant, gel_melt_temp: "sharp melt ~24C, high SFC", note: "3:1 coconut:olive mimics dairy fat profile" }
+    substitutes: [ING.cream, ING.palm_oil]
+    overrides:
+      - { to: P.fat_content, scoped_to_structure_class: SC.frozen.ice_cream, direction: increase, magnitude: strong, source_type: prior, confidence: high, note: "high solid fat -> structure/body; enables partial coalescence" }
+
+  - id: ING.pea_protein_isolate
+    label: "Pea protein isolate"
+    function_tags: [FT.protein]
+    origin: plant
+    allergen: none
+    vegan_ok: true
+    descriptors: { source: plant, functionality: "good foaming/emulsification (isolate)", solubility: moderate }
+    flavor_profile:
+      - { to: L.ar.beany_raw_cereal, direction: increase, intensity: medium, scoped_to_structure_class: any, source_type: prior, confidence: high, note: "hexanal-driven beany/green; reducible by deflavoring/fermentation" }
+    overrides:
+      - { to: P.overrun, scoped_to_structure_class: SC.frozen.ice_cream, direction: increase, magnitude: strong, source_type: prior, confidence: medium, note: "STRONGER foam than rice protein -> less needed -> LOWERS the beany floor" }
+    limitations:
+      - { type: quality, statement: "beany/green off-note (hexanal); mitigate with deflavored/fermented grade" }
+    substitutes: [ING.rice_protein, ING.soy_protein_isolate]
+
+  - id: ING.soy_protein_isolate
+    label: "Soy protein isolate"
+    function_tags: [FT.protein]
+    origin: plant
+    allergen: soy
+    vegan_ok: true
+    descriptors: { source: plant, functionality: "strong emulsification/foaming", solubility: moderate-high }
+    flavor_profile:
+      - { to: L.ar.beany_raw_cereal, direction: increase, intensity: medium, scoped_to_structure_class: any, source_type: prior, confidence: medium }
+    overrides:
+      - { to: P.overrun, scoped_to_structure_class: SC.frozen.ice_cream, direction: increase, magnitude: strong, source_type: prior, confidence: medium }
+    limitations:
+      - { type: allergen, statement: "soy allergen -> excludes soy-free positioning" }
+    substitutes: [ING.pea_protein_isolate, ING.rice_protein]
+
+# ---- Reformulation pattern: vegan ice cream (encode compensation) ----
+reformulation_patterns:
+  - id: RP.vegan_ice_cream
+    target: "replace dairy fat + milk protein + egg emulsifier while matching dairy sensory profile"
+    structure_class: SC.frozen.ice_cream
+    exclude_origin: [animal]
+    compensation: [ING.coconut_oil, ING.pea_protein_isolate, ING.sucrose_ester, ING.guar_gum]
+    off_note_control: [ING.pea_protein_isolate, "deflavored/fermented protein grade"]
+    rationale: >
+      Coconut oil = plant fat structure; pea/soy isolate = body + aeration (better
+      foaming than rice -> less protein -> lower beany floor found in dry-run);
+      sucrose ester = vegan emulsifier for fat destabilization; guar = stabilizer.
+      Residual beany reduced by deflavored/fermented protein grade.
+
+provenance:
+  method: "data-driven dietary metadata + plant substitutes; addresses vegan dry-run gaps"
+  supporting_evidence:
+    - "Coconut oil primary vegan fat; 3:1 coconut:olive mimics dairy fat profile/mouthfeel"
+    - "Pea/soy protein isolates: good foaming/emulsification for plant-dairy; increase protein -> fluffier/creamier"
+    - "Pea protein beany/green off-note from hexanal; reduced by fermentation/deflavoring"
+  status: "seed v0.2 - MERGED: origin/allergen/vegan_ok folded onto entries in base + reformulation ext (cream/skim_milk_powder/egg_yolk=animal; xanthan=microbial; carrageenan/guar/lecithin/coconut_oil=plant; polysorbate_80/sucrose_ester=synthetic). origin_annotations block below kept as an audit record. ING.palm_oil referenced as future substitute."

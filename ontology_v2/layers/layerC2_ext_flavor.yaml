@@ -1,0 +1,116 @@
+# [layerC2 - spec v2 migration 2026-08-18] SA.* targets rewritten to L.* per
+# remi_ontology_spec_v2.md §6.3; v1 lesson ids renamed L.<x> -> LESSON.<x>
+# (namespace collision with Layer L). Source file frozen per Invariant 3.
+# =============================================================================
+# LAYER C - EXTENSION: FLAVOR SLOT (flavorants)   |  v0.1 seed
+# -----------------------------------------------------------------------------
+# App main purpose = FLAVOR REALIZATION formulator (low-sugar/low-fat = one mode).
+# So flavor is first-class. Design (consistent with the rest of the ontology):
+#   - PERCEPTION of flavor  = Layer B nodes  (L.ar.* attributes)
+#   - CONTRIBUTION of flavor = Layer C EDGES (this file): an ingredient's
+#     flavor_profile is a set of edges pointing at those Layer B nodes.
+#   - MATRIX MODULATION already exists: Layer A P.flavor_release_dynamics
+#     (fat/thickener modulate release) -> perceived note in Layer B.
+# We seed the STRUCTURE + a worked example (strawberry). Not exhaustive; the
+# flavor vocabulary is hierarchical, extensible and user-addable (Layer B).
+# flavor notes are usually default_goal = TARGET (realize), not maintain.
+# =============================================================================
+
+# ---- NEW function tags ----
+function_tags_ext:
+  - id: FT.flavorant
+    label: "Flavorant"
+    definition: "Ingredient whose main role is to contribute aroma/flavor character (a PROFILE of notes)."
+    descriptor_relevance: [volatile_profile, potency, heat_stability]
+    note: "Effects are declared per-ingredient as flavor_profile edges (below), not generic, because character is ingredient-specific."
+  - id: FT.colorant
+    label: "Colorant"
+    definition: "Contributes color (often co-delivered by natural flavorants)."
+    descriptor_relevance: [pigment]
+    effects:
+      - { to: L.ap.color_intensity, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+
+# ---- Flavor-bearing ingredients (with flavor_profile edges) ----
+ingredients_ext:
+
+  - id: ING.strawberry_puree
+    label: "Strawberry puree"
+    function_tags: [FT.flavorant, FT.colorant, FT.sweetener, FT.acidulant]
+    descriptors: { water: high, actives: "esters + furanones (Furaneol) volatiles, sugars, citric/malic acid, pelargonidin pigment" }
+    # flavor_profile = the CONTRIBUTION edges (-> Layer B flavor/taste/appearance nodes)
+    flavor_profile:
+      - { to: L.ar.strawberry,  direction: increase, intensity: strong, scoped_to_structure_class: any, sub_profile: "fresh/green <-> jammy/cooked (volatile & process dependent)", source_type: prior, confidence: high }
+      - { to: L.ar.green_cut_grass,       direction: increase, intensity: medium, scoped_to_structure_class: any, conditions: "fresh/unheated (trans-2-hexenal, light esters)", source_type: prior, confidence: medium }
+      - { to: L.ar.jammy_cooked_fruit, direction: increase, intensity: medium, scoped_to_structure_class: any, conditions: "heated/concentrated (Furaneol, methyl cinnamate)", source_type: prior, confidence: medium }
+      - { to: L.ta.sweet,          direction: increase, intensity: weak,   scoped_to_structure_class: any, source_type: prior, confidence: medium }
+      - { to: L.ta.sour,           direction: increase, intensity: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }
+      - { to: L.ap.color_intensity,              direction: increase, intensity: strong, scoped_to_structure_class: any, source_type: prior, confidence: high, note: "red (pelargonidin)" }
+    # NON-flavor (structural) side effects - a flavorant can perturb structure too:
+    structural_effects:
+      - { to: P.ice_phase_volume, direction: increase, magnitude: weak, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: medium, note: "puree water raises ice fraction / dilutes -> may need FPD/solids compensation" }
+    limitations:
+      - { type: quality, statement: "seeds/particulates add texture; fresh vs cooked note shifts with heat -> process-dependent target" }
+    substitutes: [ING.strawberry_flavor_artificial]
+
+  - id: ING.vanilla_extract
+    label: "Vanilla extract"
+    function_tags: [FT.flavorant]
+    descriptors: { actives: "vanillin + minor aromatics", potency: high }
+    flavor_profile:
+      - { to: L.ar.vanilla,        direction: increase, intensity: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+      - { to: L.ar.caramel, direction: increase, intensity: medium, scoped_to_structure_class: any, source_type: prior, confidence: medium }
+    note: "aroma-taste interaction: vanilla ENHANCES perceived sweetness (see IX.vanilla_sweetness) - lever for sugar reduction"
+    substitutes: []
+
+  - id: ING.strawberry_flavor_artificial
+    label: "Artificial strawberry flavor"
+    function_tags: [FT.flavorant]
+    descriptors: { potency: very_high, contributes_solids: false, contributes_color: false }
+    flavor_profile:
+      - { to: L.ar.strawberry, direction: increase, intensity: strong, scoped_to_structure_class: any, source_type: prior, confidence: high, note: "aroma only - NO color, sugar, acid or water (contrast with puree)" }
+    substitutes: [ING.strawberry_puree]
+
+# ---- Flavor interactions (perceptual; scoped) ----
+flavor_interactions:
+  - id: IX.sweetness_enhances_fruity
+    between: [ING.sucrose, ING.strawberry_puree]
+    type: synergy
+    on_target: L.ar.strawberry
+    scoped_to_structure_class: [any]
+    effect: "sweetness raises perceived fruity/strawberry intensity (sugar x volatile interaction)"
+    source_type: prior
+    confidence: medium
+  - id: IX.vanilla_sweetness
+    between: [ING.vanilla_extract, ING.sucrose]
+    type: synergy
+    on_target: L.ta.sweet
+    scoped_to_structure_class: [any]
+    effect: "vanilla aroma enhances perceived sweetness -> allows lower sugar for same sweetness"
+    source_type: prior
+    confidence: medium
+  - id: IX.fat_carries_aroma
+    between: [ING.cream, ING.strawberry_puree]
+    type: modulation
+    on_target: L.ar.strawberry
+    scoped_to_structure_class: [SC.frozen.ice_cream, SC.emulsion.ow.sauce]
+    effect: "fat retains/slows lipophilic aroma release -> rounder, longer flavor; fat reduction thins/shortens it (see Layer A P.flavor_release_dynamics)"
+    source_type: prior
+    confidence: medium
+
+# ---- MANIFEST: flavor notes referenced here, to be formalized in Layer B next ----
+# (holds the 'place' for the flavor vocabulary; hierarchical wheel: modality>category>note)
+flavor_notes_introduced:
+  - { id: L.ar.strawberry,     modality: flavor, category: fruity,           parent: L.ar.berry, reference_example: "frozen strawberries (WCR-style)", default_goal: target }
+  - { id: L.ar.green_cut_grass,          modality: flavor, category: green_vegetal,     default_goal: context }   # desirable in 'fresh', off in others
+  - { id: L.ar.jammy_cooked_fruit,   modality: flavor, category: cooked_caramelized, default_goal: target }
+  - { id: L.ar.vanilla,        modality: flavor, category: sweet_aromatic,    default_goal: target }
+  - { id: L.ar.caramel, modality: flavor, category: sweet_aromatic,    default_goal: target }
+  - { id: L.ar.berry,          modality: flavor, category: fruity,            note: "parent category node" }
+
+provenance:
+  method: "flavor as node(Layer B)/edge(Layer C) split; hierarchical extensible vocabulary; WCR-style references"
+  supporting_evidence:
+    - "Flavor wheels: modality(aroma/flavor/mouthfeel) > category > note hierarchy; similar notes adjacent"
+    - "WCR Sensory Lexicon: 110 attributes each tied to a repeatable reference food (e.g., frozen strawberries = 'strawberry')"
+    - "Strawberry: fresh/green vs jammy/cooked sub-profiles driven by different volatiles; sweetness enhances perceived fruitiness"
+  status: "seed v0.1 - structure + strawberry/vanilla examples; flavor vocabulary extensible & user-addable; Layer B formalization next"

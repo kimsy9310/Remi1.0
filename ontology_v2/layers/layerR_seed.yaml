@@ -1,0 +1,820 @@
+meta:
+  layer: R
+  version: '2.0'
+  date: '2026-08-18'
+  spec: remi_ontology_spec_v2.md §2.6, §6.5
+  note: 'Seed records, all evidence.source=prior. R-1 params are open coefficient slots (functional_form and monotone
+    are asserted; theta values where literature gives them). Learned records are APPENDED as experiments accrue,
+    never overwritten (Invariant 3). BLACK aging observations (2026-08..12) should be logged as new KN.* records.
+    2026-08-18: R-2 effect enum extended with pos_corr; IN.0004/IN.0010 corrected.'
+  counts:
+    relations_proxy: 58
+    relations_interaction: 10
+    relations_decomposition: 6
+    relations_kinetics: 3
+  r3_exclusions:
+  - 'balanced/rounded and complex/layered: derived quantities over relations among responses, not component decompositions;
+    excluded from R-3 (kept in Held Terms sheet).'
+  pending:
+  - P.shear_thinning_index referenced by PO record but absent from layerA_parameters.yaml - add on next Layer A
+    edit
+  - P.* existence not machine-verified (layerA file not in migration set)
+relations_proxy:
+- id: PO.0001
+  percept: L.tx.grittiness
+  parameter: P.particle_size_d90
+  functional_form: threshold
+  monotone: increasing
+  scope: SC.suspension
+  evidence: &id001
+    source: prior
+    date: '2026-08-18'
+  confidence: medium
+  params:
+    theta: 30
+    unit: um
+  note: Oral grit detection begins near 30 um; perception tracks the coarse tail (d90), not the mean.
+- id: PO.0002
+  percept: L.tx.perceived_piece_size
+  parameter: P.particle_size_d50
+  functional_form: linear
+  monotone: increasing
+  scope: SC.suspension
+  evidence: *id001
+  confidence: medium
+  params: {}
+- id: PO.0003
+  percept: L.ch.pungent_hot
+  parameter: P.capsaicinoid_shu
+  functional_form: saturating
+  monotone: increasing
+  scope: SC.suspension
+  evidence: *id001
+  confidence: medium
+  params: {}
+  note: Perceived heat is sublinear in capsaicinoid concentration; blunted by fat and sugar.
+- id: PO.0004
+  percept: L.ch.heat_linger
+  parameter: P.oil_phase_fraction
+  functional_form: linear
+  monotone: increasing
+  scope: SC.suspension
+  evidence: *id001
+  confidence: medium
+  params: {}
+  note: 'Higher oil fraction: lower peak, longer tail (capsaicin is lipophilic).'
+- id: PO.0005
+  percept: L.ap.serum_layer
+  parameter: P.serum_separation_index
+  functional_form: linear
+  monotone: increasing
+  scope: SC.suspension
+  evidence: *id001
+  confidence: medium
+  params: {}
+- id: PO.0006
+  percept: L.ap.sediment
+  parameter: P.sedimentation_rate
+  functional_form: linear
+  monotone: increasing
+  scope: SC.suspension
+  evidence: *id001
+  confidence: medium
+  params: {}
+  note: See KN.0001 (Stokes) for the time dimension.
+- id: PO.0007
+  percept: L.tx.thickness
+  parameter: P.apparent_viscosity
+  functional_form: linear
+  monotone: increasing
+  scope: SC.suspension
+  evidence: *id001
+  confidence: high
+  params: {}
+- id: PO.0008
+  percept: L.tx.pourability
+  parameter: P.apparent_viscosity
+  functional_form: linear
+  monotone: decreasing
+  scope: SC.suspension
+  evidence: *id001
+  confidence: high
+  params: {}
+- id: PO.0009
+  percept: L.tx.pourability
+  parameter: P.shear_thinning_index
+  functional_form: linear
+  monotone: increasing
+  scope: SC.suspension
+  evidence: *id001
+  confidence: low
+  params: {}
+  note: 'User-identified second driver (2026-08-18): shear-thinning products pour despite high rest viscosity. Parameter
+    to be added to Layer A.'
+- id: PO.0010
+  percept: L.tx.cling
+  parameter: P.yield_stress
+  functional_form: saturating
+  monotone: increasing
+  scope: SC.suspension
+  evidence: *id001
+  confidence: medium
+  params: {}
+- id: PO.0011
+  percept: L.tx.thickness
+  parameter: P.apparent_viscosity
+  functional_form: linear
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.sauce
+  evidence: *id001
+  confidence: high
+  params: {}
+- id: PO.0012
+  percept: L.tx.thickness
+  parameter: P.yield_stress
+  functional_form: linear
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.sauce
+  evidence: *id001
+  confidence: medium
+  params: {}
+- id: PO.0013
+  percept: L.tx.cling
+  parameter: P.apparent_viscosity
+  functional_form: saturating
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.sauce
+  evidence: *id001
+  confidence: medium
+  params: {}
+- id: PO.0014
+  percept: L.tx.cling
+  parameter: P.yield_stress
+  functional_form: saturating
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.sauce
+  evidence: *id001
+  confidence: medium
+  params: {}
+- id: PO.0015
+  percept: L.tx.pourability
+  parameter: P.apparent_viscosity
+  functional_form: linear
+  monotone: decreasing
+  scope: SC.emulsion.ow|APP.sauce
+  evidence: *id001
+  confidence: high
+  params: {}
+- id: PO.0016
+  percept: L.tx.spreadability
+  parameter: P.yield_stress
+  functional_form: linear
+  monotone: decreasing
+  scope: SC.emulsion.ow|APP.sauce
+  evidence: *id001
+  confidence: medium
+  params: {}
+  note: Higher yield stress = harder to spread/scoop.
+- id: PO.0017
+  percept: L.tx.creaminess
+  parameter: P.oil_phase_fraction
+  functional_form: saturating
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.sauce
+  evidence: *id001
+  confidence: medium
+  params: {}
+  note: 'Saturating: diminishing returns of fat on creaminess.'
+- id: PO.0018
+  percept: L.tx.creaminess
+  parameter: P.apparent_viscosity
+  functional_form: linear
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.sauce
+  evidence: *id001
+  confidence: medium
+  params: {}
+- id: PO.0019
+  percept: L.tx.creaminess
+  parameter: P.droplet_size_d32
+  functional_form: linear
+  monotone: decreasing
+  scope: SC.emulsion.ow|APP.sauce
+  evidence: *id001
+  confidence: medium
+  params: {}
+  note: Finer droplets read creamier.
+- id: PO.0020
+  percept: L.tx.oiliness
+  parameter: P.coalescence_rate
+  functional_form: linear
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.sauce
+  evidence: *id001
+  confidence: medium
+  params: {}
+  note: Free-oil film from emulsion breakdown.
+- id: PO.0021
+  percept: L.tx.oiliness
+  parameter: P.droplet_size_d32
+  functional_form: linear
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.sauce
+  evidence: *id001
+  confidence: medium
+  params: {}
+- id: PO.0022
+  percept: L.tx.mouthcoating_persistence
+  parameter: P.oil_phase_fraction
+  functional_form: linear
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.sauce
+  evidence: *id001
+  confidence: low
+  params: {}
+  note: 'Temporal percept: high assessor variance.'
+- id: PO.0023
+  percept: L.tx.mouthcoating_persistence
+  parameter: P.apparent_viscosity
+  functional_form: linear
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.sauce
+  evidence: *id001
+  confidence: low
+  params: {}
+- id: PO.0024
+  percept: L.ap.glossy
+  parameter: P.gloss_optical
+  functional_form: linear
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.sauce
+  evidence: *id001
+  confidence: high
+  params: {}
+- id: PO.0025
+  percept: L.ap.glossy
+  parameter: P.oil_phase_fraction
+  functional_form: saturating
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.sauce
+  evidence: *id001
+  confidence: medium
+  params: {}
+- id: PO.0026
+  percept: L.ap.milky_whiteness
+  parameter: P.droplet_size_d32
+  functional_form: linear
+  monotone: decreasing
+  scope: SC.emulsion.ow|APP.sauce
+  evidence: *id001
+  confidence: high
+  params: {}
+  note: Smaller droplets scatter more light.
+- id: PO.0027
+  percept: L.ap.milky_whiteness
+  parameter: P.oil_phase_fraction
+  functional_form: saturating
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.sauce
+  evidence: *id001
+  confidence: medium
+  params: {}
+- id: PO.0028
+  percept: L.ap.separated
+  parameter: P.creaming_index
+  functional_form: linear
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.sauce
+  evidence: *id001
+  confidence: high
+  params: {}
+- id: PO.0029
+  percept: L.ap.separated
+  parameter: P.coalescence_rate
+  functional_form: linear
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.sauce
+  evidence: *id001
+  confidence: medium
+  params: {}
+- id: PO.0030
+  percept: L.ta.salty
+  parameter: P.sodium_content
+  functional_form: saturating
+  monotone: increasing
+  scope: any
+  evidence: *id001
+  confidence: high
+  params: {}
+- id: PO.0031
+  percept: L.ta.sour
+  parameter: P.pH
+  functional_form: linear
+  monotone: decreasing
+  scope: any
+  evidence: *id001
+  confidence: high
+  params: {}
+  note: pH sets onset/sharpness; TA sets magnitude/duration.
+- id: PO.0032
+  percept: L.ta.sour
+  parameter: P.titratable_acidity
+  functional_form: linear
+  monotone: increasing
+  scope: any
+  evidence: *id001
+  confidence: high
+  params: {}
+- id: PO.0033
+  percept: L.ta.sweet
+  parameter: P.soluble_solids_brix
+  functional_form: saturating
+  monotone: increasing
+  scope: any
+  evidence: *id001
+  confidence: high
+  params: {}
+- id: PO.0034
+  percept: L.ta.aftertaste_length
+  parameter: P.flavor_release_dynamics
+  functional_form: linear
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.sauce
+  evidence: *id001
+  confidence: low
+  params: {}
+  note: Parameterization of release dynamics is ambiguous; refit direction when instrumented.
+- id: PO.0035
+  percept: L.ta.aftertaste_length
+  parameter: P.oil_phase_fraction
+  functional_form: linear
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.sauce
+  evidence: *id001
+  confidence: medium
+  params: {}
+  note: 'Fat retains lipophilic aroma: longer lingering.'
+- id: PO.0036
+  percept: L.tx.body
+  parameter: P.apparent_viscosity
+  functional_form: linear
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.beverage
+  evidence: *id001
+  confidence: medium
+  params: {}
+- id: PO.0037
+  percept: L.tx.body
+  parameter: P.soluble_solids_brix
+  functional_form: linear
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.beverage
+  evidence: *id001
+  confidence: medium
+  params: {}
+  note: Sugar reduction -> watery defect.
+- id: PO.0038
+  percept: L.ap.cloudy
+  parameter: P.turbidity_cloud
+  functional_form: saturating
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.beverage
+  evidence: *id001
+  confidence: high
+  params: {}
+- id: PO.0039
+  percept: L.ap.cloudy
+  parameter: P.oil_phase_fraction
+  functional_form: saturating
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.beverage
+  evidence: *id001
+  confidence: medium
+  params: {}
+- id: PO.0040
+  percept: L.ap.oil_ring
+  parameter: P.ring_formation
+  functional_form: linear
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.beverage
+  evidence: *id001
+  confidence: high
+  params: {}
+- id: PO.0041
+  percept: L.ap.oil_ring
+  parameter: P.creaming_index
+  functional_form: linear
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.beverage
+  evidence: *id001
+  confidence: medium
+  params: {}
+- id: PO.0042
+  percept: L.tx.hardness
+  parameter: P.ice_phase_volume
+  functional_form: linear
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.dessert|ST.frozen
+  evidence: *id001
+  confidence: high
+  params: {}
+- id: PO.0043
+  percept: L.tx.hardness
+  parameter: P.hardness
+  functional_form: linear
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.dessert|ST.frozen
+  evidence: *id001
+  confidence: high
+  params: {}
+  note: Instrumental hardness at serving temperature.
+- id: PO.0044
+  percept: L.tx.hardness
+  parameter: P.overrun
+  functional_form: linear
+  monotone: decreasing
+  scope: SC.emulsion.ow|APP.dessert|ST.frozen
+  evidence: *id001
+  confidence: medium
+  params: {}
+- id: PO.0045
+  percept: L.tx.hardness
+  parameter: P.freezing_point_depression
+  functional_form: linear
+  monotone: decreasing
+  scope: SC.emulsion.ow|APP.dessert|ST.frozen
+  evidence: *id001
+  confidence: high
+  params: {}
+  note: More FPD -> less ice -> softer.
+- id: PO.0046
+  percept: L.tx.body
+  parameter: P.mix_viscosity
+  functional_form: linear
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.dessert|ST.frozen
+  evidence: *id001
+  confidence: medium
+  params: {}
+- id: PO.0047
+  percept: L.tx.body
+  parameter: P.fat_content
+  functional_form: saturating
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.dessert|ST.frozen
+  evidence: *id001
+  confidence: medium
+  params: {}
+- id: PO.0048
+  percept: L.tx.icy
+  parameter: P.ice_crystal_size
+  functional_form: threshold
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.dessert|ST.frozen
+  evidence: *id001
+  confidence: medium
+  params:
+    theta: 50
+    unit: um
+  note: Crystals above ~50 um read icy/coarse (S-profile range note).
+- id: PO.0049
+  percept: L.tx.icy
+  parameter: P.ice_recrystallization
+  functional_form: linear
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.dessert|ST.frozen
+  evidence: *id001
+  confidence: medium
+  params: {}
+- id: PO.0050
+  percept: L.tx.smoothness
+  parameter: P.ice_crystal_size
+  functional_form: linear
+  monotone: decreasing
+  scope: SC.emulsion.ow|APP.dessert|ST.frozen
+  evidence: *id001
+  confidence: medium
+  params: {}
+- id: PO.0051
+  percept: L.tx.smoothness
+  parameter: P.fat_destabilization
+  functional_form: linear
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.dessert|ST.frozen
+  evidence: *id001
+  confidence: medium
+  params: {}
+- id: PO.0052
+  percept: L.tx.creaminess
+  parameter: P.fat_destabilization
+  functional_form: saturating
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.dessert|ST.frozen
+  evidence: *id001
+  confidence: medium
+  params: {}
+- id: PO.0053
+  percept: L.tx.creaminess
+  parameter: P.fat_content
+  functional_form: saturating
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.dessert|ST.frozen
+  evidence: *id001
+  confidence: medium
+  params: {}
+- id: PO.0054
+  percept: L.tx.creaminess
+  parameter: P.ice_crystal_size
+  functional_form: linear
+  monotone: decreasing
+  scope: SC.emulsion.ow|APP.dessert|ST.frozen
+  evidence: *id001
+  confidence: medium
+  params: {}
+- id: PO.0055
+  percept: L.tx.gumminess
+  parameter: P.mix_viscosity
+  functional_form: threshold
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.dessert|ST.frozen
+  evidence: *id001
+  confidence: low
+  params: {}
+  note: Defect appears above a stabilizer threshold; theta unestimated.
+- id: PO.0056
+  percept: L.tx.melting
+  parameter: P.meltdown_rate
+  functional_form: linear
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.dessert|ST.frozen
+  evidence: *id001
+  confidence: high
+  params: {}
+  note: 'Cheap drip-weight test: promotion candidate to instrumented capture.'
+- id: PO.0057
+  percept: L.tx.melting
+  parameter: P.fat_destabilization
+  functional_form: linear
+  monotone: decreasing
+  scope: SC.emulsion.ow|APP.dessert|ST.frozen
+  evidence: *id001
+  confidence: medium
+  params: {}
+  note: Fat network slows melt.
+- id: PO.0058
+  percept: L.tx.cold_perceived
+  parameter: P.serving_temperature
+  functional_form: linear
+  monotone: decreasing
+  scope: SC.emulsion.ow|APP.dessert|ST.frozen
+  evidence: *id001
+  confidence: high
+  params: {}
+# --- appended 2026-08-25: rice-milk reachability (Invariant 6) ---------------
+# The beverage profile had no path from any ingredient to creaminess or oiliness,
+# so the recorded rice-milk panel data could not be fitted on those two axes.
+# These supply the parameter -> percept half; the ingredient -> parameter half is
+# layerC2_ext_beverage_fat_scope.yaml. Composition per spec §5.11.
+# STATUS: DRAFT, source=prior. Confidence medium so 20 samples can overrule.
+- id: PO.0059
+  percept: L.tx.creaminess
+  parameter: P.oil_phase_fraction
+  functional_form: saturating
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.beverage
+  evidence:
+    source: prior
+    date: '2026-08-25'
+  confidence: medium
+  params: {}
+  note: >-
+    Dispersed oil droplets carry the fat-like smooth quality in a dilute O/W beverage.
+    Saturating rather than linear: past roughly a few percent oil the beverage reads as
+    oily rather than creamier, which is why oiliness is a separate axis with the opposite
+    goal. Emulsion quality modulates this - the same oil fraction at a coarser droplet
+    size reads less creamy and more oily - but droplet size has no actuator in this
+    profile yet (spec §5.9), so the effect is attributed to oil fraction alone for now.
+- id: PO.0060
+  percept: L.tx.oiliness
+  parameter: P.oil_phase_fraction
+  functional_form: linear
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.beverage
+  evidence:
+    source: prior
+    date: '2026-08-25'
+  confidence: medium
+  params: {}
+  note: >-
+    Free and poorly emulsified oil coats the palate. Reads together with PO.0059:
+    raising oil fraction buys creaminess and pays in oiliness, which is the actual
+    trade-off the rice-milk DoE is exploring (HANDOFF §3.1, palm oil 15-45).
+relations_interaction:
+- id: IN.0001
+  from: L.tx.cold_perceived
+  to: L.ta.sweet
+  effect: suppress
+  magnitude: medium
+  scope: SC.emulsion.ow|APP.dessert|ST.frozen
+  evidence: *id001
+  confidence: medium
+  note: Cold suppresses perceived sweetness; evaluate at serving temperature.
+- id: IN.0002
+  from: L.tx.smoothness
+  to: L.tx.icy
+  effect: inverse_corr
+  magnitude: strong
+  scope: SC.emulsion.ow|APP.dessert|ST.frozen
+  evidence: *id001
+  confidence: medium
+  note: Near mirror images; never both core (double-counting).
+- id: IN.0003
+  from: L.tx.pourability
+  to: L.tx.thickness
+  effect: inverse_corr
+  magnitude: strong
+  scope: any
+  evidence: *id001
+  confidence: medium
+  note: Never both core.
+- id: IN.0004
+  from: L.tx.mouthcoating_persistence
+  to: L.ta.aftertaste_length
+  effect: pos_corr
+  magnitude: medium
+  scope: SC.emulsion.ow|APP.sauce
+  evidence: *id001
+  confidence: medium
+  note: 'Positively correlated pair (shared fat-release mechanism). [effect fixed inverse_corr->pos_corr 2026-08-18:
+    enum lacked a positive-correlation value]'
+- id: IN.0005
+  from: L.ta.salty
+  to: L.ta.bitter
+  effect: suppress
+  magnitude: medium
+  scope: any
+  evidence: *id001
+  confidence: medium
+  note: Sodium suppresses bitterness.
+- id: IN.0006
+  from: L.ta.sweet
+  to: L.ta.bitter
+  effect: suppress
+  magnitude: weak
+  scope: any
+  evidence: *id001
+  confidence: medium
+- id: IN.0007
+  from: L.ta.sweet
+  to: L.ch.pungent_hot
+  effect: suppress
+  magnitude: weak
+  scope: any
+  evidence: *id001
+  confidence: medium
+  note: Sugar blunts perceived heat.
+- id: IN.0008
+  from: L.ar.vanilla
+  to: L.ta.sweet
+  effect: enhance
+  magnitude: medium
+  scope: any
+  evidence: *id001
+  confidence: medium
+  note: 'Aroma-taste enhancement: sugar-reduction lever (v1 IX.vanilla_sweetness).'
+- id: IN.0009
+  from: L.ta.sweet
+  to: L.ar.strawberry
+  effect: enhance
+  magnitude: medium
+  scope: any
+  evidence: *id001
+  confidence: medium
+  note: Sweetness raises perceived fruitiness (v1 IX.sweetness_enhances_fruity).
+- id: IN.0010
+  from: L.tx.cling
+  to: L.tx.thickness
+  effect: pos_corr
+  magnitude: medium
+  scope: SC.emulsion.ow|APP.sauce
+  evidence: *id001
+  confidence: medium
+  note: 'Positively correlated (viscosity-driven). [effect fixed inverse_corr->pos_corr 2026-08-18: enum lacked
+    a positive-correlation value]'
+relations_decomposition:
+- idiom: depth of flavor
+  idiom_ko: 깊은 맛
+  components:
+  - term: L.ta.umami
+    weight: strong
+  - term: L.ta.kokumi
+    weight: medium
+  - term: L.ar.caramel
+    weight: medium
+    note: browning-aromatics family representative
+  - term: L.ta.aftertaste_length
+    weight: weak
+  id: DC.0001
+- idiom: flat / watery-tasting
+  idiom_ko: 밍밍하다
+  components:
+  - term: L.ta.umami
+    weight: strong
+  - term: L.ta.salty
+    weight: medium
+  - term: L.ta.sour
+    weight: medium
+  - term: L.ar.caramel
+    weight: weak
+    note: stand-in for overall aromatic intensity; confirm per product
+  note: 'Entry route: ask the four JAR questions to localize the deficit before targeting.'
+  id: DC.0002
+- idiom: richness
+  idiom_ko: 진한 풍부함
+  components:
+  - term: L.tx.creaminess
+    weight: strong
+  - term: L.tx.body
+    weight: medium
+  - term: L.ar.creamy_dairy_aroma
+    weight: medium
+  - term: L.ta.kokumi
+    weight: weak
+    note: fermented/aged contexts
+  note: v1 SA.richness maps here (edges retargeted to L.tx.body in C2).
+  id: DC.0003
+- idiom: aged / matured depth
+  idiom_ko: 숙성감
+  components:
+  - term: L.ar.molasses
+    weight: medium
+  - term: L.ar.soy_fermented_jang
+    weight: medium
+  - term: L.ta.kokumi
+    weight: medium
+  - term: L.ar.green_cut_grass
+    weight: weak
+    note: ABSENCE-of fresh top notes; negative indicator
+  id: DC.0004
+- idiom: fresh (overall)
+  idiom_ko: 신선한 느낌
+  components:
+  - term: L.ar.green_cut_grass
+    weight: medium
+  - term: L.ar.citrus
+    weight: weak
+  - term: L.ta.sour
+    weight: medium
+  - term: L.ar.rancid_oxidized
+    weight: medium
+    note: ABSENCE-of; negative indicator
+  - term: L.ar.stale
+    weight: weak
+    note: ABSENCE-of; negative indicator
+  id: DC.0005
+- idiom: well-seasoned
+  idiom_ko: 간이 잘 맞는
+  components:
+  - term: L.ta.salty
+    weight: strong
+  - term: L.ta.sour
+    weight: medium
+  note: Maps to JAR=3 on the components, not to a delta; hedonic-operational.
+  id: DC.0006
+relations_kinetics:
+- id: KN.0001
+  subject: P.sedimentation_rate
+  functional_form: stokes
+  params:
+    proportional_to: d50^2 * density_difference / apparent_viscosity
+  conditions:
+    temperature: ambient
+  caution: 'Do NOT temperature-accelerate sedimentation: lower viscosity at higher T sinks particles faster than
+    reality (biased result). Rancidity may be accelerated; settling may not.'
+  implication: No visible settling at 3 days predicts largely none at 28 days -> 3-day pass/fail check is sufficient
+    (used by §5.8).
+  evidence: *id001
+  confidence: high
+- id: KN.0002
+  subject: L.ar.rancid_oxidized
+  functional_form: first_order
+  params:
+    log_linear: true
+    temperature_scaling: arrhenius
+  conditions:
+    accelerant: temperature, light, oxygen
+  caution: 'Applies to unrefined aroma oils (sesame, perilla) first: the leading shelf-life failure of Ranita-type
+    sauces.'
+  implication: Accelerated (elevated-T) shelf testing is valid for oxidation, unlike sedimentation.
+  evidence: *id001
+  confidence: high
+- id: KN.0003
+  subject: L.ap.darkened
+  functional_form: first_order
+  params:
+    note: capsanthin/chlorophyll degradation; green browns faster than red
+  conditions:
+    accelerant: light, heat, oxygen
+  caution: Cannot be rescued by colourant without a label consequence (v1 note).
+  evidence: *id001
+  confidence: medium

@@ -1,0 +1,180 @@
+meta:
+  layer: M
+  version: '2.0'
+  date: '2026-08-18'
+  profile: Oil-in-water emulsion sauce
+  spec: remi_ontology_spec_v2.md §2.3, §5.7, §5.8, §6.2
+  counts:
+    cards: 16
+    core: 7
+    monitored: 9
+    sample_aged: 1
+measurement_cards:
+- term_id: L.ta.salty
+  active_in: &id001
+  - SC.emulsion.ow|APP.sauce
+  tier: core
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+  jar_target: match benchmark
+- term_id: L.ta.sour
+  active_in: *id001
+  tier: core
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+  jar_target: match benchmark
+- term_id: L.ta.sweet
+  active_in: *id001
+  tier: core
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+  jar_target: match benchmark
+- term_id: L.ta.umami
+  active_in: *id001
+  tier: core
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: medium
+  evidence_required: sample
+  jar_target: match benchmark
+- term_id: L.tx.thickness
+  active_in: *id001
+  tier: core
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+- term_id: L.tx.creaminess
+  active_in: *id001
+  tier: core
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: medium
+  evidence_required: sample
+  jar_target: match benchmark
+  note: Integrated attribute; central axis of the low-fat defect.
+  anchors:
+  - intensity: 2
+    reference: fat-free vinaigrette
+    source: expert
+  - intensity: 14
+    reference: full-fat mayonnaise
+    source: expert
+- term_id: L.tx.cling
+  active_in: *id001
+  tier: core
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: medium
+  evidence_required: sample
+  jar_target: coats like benchmark
+  note: Partially correlated with thickness and creaminess (R-2); kept as distinct use-quality.
+- term_id: L.ap.glossy
+  active_in: *id001
+  tier: monitored
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+- term_id: L.ap.milky_whiteness
+  active_in: *id001
+  tier: monitored
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+- term_id: L.tx.oiliness
+  active_in: *id001
+  tier: monitored
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: minimize
+  reliability: medium
+  evidence_required: sample
+  jar_target: not greasy
+  evaluation_note: 'Defect watch: free-oil film signals emulsion breakdown; distinct from desirable creaminess.'
+- term_id: L.tx.spreadability
+  active_in: *id001
+  tier: monitored
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: medium
+  evidence_required: sample
+  note: Term spreadability (absorbs v1 scoopability). Promotable for spoonable/semisolid products.
+- term_id: L.tx.mouthcoating_persistence
+  active_in: *id001
+  tier: monitored
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: low
+  evidence_required: sample
+  evaluation_note: Temporal afterfeel - high variance; replicates required if promoted.
+- term_id: L.ta.aftertaste_length
+  active_in: *id001
+  tier: monitored
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: low
+  evidence_required: sample
+- term_id: L.ta.bitter
+  active_in: *id001
+  tier: monitored
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: minimize
+  reliability: low
+  evidence_required: sample
+  jar_target: none detectable
+  evaluation_note: Defect watch; check astringency conflation first.
+- term_id: L.tx.pourability
+  active_in: *id001
+  tier: monitored
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+  note: Never core together with thickness (R-2 inverse).
+- term_id: L.ap.separated
+  active_in: *id001
+  tier: monitored
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: minimize
+  reliability: high
+  evidence_required: sample_aged
+  evaluation_note: 'Aged pass/fail check (§5.8): visible creaming / serum / free oil on the set-aside jar.'

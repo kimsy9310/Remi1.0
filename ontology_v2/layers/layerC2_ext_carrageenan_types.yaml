@@ -1,0 +1,118 @@
+# [layerC2 - spec v2 migration 2026-08-18] SA.* targets rewritten to L.* per
+# remi_ontology_spec_v2.md §6.3; v1 lesson ids renamed L.<x> -> LESSON.<x>
+# (namespace collision with Layer L). Source file frozen per Invariant 3.
+# =============================================================================
+# LAYER C - EXTENSION: CARRAGEENAN TYPES + SUGAR AND SALT BUILT OUT
+# v0.1  |  2026-08-11
+# -----------------------------------------------------------------------------
+# THREE CORRECTIONS, ALL THE SAME MISTAKE
+#
+# 1. CARRAGEENAN WAS ONE NODE WITH AN ASSUMPTION IN ITS NAME.
+#    The label read "카파형 가정" - kappa assumed. An unverified assumption had
+#    been written into a generic name, so anything reading the node inherited the
+#    assumption without seeing it. The three types are not variants of one
+#    another; they are different materials:
+#        kappa   brittle, firm gel. Needs POTASSIUM. Syneresis-prone.
+#        iota    soft elastic gel. Needs CALCIUM. Freeze-thaw stable, no syneresis.
+#        lambda  DOES NOT GEL AT ALL. Thickener only.
+#    Substituting lambda for kappa does not give a weaker gel, it gives no gel.
+#    That is a product failure, not a formulation adjustment - which is why one
+#    node covering all three was dangerous rather than merely imprecise.
+#
+# 2. SUCROSE HAD ONE TAG AND NO EFFECTS.
+#    It will be the most-used ingredient in the line and it was a stub: one tag,
+#    two descriptors, no effect edges. The engine could not say anything about
+#    sugar. Built out here, including the effects that matter in a sauce rather
+#    than in a frozen dessert - heat suppression, acid masking, and inversion.
+#
+# 3. SALT HAD NO FUNCTION TAGS AT ALL.
+#    Zero tags, so no tag-driven rule could ever see it, even though salt is the
+#    primary preservation hurdle and the main taste modifier in the category.
+#
+# The shared failure: a node existed, so the gap looked filled. An ingredient
+# with no tags and no effects is not in the ontology in any useful sense; it is a
+# name that makes an absence look like a presence. These were harder to find than
+# the missing ingredients precisely because they were already there.
+#
+# Merge on load. BACKEND IS ENGLISH.
+# =============================================================================
+
+ingredients_ext:
+
+  # ==================================================== CARRAGEENAN FAMILY
+  # ING.carrageenan is now explicitly Kappa (refined) - see layerC_ext_reformulation.yaml.
+  # The id is kept rather than renamed: ids are append-only in this ontology, and
+  # every existing reference to it meant kappa in practice anyway.
+
+  - id: ING.iota_carrageenan
+    label: "Iota carrageenan"
+    function_tags: [FT.stabilizer, FT.thickener]
+    origin: plant
+    vegan_ok: true
+    allergen_kr: none
+    descriptors:
+      charge: "anionic (sulfated, 2 sulfate groups per disaccharide)"
+      type: iota
+      gelation: "soft elastic gel, requires Ca2+"
+      syneresis: "very low - the distinguishing property"
+      refinement: refined
+    overrides:
+      - { to: P.yield_stress, scoped_to_structure_class: SC.suspension, direction: increase, magnitude: medium, source_type: prior, confidence: medium, note: "weak elastic network suspends particles without the brittle texture of kappa" }
+      - { to: L.ap.serum_layer, scoped_to_structure_class: SC.suspension, direction: decrease, magnitude: strong, source_type: prior, confidence: medium, note: "does not synerese; the reason to choose iota over kappa in a keeping product" }
+    limitations:
+      - { type: functional_requirement, statement: "requires calcium ions to gel. In a low-calcium formulation it thickens but does not set - the same dose gives a different product depending on the water and the other ingredients." }
+      - { type: quality, statement: "thixotropic: the gel breaks on shaking and rebuilds on standing. Read as a defect if unexpected, exploited deliberately in a pourable-but-stable sauce." }
+    substitutes: [ING.carrageenan, ING.gellan_gum]
+    note: "Freeze-thaw stable and syneresis-free where kappa is neither. The correct default for a chilled or frozen sauce."
+
+  - id: ING.carrageenan_semi_refined
+    label: "Semi-refined carrageenan (PES / SRC)"
+    specializes: ING.carrageenan
+    function_tags: [FT.stabilizer, FT.thickener, FT.particulate]
+    descriptors:
+      refinement: semi_refined
+      type: kappa
+      insoluble_residue: "cellulosic residue retained (not removed as in refined)"
+    overrides:
+      - { to: L.ap.cloudy, scoped_to_structure_class: any, direction: increase, magnitude: medium, source_type: prior, confidence: medium, note: "retained cellulose makes it cloudy where refined is clear" }
+    limitations:
+      - { type: quality, statement: "cheaper than refined and functionally similar in an opaque product; unusable in anything that must be clear. The choice is an appearance decision disguised as a cost decision." }
+      - { type: regulatory_bound, statement: "declared under a different name from refined carrageenan in several markets.", verify: "current labelling name per market" }
+    substitutes: [ING.carrageenan]
+
+provenance:
+  method: "correct three nodes that existed but carried no usable information"
+  status: "v0.1 - prior edges"
+  note: >
+    ING.sucrose_built and ING.salt_built specialise the existing ids rather than
+    replacing them, so nothing that already references ING.sucrose or ING.salt
+    breaks. Ids are append-only here.
+  open_questions:
+    - "Sugar-heat and sugar-acid suppression are stated as directions with no magnitudes. They are strong enough to confound a DoE and should be quantified before heat and sweetness are varied together."
+
+# =============================================================================
+# 태그가 없던 재료 둘을 위해 (2026-08-13)
+#
+# ING.calcium_carbonate 와 ING.calcium_lactate 는 기능 태그가 하나도 없었다.
+# 태그가 없으면 태그 기반 규칙이 이 재료를 발견하지 못하고, 엔진 팔레트에 들어가도
+# 아무 효과가 없으며, 대체 재료 추천에서도 빠진다. 이름만 있는 상태였다.
+#
+# 특히 calcium_lactate 는 중요하다 — 이오타 카라기난과 펙틴이 굳는 데 필요한
+# Ca2+ 를 공급한다. 그 연결이 없으면 "겔이 안 굳는다" 는 문제의 원인을 못 찾는다.
+# =============================================================================
+function_tags_ext:
+  - id: FT.mineral_fortifier
+    label: "Mineral fortifier"
+    definition: "Supplies a mineral for nutritional labelling; may also act functionally through its ions."
+    descriptor_relevance: [solubility, ion]
+    effects:
+      - { to: L.ta.bitter, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: medium, note: "many mineral salts carry a chalky or bitter note at fortification levels" }
+
+  - id: FT.firming_agent
+    label: "Firming agent (divalent cation source)"
+    definition: "Supplies Ca2+ (or Mg2+) that crosslinks pectin and iota carrageenan, firming texture."
+    descriptor_relevance: [ion, solubility]
+    effects:
+      - { to: P.yield_stress, direction: increase, magnitude: medium, scoped_to_structure_class: SC.suspension, source_type: prior, confidence: medium, note: "only where a Ca-sensitive hydrocolloid is present" }
+    limitations:
+      - { type: functional_coupling, statement: "does nothing on its own. Only acts when pectin or iota carrageenan is in the formulation - so its effect is conditional on another ingredient, not on dose alone." }

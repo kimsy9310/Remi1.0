@@ -1,0 +1,624 @@
+# [layerC2 - spec v2 migration 2026-08-18] SA.* targets rewritten to L.* per
+# remi_ontology_spec_v2.md §6.3; v1 lesson ids renamed L.<x> -> LESSON.<x>
+# (namespace collision with Layer L). Source file frozen per Invariant 3.
+# =============================================================================
+# LAYER C - EXTENSION: SAUCE INGREDIENT PACK (Korean + Latin base)
+# v0.1 seed  |  2026-08-11
+# -----------------------------------------------------------------------------
+# WHY THIS FILE EXISTS
+#   Layer C grew from beverage and ice-cream work: 64 ingredients weighted toward
+#   emulsifiers, stabilisers and sweeteners. A sauce business cannot be built on
+#   it - gochugaru, ganjang, doenjang, sesame oil, garlic and tomato paste were
+#   all absent. The alias layer had been listing them as KNOWN_GAPS, which turned
+#   a silent miss into a named one but did not fix it. This file fixes it.
+#
+# WHAT IS DIFFERENT ABOUT THESE INGREDIENTS
+#   Beverage and frozen ingredients are mostly single-function and dose-linear.
+#   Sauce ingredients are not:
+#     - most carry three or four functions at once (gochujang is colour + heat +
+#       sweetness + umami + acid + solids), so a substitution changes several
+#       axes and cannot be reasoned about one property at a time;
+#     - several are SAFETY-COUPLED. Fresh allium in an ambient oil phase is a
+#       botulism vector. Fresh chilli and tomato are low-acid. These are not
+#       quality trade-offs and the limitations below are typed accordingly;
+#     - the fermented ones arrive with their own salt, acid and pH, so they are
+#       simultaneously ingredients and process conditions.
+#
+# ALLERGENS
+#   allergen_kr follows the Korean labelling list; allergen_intl notes where the
+#   US and EU lists differ. These differ in ways that matter for this product
+#   line: TOMATO is a declarable allergen in Korea and is not in the US or EU,
+#   while SESAME is declarable in the US and EU and is not in Korea. A salsa is
+#   affected by both.
+#   VERIFY against the current MFDS 식품공전 before any label goes to print.
+#   Regulatory numbers below are recorded as prior knowledge with a verify flag,
+#   not as authority.
+#
+# Same 2-tier schema as layerC_ingredient_function.yaml. Merge on load.
+# BACKEND IS ENGLISH: Korean colloquial names live in ingredient_link.py, not here.
+# =============================================================================
+
+function_tags_ext:
+
+  - id: FT.pungent_principle
+    label: "Pungent principle (chemesthetic irritant)"
+    definition: "Delivers trigeminal burn or tingle rather than taste: capsaicinoids, piperine, isothiocyanates, gingerols, sanshools."
+    descriptor_relevance: [pungent_compound, scoville, lipophilicity, onset]
+    effects:
+      - { to: L.ch.pungent_hot, direction: increase, magnitude: strong, scoped_to_structure_class: any, dose_response_shape: saturating, source_type: prior, confidence: high }
+      - { to: L.ch.heat_linger, direction: increase, magnitude: medium, scoped_to_structure_class: SC.emulsion.ow, source_type: prior, confidence: medium, note: "lipophilic actives partition into the oil phase: lower peak, longer tail" }
+
+  - id: FT.umami_source
+    label: "Umami source"
+    definition: "Supplies free glutamate and/or 5'-ribonucleotides. Synergistic: glutamate + ribonucleotide together give far more umami than the sum."
+    descriptor_relevance: [glutamate_level, ribonucleotide, salt_contribution]
+    effects:
+      - { to: L.ta.umami, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+      - { to: L.ta.salty, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high, note: "most umami sources are also salt carriers - salt budget must be counted jointly" }
+      - { to: L.tx.body, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: medium }
+
+  - id: FT.aromatic_allium
+    label: "Aromatic allium (garlic, onion, shallot, leek)"
+    definition: "Alliums as a distinct tag, separate from generic flavorant, BECAUSE OF SAFETY. Fresh alliums are low-acid, carry soil-borne C. botulinum spores, and are the classic vector for ambient-stable oil infusions. The tag exists so the rule engine can find them."
+    descriptor_relevance: [form, heat_treated, acidified]
+    safety_coupled: true
+    effects:
+      - { to: L.ar.garlic, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+    limitations:
+      - { type: safety_bound, statement: "FRESH (raw, unacidified) allium held in an oil or low-oxygen phase at ambient temperature is a Clostridium botulinum growth vector. Requires refrigeration, acidification to pH <= 4.6 throughout, or dehydration. Dried and heat-treated forms do not carry the same hazard.", non_negotiable: true }
+
+  - id: FT.fermented_paste
+    label: "Fermented soy / grain paste"
+    definition: "Brings umami, colour, acid, salt, sugar and suspended solids at once. Behaves as an ingredient AND a process condition."
+    descriptor_relevance: [salt_pct, ph, solids_pct]
+    effects:
+      - { to: L.ta.umami, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+      - { to: L.ar.soy_fermented_jang, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+      - { to: P.apparent_viscosity, direction: increase, magnitude: medium, scoped_to_structure_class: SC.suspension, source_type: prior, confidence: medium, note: "insoluble solids contribute body independent of any added thickener" }
+    limitations:
+      - { type: composition, statement: "carries its own salt (5-14%) and acid. Dosing for flavour sets the salt and pH of the batch as a side effect; recalculate the salt budget and the pH target after every dose change." }
+
+  - id: FT.particulate
+    label: "Particulate / dispersed solid phase"
+    definition: "Insoluble solids that constitute the dispersed phase of a suspension. The defining component of SC.suspension: they carry colour and texture and they are what settles."
+    descriptor_relevance: [particle_size_d50, particle_size_d90, density, hydration]
+    effects:
+      - { to: P.particle_size_d50, direction: increase, magnitude: strong, scoped_to_structure_class: SC.suspension, source_type: prior, confidence: high }
+      - { to: L.tx.grittiness, direction: increase, magnitude: strong, scoped_to_structure_class: SC.suspension, dose_response_shape: threshold, source_type: prior, confidence: high, note: "threshold near 30 um d90, not a smooth dose response" }
+      - { to: P.sedimentation_rate, direction: increase, magnitude: strong, scoped_to_structure_class: SC.suspension, source_type: prior, confidence: high }
+      - { to: L.ap.cloudy, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+    limitations:
+      - { type: physical, statement: "Stokes: settling velocity scales with the SQUARE of particle diameter and with density difference. Halving particle size slows settling roughly fourfold - usually cheaper and more robust than adding thickener, and it does not change the mouthfeel the way a gum does." }
+
+  - id: FT.aroma_oil
+    label: "Unrefined aroma oil"
+    definition: "Oil used for its aroma rather than as a bulk fat phase: toasted sesame, perilla, unrefined olive. Dosed at flavour level, not structure level."
+    descriptor_relevance: [oxidative_stability, pufa_pct, roast_level]
+    effects:
+      - { to: L.ar.roasted_sesame, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+      - { to: L.tx.greasiness, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }
+    limitations:
+      - { type: stability, statement: "high in polyunsaturates and used unrefined: oxidises to a rancid note well before microbial failure. In a sesame or perilla product this is usually the shelf-life-limiting mechanism, and it is a FLAVOUR failure that a microbiological shelf-life test will not detect." }
+
+  - id: FT.aw_depressant
+    label: "Water-activity depressant (preservation hurdle)"
+    definition: "Lowers water activity and so suppresses microbial growth. Preservation by hurdle rather than by additive."
+    descriptor_relevance: [molecular_weight, solubility]
+    effects:
+      - { to: P.water_activity, direction: decrease, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+    limitations:
+      - { type: composition, statement: "what governs growth is the concentration in the WATER PHASE, not in the whole product. In a high-oil sauce the same total salt gives a much higher water-phase salt and a much lower aw. Compute on the water phase." }
+
+ingredients_ext:
+
+  # ==================================================== CHILLI / PUNGENT
+  - id: ING.gochugaru_coarse
+    label: "Korean chilli flakes, coarse (gochugaru)"
+    function_tags: [FT.pungent_principle, FT.colorant, FT.particulate, FT.flavorant]
+    origin: plant
+    vegan_ok: true
+    allergen_kr: none
+    descriptors: { pungent_compound: capsaicinoid, scoville: "1,000-8,000 SHU typical", particle_size_d50: "500-1500 um", colour: "red (capsanthin)", form: dried_flake }
+    flavor_profile:
+      - { to: L.ar.dried_red_chili, direction: increase, intensity: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+    overrides:
+      - { to: L.tx.grittiness, scoped_to_structure_class: SC.suspension, magnitude: strong, source_type: prior, confidence: high, note: "coarse flake sits far above the 30 um grit threshold; the usual cause of a 'grainy' complaint" }
+      - { to: L.tx.fibrousness, direction: increase, scoped_to_structure_class: SC.suspension, magnitude: strong, source_type: prior, confidence: high, note: "seed coat and pericarp fragments do not mill down with the flesh" }
+    limitations:
+      - { type: quality, statement: "colour and heat vary widely by cultivar, origin and crop year. Fix the supplier and the lot spec (ASTA colour + SHU) before running any DoE, or the design measures the supplier instead of the recipe." }
+      - { type: regulatory_limit, statement: "dried chilli powder is subject to mycotoxin limits (aflatoxin, ochratoxin A) in Korea. Certificate of analysis required per lot.", verify: "current MFDS 식품공전 limits" }
+      - { type: quality, statement: "capsanthin bleaches with light and oxygen; a clear bottle on a lit shelf browns visibly within weeks." }
+    substitutes: [ING.gochugaru_fine, ING.paprika_sweet, ING.cayenne_powder]
+
+  - id: ING.gochugaru_fine
+    label: "Korean chilli powder, fine (gochugaru, goun)"
+    specializes: ING.gochugaru_coarse
+    function_tags: [FT.pungent_principle, FT.colorant, FT.particulate, FT.flavorant]
+    descriptors: { particle_size_d50: "100-300 um", form: dried_powder }
+    overrides:
+      - { to: L.tx.grittiness, scoped_to_structure_class: SC.suspension, magnitude: medium, source_type: prior, confidence: high, note: "still above threshold - fine gochugaru is not smooth, it is less coarse" }
+      - { to: P.sedimentation_rate, scoped_to_structure_class: SC.suspension, direction: decrease, magnitude: strong, source_type: prior, confidence: high, note: "Stokes: ~5x diameter reduction vs coarse -> order-of-magnitude slower settling" }
+    substitutes: [ING.gochugaru_coarse, ING.capsicum_oleoresin]
+
+  - id: ING.chili_fresh_green
+    label: "Fresh green chilli (cheongyang / serrano / jalapeno type)"
+    function_tags: [FT.pungent_principle, FT.particulate, FT.flavorant]
+    origin: plant
+    vegan_ok: true
+    descriptors: { pungent_compound: capsaicinoid, scoville: "2,500-10,000 SHU (cultivar-dependent)", ph: "4.8-5.5", form: fresh, water_pct: "~88" }
+    flavor_profile:
+      - { to: L.ar.fresh_chili_green, direction: increase, intensity: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+    limitations:
+      - { type: safety_bound, statement: "LOW-ACID (pH > 4.6) and high moisture. An ambient shelf-stable product containing fresh chilli requires acidification to an equilibrium pH <= 4.6 throughout, or a validated thermal process, or refrigeration.", non_negotiable: true }
+      - { type: quality, statement: "the fresh green note is largely lost on cooking. If that note is the product concept, heat load is a design constraint, not a free process variable." }
+      - { type: quality, statement: "heat varies severalfold pod to pod; a batch cannot be dosed reliably by weight of whole pods alone." }
+    substitutes: [ING.jalapeno, ING.chili_fresh_red]
+
+  - id: ING.chili_fresh_red
+    label: "Fresh red chilli"
+    specializes: ING.chili_fresh_green
+    function_tags: [FT.pungent_principle, FT.colorant, FT.particulate, FT.flavorant]
+    descriptors: { colour: red, ripeness: mature }
+    note: "ripened: sweeter, less green note, contributes red colour"
+    substitutes: [ING.chili_fresh_green, ING.gochugaru_fine]
+
+  - id: ING.jalapeno
+    label: "Jalapeno pepper"
+    specializes: ING.chili_fresh_green
+    descriptors: { scoville: "2,500-8,000 SHU" }
+    substitutes: [ING.chili_fresh_green, ING.chipotle]
+
+  - id: ING.chipotle
+    label: "Chipotle (smoke-dried jalapeno)"
+    function_tags: [FT.pungent_principle, FT.flavorant, FT.colorant, FT.particulate]
+    origin: plant
+    vegan_ok: true
+    descriptors: { form: dried_smoked, scoville: "2,500-8,000 SHU" }
+    flavor_profile:
+      - { to: L.ar.smoky, direction: increase, intensity: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+      - { to: L.ar.dried_red_chili, direction: increase, intensity: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }
+    note: "primary route to a dark smoky red sauce without added smoke flavouring"
+    substitutes: [ING.paprika_smoked, ING.chili_dried_ancho]
+
+  - id: ING.chili_dried_ancho
+    label: "Ancho / dried poblano"
+    function_tags: [FT.flavorant, FT.colorant, FT.particulate, FT.pungent_principle]
+    origin: plant
+    vegan_ok: true
+    descriptors: { scoville: "1,000-2,000 SHU", colour: "deep brown-red" }
+    flavor_profile:
+      - { to: L.ar.dried_red_chili, direction: increase, intensity: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+    note: "sweet raisin-like dried chilli; colour and body with little heat - useful for a dark sauce where heat is set separately"
+    substitutes: [ING.chipotle, ING.paprika_sweet]
+
+  - id: ING.habanero
+    label: "Habanero / Scotch bonnet"
+    function_tags: [FT.pungent_principle, FT.flavorant]
+    origin: plant
+    vegan_ok: true
+    descriptors: { scoville: "100,000-350,000 SHU", pungent_compound: capsaicinoid }
+    flavor_profile:
+      - { to: L.ar.citrus, direction: increase, intensity: medium, scoped_to_structure_class: any, source_type: prior, confidence: high, note: "distinctly fruity/apricot aroma, not only heat" }
+    limitations:
+      - { type: quality, statement: "dosed at fractions of a percent. Below the resolution of ordinary kitchen scales - prepare as a dilution or the DoE cannot be executed reproducibly." }
+      - { type: safety_bound, statement: "handling hazard for the maker (skin and eye contact, airborne capsaicin when milling). A process control, not a product hazard." }
+    substitutes: [ING.capsicum_oleoresin, ING.cayenne_powder]
+
+  - id: ING.cayenne_powder
+    label: "Cayenne pepper powder"
+    function_tags: [FT.pungent_principle, FT.colorant, FT.particulate]
+    origin: plant
+    vegan_ok: true
+    descriptors: { scoville: "30,000-50,000 SHU", particle_size_d50: "50-150 um" }
+    note: "heat without much flavour contribution - the usual way to decouple L.ch.pungent_hot from flavour"
+    substitutes: [ING.capsicum_oleoresin, ING.gochugaru_fine]
+
+  - id: ING.capsicum_oleoresin
+    label: "Capsicum oleoresin"
+    function_tags: [FT.pungent_principle, FT.colorant]
+    origin: plant
+    vegan_ok: true
+    descriptors: { scoville: "standardised, 0.5-2 million SHU", form: liquid_extract, lipophilicity: high }
+    overrides:
+      - { to: L.ch.pungent_hot, scoped_to_structure_class: any, magnitude: strong, source_type: prior, confidence: high, note: "STANDARDISED heat: the only way to hold pungency constant while varying everything else. For a DoE that treats heat as a controlled factor this is the correct choice." }
+    limitations:
+      - { type: consumer, statement: "reads as an extract on the label; conflicts with a clean-label or all-natural claim even where it is permitted." }
+      - { type: physical, statement: "oil-soluble. In a low-fat suspension it needs a carrier or it will not disperse evenly and heat will vary between spoonfuls." }
+    substitutes: [ING.cayenne_powder, ING.habanero]
+
+  - id: ING.paprika_sweet
+    label: "Sweet paprika"
+    function_tags: [FT.colorant, FT.flavorant, FT.particulate]
+    origin: plant
+    vegan_ok: true
+    descriptors: { scoville: "<500 SHU", colour: "red (capsanthin), ASTA-graded" }
+    note: "colour and body without heat - the standard way to raise redness after heat has been set"
+    substitutes: [ING.paprika_smoked, ING.gochugaru_fine]
+
+  - id: ING.paprika_smoked
+    label: "Smoked paprika (pimenton)"
+    specializes: ING.paprika_sweet
+    flavor_profile:
+      - { to: L.ar.smoky, direction: increase, intensity: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+    substitutes: [ING.chipotle, ING.paprika_sweet]
+
+  - id: ING.black_pepper
+    label: "Black pepper"
+    function_tags: [FT.pungent_principle, FT.flavorant, FT.particulate]
+    origin: plant
+    vegan_ok: true
+    descriptors: { pungent_compound: piperine, onset: fast }
+    overrides:
+      - { to: L.ch.heat_onset, direction: decrease, scoped_to_structure_class: any, magnitude: strong, source_type: prior, confidence: medium, note: "piperine arrives faster and fades sooner than capsaicin; blending the two widens the heat window" }
+    substitutes: []
+
+  # ==================================================== FERMENTED / UMAMI
+  - id: ING.gochujang
+    label: "Gochujang (fermented chilli paste)"
+    function_tags: [FT.fermented_paste, FT.pungent_principle, FT.colorant, FT.umami_source, FT.sweetener, FT.particulate]
+    origin: plant
+    vegan_ok: true
+    allergen_kr: [soy, wheat]
+    descriptors: { salt_pct: "5-7", ph: "4.5-5.0", solids_pct: "50-60", scoville: "low - heat is secondary to colour and sweetness" }
+    flavor_profile:
+      - { to: L.ar.soy_fermented_jang, direction: increase, intensity: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+      - { to: L.ta.sweet, direction: increase, intensity: medium, scoped_to_structure_class: any, source_type: prior, confidence: high, note: "rice starch is saccharified during fermentation - it is a genuinely sweet ingredient" }
+    limitations:
+      - { type: composition, statement: "six functions in one ingredient (colour, heat, sweetness, umami, acid, solids). Dosing it for any one of these moves the other five; it cannot be treated as a single DoE factor without confounding." }
+      - { type: allergen, statement: "soy and wheat (most commercial gochujang uses wheat-containing meju or added flour). Declarable in Korea." }
+    substitutes: [ING.doenjang, ING.gochugaru_fine]
+
+  - id: ING.doenjang
+    label: "Doenjang (fermented soybean paste)"
+    function_tags: [FT.fermented_paste, FT.umami_source, FT.aw_depressant, FT.particulate]
+    origin: plant
+    vegan_ok: true
+    allergen_kr: [soy]
+    descriptors: { salt_pct: "10-14", ph: "5.5-6.2", glutamate_level: high }
+    flavor_profile:
+      - { to: L.ar.soy_fermented_jang, direction: increase, intensity: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+      - { to: L.ar.funky, direction: increase, intensity: medium, scoped_to_structure_class: any, source_type: prior, confidence: medium }
+    limitations:
+      - { type: composition, statement: "pH is near neutral - unlike gochujang it does NOT help acidify. Adding doenjang to reach umami RAISES the pH toward the 4.6 line." }
+      - { type: consumer, statement: "acceptance outside the domestic market is much lower than in it. Treat as a segmentation variable." }
+    substitutes: [ING.miso, ING.soy_sauce_brewed]
+
+  - id: ING.miso
+    label: "Miso"
+    function_tags: [FT.fermented_paste, FT.umami_source, FT.aw_depressant]
+    origin: plant
+    vegan_ok: true
+    allergen_kr: [soy]
+    descriptors: { salt_pct: "5-13", ph: "5.0-5.5" }
+    note: "milder and sweeter than doenjang; broader out-of-market acceptance"
+    substitutes: [ING.doenjang]
+
+  - id: ING.soy_sauce_brewed
+    label: "Brewed soy sauce (ganjang)"
+    function_tags: [FT.umami_source, FT.aw_depressant, FT.colorant, FT.acidulant]
+    origin: plant
+    vegan_ok: true
+    allergen_kr: [soy, wheat]
+    descriptors: { salt_pct: "14-18", ph: "4.6-4.9", glutamate_level: high, form: liquid }
+    flavor_profile:
+      - { to: L.ar.soy_fermented_jang, direction: increase, intensity: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+    limitations:
+      - { type: composition, statement: "a large salt vector. At 15% salt, a 10% dose already contributes ~1.5% salt to the batch - frequently the binding constraint on how much umami can be bought this way." }
+      - { type: quality, statement: "darkens the product. In a bright red or green sauce this is a direct conflict between umami and colour targets." }
+    substitutes: [ING.fish_sauce_anchovy, ING.doenjang]
+
+  - id: ING.fish_sauce_anchovy
+    label: "Anchovy fish sauce (aekjeot)"
+    function_tags: [FT.umami_source, FT.aw_depressant]
+    origin: animal
+    vegan_ok: false
+    allergen_kr: [fish_species_dependent]
+    descriptors: { salt_pct: "20-25", ph: "5.0-5.8", glutamate_level: very_high }
+    flavor_profile:
+      - { to: L.ar.funky, direction: increase, intensity: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+    limitations:
+      - { type: safety_bound, statement: "histamine (scombroid) risk is governed by the raw-fish handling before fermentation, not by anything done downstream. Buy on a histamine specification; it cannot be corrected in-process.", verify: "current MFDS histamine limit for fish sauce" }
+      - { type: consumer, statement: "strongly polarising and disqualifying for vegan and many halal/kosher positionings. A single ingredient that closes several markets." }
+    substitutes: [ING.soy_sauce_brewed]
+
+  - id: ING.oyster_sauce
+    label: "Oyster sauce"
+    function_tags: [FT.umami_source, FT.thickener, FT.sweetener]
+    origin: animal
+    vegan_ok: false
+    allergen_kr: [shellfish, soy, wheat]
+    descriptors: { salt_pct: "10-14" }
+    note: "arrives pre-thickened (usually modified starch) - counts toward the viscosity budget"
+    substitutes: [ING.soy_sauce_brewed]
+
+  - id: ING.msg
+    label: "Monosodium glutamate"
+    function_tags: [FT.umami_source]
+    origin: fermentation
+    vegan_ok: true
+    allergen_kr: none
+    descriptors: { glutamate_level: pure, salt_contribution: "~1/3 of NaCl per weight" }
+    overrides:
+      - { to: L.ta.umami, scoped_to_structure_class: any, magnitude: strong, source_type: prior, confidence: high, note: "the only way to move umami WITHOUT moving colour, salt and pH at the same time. For DoE it is the clean factor; for the label it is often unacceptable." }
+    limitations:
+      - { type: consumer, statement: "label acceptance, not safety, is the binding constraint. Decide the positioning before the DoE, because dropping MSG afterwards invalidates the design." }
+    substitutes: [ING.yeast_extract, ING.soy_sauce_brewed]
+
+  - id: ING.yeast_extract
+    label: "Yeast extract"
+    function_tags: [FT.umami_source, FT.flavorant]
+    origin: fermentation
+    vegan_ok: true
+    descriptors: { glutamate_level: high, ribonucleotide: present }
+    note: "glutamate AND ribonucleotides together - synergistic, so less is needed than glutamate alone. Common clean-label route to MSG-like umami."
+    substitutes: [ING.msg]
+
+  # ==================================================== ALLIUM / AROMATICS
+  - id: ING.garlic_fresh
+    label: "Fresh garlic"
+    function_tags: [FT.aromatic_allium, FT.flavorant, FT.particulate]
+    origin: plant
+    vegan_ok: true
+    allergen_kr: none
+    descriptors: { form: fresh, ph: "5.3-6.3", heat_treated: false, acidified: false }
+    flavor_profile:
+      - { to: L.ar.garlic, direction: increase, intensity: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+    limitations:
+      - { type: safety_bound, statement: "FRESH GARLIC IN OIL AT AMBIENT IS A BOTULISM VECTOR. Low acid, spore-bearing, and an oil phase gives the anaerobic condition. Refrigerate, acidify to pH <= 4.6 throughout, or use a dried/heat-treated form. This is not a quality trade-off.", non_negotiable: true }
+      - { type: quality, statement: "allicin forms on crushing and degrades with heat; the raw pungent note and the cooked sweet note are different compounds. Whether garlic goes in before or after the heat step is a flavour decision, not a scheduling one." }
+    substitutes: [ING.garlic_powder, ING.garlic_roasted, ING.black_garlic]
+
+  - id: ING.garlic_roasted
+    label: "Roasted garlic"
+    specializes: ING.garlic_fresh
+    descriptors: { form: heat_treated, heat_treated: true }
+    note: "sweet, mellow; the raw pungency is gone. Heat treatment reduces but does not by itself eliminate the ambient-oil hazard - the pH and storage conditions still govern."
+    substitutes: [ING.black_garlic, ING.garlic_fresh]
+
+  - id: ING.black_garlic
+    label: "Black garlic (aged)"
+    function_tags: [FT.flavorant, FT.umami_source, FT.colorant]
+    origin: plant
+    vegan_ok: true
+    descriptors: { form: aged, ph: "3.7-4.3", colour: "near-black (Maillard)" }
+    flavor_profile:
+      - { to: L.ar.jammy_cooked_fruit, direction: increase, intensity: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+      - { to: L.ta.umami, direction: increase, intensity: medium, scoped_to_structure_class: any, source_type: prior, confidence: medium }
+    note: "aged, not fermented. Notably ACIDIC (pH ~4) unlike fresh garlic - it helps rather than hinders an acidified target, and it contributes dark colour."
+    substitutes: [ING.garlic_roasted]
+
+  - id: ING.garlic_powder
+    label: "Garlic powder / granules"
+    function_tags: [FT.aromatic_allium, FT.flavorant]
+    origin: plant
+    vegan_ok: true
+    descriptors: { form: dried, heat_treated: true, water_activity: low }
+    note: "dried form does not carry the fresh-allium ambient-oil hazard; the usual substitution when an ambient product needs garlic character"
+    substitutes: [ING.garlic_fresh]
+
+  - id: ING.onion_fresh
+    label: "Fresh onion"
+    function_tags: [FT.aromatic_allium, FT.flavorant, FT.particulate, FT.sweetener]
+    origin: plant
+    vegan_ok: true
+    descriptors: { form: fresh, ph: "5.3-5.8", water_pct: "~89" }
+    flavor_profile:
+      - { to: L.ar.onion, direction: increase, intensity: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+    limitations:
+      - { type: safety_bound, statement: "low-acid fresh allium: same ambient-oil constraint as fresh garlic.", non_negotiable: true }
+      - { type: composition, statement: "roughly 90% water. A high onion load is also a large water addition and dilutes everything else - it is a formulation variable, not just a flavour one." }
+    substitutes: [ING.onion_powder, ING.shallot]
+
+  - id: ING.onion_powder
+    label: "Onion powder"
+    function_tags: [FT.aromatic_allium, FT.flavorant]
+    origin: plant
+    vegan_ok: true
+    descriptors: { form: dried, heat_treated: true }
+    substitutes: [ING.onion_fresh]
+
+  - id: ING.shallot
+    label: "Shallot"
+    specializes: ING.onion_fresh
+    note: "sweeter, less sulphurous"
+    substitutes: [ING.onion_fresh]
+
+  - id: ING.ginger_fresh
+    label: "Fresh ginger"
+    function_tags: [FT.pungent_principle, FT.flavorant, FT.particulate]
+    origin: plant
+    vegan_ok: true
+    descriptors: { pungent_compound: "gingerol / shogaol", ph: "5.6-5.9" }
+    limitations:
+      - { type: quality, statement: "contains an active protease (zingibain). In a protein-containing sauce raw ginger degrades protein structure on storage - a slow thinning that only shows up in a keeping trial." }
+      - { type: safety_bound, statement: "low-acid fresh vegetable matter: same ambient constraint as other fresh aromatics.", non_negotiable: true }
+    substitutes: [ING.ginger_powder]
+
+  - id: ING.ginger_powder
+    label: "Ginger powder"
+    function_tags: [FT.pungent_principle, FT.flavorant]
+    origin: plant
+    vegan_ok: true
+    descriptors: { pungent_compound: shogaol, heat_treated: true }
+    note: "drying converts gingerol to shogaol - hotter and less fresh-citrusy than the fresh root. Not a like-for-like substitution."
+    substitutes: [ING.ginger_fresh]
+
+  # ==================================================== ACID / SOUR
+  - id: ING.vinegar_brewed
+    label: "Brewed vinegar (acetic acid ~4-7%)"
+    function_tags: [FT.acidulant, FT.preservative, FT.flavorant]
+    origin: fermentation
+    vegan_ok: true
+    descriptors: { acid: acetic, strength_pct: "4-7", ph: "2.4-3.4" }
+    flavor_profile:
+      - { to: L.ar.vinegar_acetic, direction: increase, intensity: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+    overrides:
+      - { to: P.pH, scoped_to_structure_class: any, direction: decrease, magnitude: strong, source_type: prior, confidence: high }
+    limitations:
+      - { type: composition, statement: "the primary route to an ambient-stable acidified sauce, but it is also a strong aroma. The acid needed for safety often exceeds the acid wanted for taste - that gap is a real design conflict and is usually resolved with a second, less aromatic acid." }
+      - { type: physical, statement: "mostly water. A large vinegar dose thins the product and the thickener has to be re-solved for." }
+    substitutes: [ING.citric_acid, ING.lactic_acid, ING.lime_juice]
+
+  - id: ING.lime_juice
+    label: "Lime juice"
+    function_tags: [FT.acidulant, FT.flavorant]
+    origin: plant
+    vegan_ok: true
+    descriptors: { acid: citric, ph: "2.0-2.4" }
+    flavor_profile:
+      - { to: L.ar.lime, direction: increase, intensity: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+    limitations:
+      - { type: stability, statement: "the fresh citrus TOP NOTE does not survive heat or storage, although the acid does. A product that tastes right at T0 loses its lime character by T2 while its pH is unchanged - a classic keeping-trial surprise." }
+    substitutes: [ING.lemon_juice, ING.citric_acid]
+
+  - id: ING.lemon_juice
+    label: "Lemon juice"
+    specializes: ING.lime_juice
+    descriptors: { acid: citric, ph: "2.0-2.6" }
+    substitutes: [ING.lime_juice, ING.citric_acid]
+
+  - id: ING.maesil_syrup
+    label: "Maesil (green plum) syrup"
+    function_tags: [FT.sweetener, FT.acidulant, FT.flavorant, FT.aw_depressant]
+    origin: plant
+    vegan_ok: true
+    descriptors: { acid: "citric/malic", soluble_solids_brix: "50-65", ph: "2.8-3.5" }
+    flavor_profile:
+      - { to: L.ar.plum_maesil, direction: increase, intensity: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+    limitations:
+      - { type: composition, statement: "sugar and acid arrive together in a fixed ratio. It cannot adjust sweetness and sourness independently, so it is a poor DoE factor even though it is a good kitchen ingredient." }
+      - { type: quality, statement: "home-made syrup varies by steeping time and fruit lot; brix and pH must be measured per lot, not assumed." }
+    substitutes: [ING.sucrose, ING.citric_acid]
+
+  # ==================================================== TOMATO / VEGETABLE BASE
+  - id: ING.tomato_paste
+    label: "Tomato paste (concentrate)"
+    function_tags: [FT.colorant, FT.flavorant, FT.particulate, FT.umami_source, FT.thickener]
+    origin: plant
+    vegan_ok: true
+    allergen_kr: [tomato]
+    descriptors: { soluble_solids_brix: "28-36", ph: "4.1-4.5", glutamate_level: medium, colour: red_lycopene }
+    flavor_profile:
+      - { to: L.ar.tomato_cooked, direction: increase, intensity: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+    overrides:
+      - { to: P.apparent_viscosity, scoped_to_structure_class: SC.suspension, direction: increase, magnitude: strong, source_type: prior, confidence: high, note: "pectin and insoluble solids give body without any added hydrocolloid" }
+    limitations:
+      - { type: allergen, statement: "TOMATO IS A DECLARABLE ALLERGEN IN KOREA. It is not on the US or EU lists. A salsa must declare it domestically." }
+      - { type: composition, statement: "pH 4.1-4.5 straddles the 4.6 line. Tomato alone does not make a product safely acidified; the equilibrium pH of the finished batch has to be measured, not inferred from the tomato." }
+      - { type: quality, statement: "lycopene is more heat-stable than capsanthin but oxidises on light exposure; the same shelf-browning risk applies." }
+    substitutes: [ING.tomato_diced, ING.paprika_sweet]
+
+  - id: ING.tomato_diced
+    label: "Diced / crushed tomato"
+    function_tags: [FT.particulate, FT.flavorant, FT.colorant]
+    origin: plant
+    vegan_ok: true
+    allergen_kr: [tomato]
+    descriptors: { soluble_solids_brix: "4-7", ph: "4.1-4.5", water_pct: "~93" }
+    limitations:
+      - { type: physical, statement: "large soft particles that release water on standing - a leading cause of serum separation in a chunky suspension. The choice between paste and dice is a stability decision as much as a texture one." }
+    substitutes: [ING.tomato_paste]
+
+  - id: ING.tomatillo
+    label: "Tomatillo"
+    function_tags: [FT.particulate, FT.acidulant, FT.flavorant]
+    origin: plant
+    vegan_ok: true
+    descriptors: { ph: "3.4-4.0", colour: green }
+    flavor_profile:
+      - { to: L.ar.tomatillo_tart_green, direction: increase, intensity: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+    note: "genuinely acidic (pH ~3.8) unlike tomato - a salsa verde base is much closer to safe acidification before any vinegar is added"
+    limitations:
+      - { type: stability, statement: "the green colour is chlorophyll and browns rapidly with heat and acid together. A bright green ambient product is a hard target; this is the constraint that usually forces refrigeration or a colour compromise." }
+    substitutes: [ING.chili_fresh_green]
+
+  - id: ING.cilantro
+    label: "Cilantro / coriander leaf"
+    function_tags: [FT.flavorant, FT.particulate]
+    origin: plant
+    vegan_ok: true
+    flavor_profile:
+      - { to: L.ar.cilantro, direction: increase, intensity: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+    limitations:
+      - { type: consumer, statement: "perception is partly genetic (OR6A2 haplotype): a minority perceive a soapy off-note rather than a herbal one. This is a bimodal response - averaging a panel across it hides the split and produces a target no one wants." }
+      - { type: safety_bound, statement: "fresh low-acid herb: same ambient-oil constraint as fresh allium.", non_negotiable: true }
+      - { type: stability, statement: "the aroma is almost entirely lost within days in an acidified ambient product." }
+    substitutes: []
+
+  - id: ING.cumin
+    label: "Cumin"
+    function_tags: [FT.flavorant, FT.particulate]
+    origin: plant
+    vegan_ok: true
+    note: "dominant and low-threshold; a small overdose defines the whole product"
+    substitutes: []
+
+  - id: ING.oregano_mexican
+    label: "Mexican oregano"
+    function_tags: [FT.flavorant, FT.particulate]
+    origin: plant
+    vegan_ok: true
+    note: "different botanical genus from Mediterranean oregano and a different aroma - not interchangeable despite the shared name"
+    substitutes: []
+
+  # ==================================================== OIL / FAT
+  - id: ING.sesame_oil_toasted
+    label: "Toasted sesame oil"
+    function_tags: [FT.aroma_oil, FT.flavorant, FT.fat_source]
+    origin: plant
+    vegan_ok: true
+    allergen_kr: none
+    allergen_intl: [sesame]
+    descriptors: { roast_level: high, pufa_pct: "~42", oxidative_stability: medium }
+    flavor_profile:
+      - { to: L.ar.roasted_sesame, direction: increase, intensity: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+    limitations:
+      - { type: allergen, statement: "SESAME IS DECLARABLE IN THE US (FASTER Act) AND THE EU, AND IS NOT ON THE KOREAN LIST. A domestically compliant label is not export-compliant. Decide the market before the label.", verify: "current lists in each destination market" }
+      - { type: stability, statement: "roasting produces antioxidant Maillard products, so toasted sesame oil keeps better than raw - but it is still the likely first flavour failure in an ambient product. Test for rancid note at T2, not only for microbial counts." }
+    substitutes: [ING.perilla_oil]
+
+  - id: ING.perilla_oil
+    label: "Perilla oil"
+    function_tags: [FT.aroma_oil, FT.flavorant, FT.fat_source]
+    origin: plant
+    vegan_ok: true
+    descriptors: { pufa_pct: "~60 (mostly alpha-linolenic)", oxidative_stability: low }
+    limitations:
+      - { type: stability, statement: "the least oxidatively stable common edible oil. Ambient shelf life is measured in weeks, not months, and refrigeration is effectively mandatory. If a keeping target longer than a few weeks is set, this ingredient is the reason it fails.", severity: high }
+    substitutes: [ING.sesame_oil_toasted]
+
+  - id: ING.olive_oil_evoo
+    label: "Extra virgin olive oil"
+    function_tags: [FT.aroma_oil, FT.fat_source]
+    origin: plant
+    vegan_ok: true
+    descriptors: { oxidative_stability: high, pufa_pct: "~10" }
+    flavor_profile:
+      - { to: L.ta.bitter, direction: increase, intensity: medium, scoped_to_structure_class: any, source_type: prior, confidence: medium, note: "oleocanthal/oleuropein - genuinely bitter and peppery, often misread as a defect" }
+    limitations:
+      - { type: physical, statement: "clouds and solidifies under refrigeration. Reversible, but consumers read it as spoilage - a real returns driver for a chilled product." }
+    substitutes: [ING.canola_oil, ING.high_oleic_sunflower_oil]
+
+  - id: ING.canola_oil
+    label: "Canola / rapeseed oil"
+    function_tags: [FT.fat_source]
+    origin: plant
+    vegan_ok: true
+    descriptors: { oxidative_stability: medium, flavour: neutral }
+    note: "neutral bulk oil phase - the default carrier when the oil is structural rather than flavouring"
+    substitutes: [ING.high_oleic_sunflower_oil, ING.sunflower_oil]
+
+provenance:
+  method: "extend Layer C for Korean and Latin sauce development; 2-tier scoped schema"
+  status: "seed v0.1 - prior edges. Compositional ranges (salt %, pH, brix) are typical published values and MUST be replaced with measured lot values before they drive a safety decision."
+  safety_note: >
+    Every limitation typed safety_bound with non_negotiable: true is a hazard, not a
+    preference. They are stated so the rule engine can find them; they are not a
+    substitute for a process authority review of an ambient shelf-stable product.
+  regulatory_note: >
+    Allergen lists and mycotoxin limits differ by market and change. Every entry
+    carrying a verify flag must be checked against the current standard before use
+    on a label. Nothing here is a compliance authority.
+  open_questions:
+    - "No spore-former thermal process data yet - needs_process verdicts can flag the need but cannot specify a schedule."
+    - "Capsaicinoid dose -> L.ch.pungent_hot mapping is qualitative; a measured SHU basis is required before heat can be a quantitative DoE factor."

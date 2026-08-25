@@ -1,0 +1,60 @@
+# [layerC2 hotfix 2026-08-18] Invariant-2 violation found by smoke test:
+# ING.coconut_oil defined here (stub) AND in ext_vegan_gaps (full entry).
+# Stub removed; vegan_gaps entry is authoritative. v1 original frozen unedited.
+function_tag_refinements:
+- tag: FT.fat_source
+  add_descriptor: oxidative_stability
+  values: low | medium | high
+  note: high = saturated/high-oleic (stable); low = high-PUFA (oxidation-prone)
+ingredients_ext:
+- id: ING.palm_oil
+  label: Refined palm oil
+  function_tags:
+  - FT.fat_source
+  origin: plant
+  allergen: none
+  vegan_ok: true
+  descriptors:
+    source: plant
+    oxidative_stability: high
+    sfc: high
+  substitutes:
+  - ING.coconut_oil
+  - ING.high_oleic_sunflower_oil
+- id: ING.sunflower_oil
+  label: Sunflower oil (regular, high-linoleic)
+  function_tags:
+  - FT.fat_source
+  origin: plant
+  allergen: none
+  vegan_ok: true
+  descriptors:
+    source: plant
+    oxidative_stability: low
+    pufa: high
+  flavor_profile:
+  - to: L.ar.rancid_oxidized
+    direction: increase
+    intensity: medium
+    scoped_to_structure_class: any
+    source_type: prior
+    confidence: high
+    note: high PUFA -> rancid/oxidized off-note over shelf life
+  substitutes:
+  - ING.high_oleic_sunflower_oil
+  - ING.palm_oil
+  - ING.coconut_oil
+- id: ING.high_oleic_sunflower_oil
+  label: High-oleic sunflower oil
+  function_tags:
+  - FT.fat_source
+  origin: plant
+  allergen: none
+  vegan_ok: true
+  descriptors:
+    source: plant
+    oxidative_stability: high
+    pufa: low
+  substitutes:
+  - ING.palm_oil
+  - ING.sunflower_oil

@@ -1,0 +1,431 @@
+# =============================================================================
+# LAYER A — 물성 사전 (PARAMETER DICTIONARY)   v1.0 | 2026-08-13
+# -----------------------------------------------------------------------------
+# 이 파일은 물성(P)이 "무엇인가" 만 적는다. "이 제형에서 얼마쯤인가" 는 Layer S.
+#
+# 왜 나눴나
+#   물성이 제형 파일 안에서 정의되고 있었다. 그래서 같은 P 가 여러 번 정의됐고,
+#   37개 중 7개가 중복이었으며 전부 서로 다른 말을 했다.
+#       P.pH                  음료: unit 없음 · 소스: "pH" · 서스펜션: "pH"
+#       P.oil_phase_fraction  음료: 0.0001-0.15 · 소스: 0.05-0.75
+#   여기 두 종류가 섞여 있었다 — 유상분율의 범위 차이는 용도가 다르니 당연하고,
+#   pH 의 단위 누락은 그냥 안 채운 것이다. 정의와 범위가 한 덩어리라 구분이
+#   불가능했고, 그래서 정의까지 갈라졌다.
+#
+# 여기(사전)         id · label · param_type · unit · measurement
+#                    맥락과 무관한 것. ID 하나당 딱 한 번.
+# Layer S(프로파일)   plausible_range · governing_mechanism · driven_by · role
+#                    맥락마다 다른 것. 유상분율이 음료에선 탁도를, 소스에선
+#                    액적 충전을 지배한다 — 같은 값인데 중요한 이유가 다르다.
+#
+# Layer C 는 처음부터 이 구분을 지켰다(효과 엣지에 scoped_to_structure_class 필수).
+# 그래서 재료 109개 중 중복 정의가 1개뿐이다. A 와 B 는 안 지켜서 꼬였다.
+#
+# 규칙
+#   - ID 는 추가만. 이름 변경·삭제 금지
+#   - 같은 P 를 두 곳에서 정의하지 않는다 (selfcheck 가 잡는다)
+#   - 새 제형을 추가할 때 P 를 다시 정의하지 않는다. 여기를 참조한다
+#
+# -----------------------------------------------------------------------------
+# v2 편입 이력 (2026-08-24)
+#   이 파일은 v2 온톨로지(L·A·M·C·S·R)의 Layer A 정본으로 편입됐다. v2 스펙과
+#   README 는 이 파일이 "인계되지 않았다"고 적고 있었으나, v1 작업본에 있었고
+#   스펙이 명시한 37개 파라미터와 정확히 일치함을 확인했다.
+#
+#   1) unit 누락 6건을 채웠다. 값은 각 항목의 measurement.method 에서 직접
+#      따왔다(DSC→degC, penetrometer→N, 등). 추론이므로 랩 관례와 대조가
+#      필요하다. 해당 항목은 unit_status: filled_2026-08-24_confirm 로 표시.
+#   2) P.shear_thinning_index 를 신규 추가했다. R-1 레코드 PO.0009 가 참조하나
+#      정의가 없어 매달려 있던 항목이다. 정의 선택 근거는 항목 note 참조.
+#
+#   추가·수정 항목은 모두 표시돼 있으므로 grep 로 찾을 수 있다:
+#      grep -n "unit_status\|added_in" layerA_parameters.yaml
+# =============================================================================
+
+parameters:
+- id: P.Tg_serum
+  label: Glass transition of freeze-concentrated serum (Tg')
+  param_type: physicochemical
+  unit: degC
+  unit_status: filled_2026-08-24_confirm
+  measurement:
+    method: DSC
+    cost_tier: expensive
+  defined_in_v0:
+  - ice_cream_layerA.yaml
+- id: P.apparent_viscosity
+  label: Apparent viscosity (at defined shear rate)
+  param_type: rheological
+  unit: Pa.s @ shear rate (specify, e.g. 50 1/s)
+  measurement:
+    method: line-spread / flow-cup (cheap proxy) OR rotational rheometer
+    cost_tier: cheap
+  merged_note: 'label: Apparent viscosity | Apparent viscosity (at defined shear rate); measurement: {''method'':
+    ''flow-cup / rheometer'', ''cost_tier'': ''cheap''} | {''method'': ''line-spread / flow-cup (cheap
+    proxy) OR rotational rheomet'
+  defined_in_v0:
+  - ow_emulsion_beverage_layerA.yaml
+  - ow_emulsion_sauce_layerA.yaml
+- id: P.capsaicinoid_shu
+  label: Capsaicinoid content (Scoville-equivalent)
+  param_type: composition
+  unit: SHU of the finished product
+  measurement:
+    method: HPLC, or calculate from standardised raw-material SHU
+    cost_tier: expensive
+  defined_in_v0:
+  - suspension_layerA.yaml
+- id: P.coalescence_rate
+  label: Coalescence rate (d32 growth over time)
+  param_type: stability
+  unit: d(d32)/dt
+  measurement:
+    method: microscopy / repeated sizing over storage
+    cost_tier: expensive
+  defined_in_v0:
+  - ow_emulsion_sauce_layerA.yaml
+- id: P.creaming_index
+  label: Creaming index (serum separation)
+  param_type: stability
+  unit: '% (serum layer height / total height)'
+  measurement:
+    method: visual / turbidity profile over storage
+    cost_tier: cheap
+  merged_note: 'unit: % serum / total | % (serum layer height / total height); label: Creaming index |
+    Creaming index (serum separation); measurement: {''method'': ''visual / turbidity profile over storage'',
+    ''cost_tier'': ''ch | {''method'': ''graduated-tube / visual over storage'', ''cost_tier'': ''cheap'
+  defined_in_v0:
+  - ow_emulsion_beverage_layerA.yaml
+  - ow_emulsion_sauce_layerA.yaml
+- id: P.density_difference
+  label: Oil-water density difference (delta-rho)
+  param_type: physical
+  unit: kg/m3 (droplet vs continuous phase)
+  measurement:
+    method: densitometry / calc
+    cost_tier: mid
+  defined_in_v0:
+  - ow_emulsion_beverage_layerA.yaml
+- id: P.droplet_size_d32
+  label: Sauter mean droplet diameter (d32)
+  param_type: physical
+  unit: micrometre
+  measurement:
+    method: laser diffraction / static light scattering (or microscopy)
+    cost_tier: expensive
+  merged_note: 'measurement: {''method'': ''dynamic/static light scattering'', ''cost_tier'': ''expensive''
+    | {''method'': ''laser diffraction / static light scattering (or microscopy'
+  defined_in_v0:
+  - ow_emulsion_beverage_layerA.yaml
+  - ow_emulsion_sauce_layerA.yaml
+- id: P.fat_content
+  label: Fat content
+  param_type: composition
+  unit: '%'
+  measurement:
+    method: recipe / analysis
+    cost_tier: cheap
+  defined_in_v0:
+  - ice_cream_layerA.yaml
+- id: P.fat_destabilization
+  label: Fat destabilization (partial coalescence degree)
+  param_type: physical
+  unit: '% destabilized fat'
+  measurement:
+    method: spectroturbidimetry / solvent extraction
+    cost_tier: expensive
+  defined_in_v0:
+  - ice_cream_layerA.yaml
+- id: P.flavor_release_dynamics
+  label: Flavor release / matrix binding
+  param_type: physicochemical
+  unit: release-rate profile (qualitative unless instrumented)
+  measurement:
+    method: in-vitro release / APCI-MS (research)
+    cost_tier: expensive
+  defined_in_v0:
+  - ow_emulsion_sauce_layerA.yaml
+- id: P.flocculation
+  label: Flocculation
+  param_type: stability
+  unit: qualitative / rheological signature (shear-thinning aggregate network)
+  measurement:
+    method: rheology / microscopy
+    cost_tier: expensive
+  defined_in_v0:
+  - ow_emulsion_sauce_layerA.yaml
+- id: P.freezing_point_depression
+  label: Freezing-point depression (serum sugar concentration)
+  param_type: physicochemical
+  unit: deg C depression / effective molar sugar
+  measurement:
+    method: cryoscope / calc
+    cost_tier: mid
+  defined_in_v0:
+  - ice_cream_layerA.yaml
+- id: P.gloss_optical
+  label: Gloss / opacity
+  param_type: physical
+  unit: gloss units / L* opacity
+  measurement:
+    method: visual (cheap) OR gloss meter / colorimeter
+    cost_tier: mid
+  defined_in_v0:
+  - ow_emulsion_sauce_layerA.yaml
+- id: P.hardness
+  label: Hardness
+  param_type: mechanical
+  unit: N (peak penetration force, probe/depth to be specified)
+  unit_status: filled_2026-08-24_confirm
+  measurement:
+    method: penetrometer
+    cost_tier: mid
+  defined_in_v0:
+  - ice_cream_layerA.yaml
+- id: P.ice_crystal_size
+  label: Ice crystal size
+  param_type: physical
+  unit: micrometre
+  measurement:
+    method: cold-stage microscopy
+    cost_tier: expensive
+  defined_in_v0:
+  - ice_cream_layerA.yaml
+- id: P.ice_phase_volume
+  label: Ice phase volume (ice fraction)
+  param_type: physical
+  unit: '% of volume frozen (temperature-dependent)'
+  measurement:
+    method: calorimetry (DSC)
+    cost_tier: expensive
+  defined_in_v0:
+  - ice_cream_layerA.yaml
+- id: P.ice_recrystallization
+  label: Ice recrystallization (growth on storage / thaw cycles)
+  param_type: stability
+  unit: um/week (mean crystal diameter growth rate)
+  unit_status: filled_2026-08-24_confirm
+  measurement:
+    method: microscopy over storage
+    cost_tier: expensive
+  defined_in_v0:
+  - ice_cream_layerA.yaml
+- id: P.meltdown_rate
+  label: Meltdown rate / shape retention
+  param_type: stability
+  unit: g/min (steady-state drip rate)
+  unit_status: filled_2026-08-24_confirm
+  measurement:
+    method: meltdown test (drip weight vs time)
+    cost_tier: cheap
+  defined_in_v0:
+  - ice_cream_layerA.yaml
+- id: P.mix_viscosity
+  label: Mix viscosity (pre-freeze)
+  param_type: rheological
+  unit: mPa.s @ specified shear rate and temperature
+  unit_status: filled_2026-08-24_confirm
+  measurement:
+    method: flow-cup / rheometer
+    cost_tier: cheap
+  defined_in_v0:
+  - ice_cream_layerA.yaml
+- id: P.oil_phase_fraction
+  label: Oil phase fraction (phi)
+  param_type: composition
+  unit: w/w fraction (0-1)
+  measurement:
+    method: recipe / gravimetric
+    cost_tier: cheap
+  merged_note: 'unit: w/w fraction | w/w fraction (0-1); measurement: {''method'': ''recipe / gravimetric'',
+    ''cost_tier'': ''cheap''} | {''method'': ''gravimetric / recipe'', ''cost_tier'': ''cheap''}'
+  defined_in_v0:
+  - ow_emulsion_beverage_layerA.yaml
+  - ow_emulsion_sauce_layerA.yaml
+- id: P.ostwald_ripening
+  label: Ostwald ripening
+  param_type: stability
+  unit: d(d32)/dt via diffusion
+  measurement:
+    method: sizing over storage
+    cost_tier: expensive
+  defined_in_v0:
+  - ow_emulsion_beverage_layerA.yaml
+  - ow_emulsion_sauce_layerA.yaml
+- id: P.overrun
+  label: Overrun (air volume incorporated)
+  param_type: process
+  unit: '% ( (vol_icecream - vol_mix)/vol_mix * 100 )'
+  measurement:
+    method: weight/volume
+    cost_tier: cheap
+  defined_in_v0:
+  - ice_cream_layerA.yaml
+- id: P.pH
+  label: Equilibrium pH
+  param_type: physicochemical_context
+  unit: pH
+  scope: universal
+  safety_critical: true
+  measurement:
+    method: calibrated pH meter on the homogenised product at 20 C
+    cost_tier: cheap
+  merged_note: 'label: pH | Equilibrium pH; measurement: {''method'': ''pH meter'', ''cost_tier'': ''cheap''}
+    | {''method'': ''calibrated pH meter on the homogenised product at 20 C'', ''; param_type: physicochemical_context
+    | physicochemical'
+  defined_in_v0:
+  - ow_emulsion_beverage_layerA.yaml
+  - ow_emulsion_sauce_layerA.yaml
+  - suspension_layerA.yaml
+- id: P.particle_size_d50
+  label: Median particle diameter (d50)
+  param_type: physical
+  unit: micrometre
+  measurement:
+    method: laser diffraction; sieve stack as a cheap proxy
+    cost_tier: expensive
+  defined_in_v0:
+  - suspension_layerA.yaml
+- id: P.particle_size_d90
+  label: Coarse-tail particle diameter (d90)
+  param_type: physical
+  unit: micrometre
+  measurement:
+    method: laser diffraction
+    cost_tier: expensive
+  defined_in_v0:
+  - suspension_layerA.yaml
+- id: P.ring_formation
+  label: Ring / neck creaming (oily ring defect)
+  param_type: stability
+  unit: visual grade / time to visible ring
+  measurement:
+    method: visual over storage
+    cost_tier: cheap
+  defined_in_v0:
+  - ow_emulsion_beverage_layerA.yaml
+- id: P.salt_in_water_phase
+  label: Salt concentration in the water phase
+  param_type: composition
+  unit: '% w/w of the aqueous phase'
+  scope: universal
+  measurement:
+    method: calculate from recipe salt and water content
+    cost_tier: cheap
+  defined_in_v0:
+  - suspension_layerA.yaml
+- id: P.sedimentation_rate
+  label: Sedimentation rate
+  param_type: stability
+  unit: mm/day (or % settled layer at a stated time)
+  measurement:
+    method: graduated cylinder, settled-layer height over time
+    cost_tier: cheap
+  defined_in_v0:
+  - suspension_layerA.yaml
+- id: P.serum_separation_index
+  label: Serum separation index
+  param_type: stability
+  unit: '% clear layer of total height at stated time'
+  measurement:
+    method: photograph the sample at fixed intervals; measure layer height
+    cost_tier: cheap
+  defined_in_v0:
+  - suspension_layerA.yaml
+- id: P.serving_temperature
+  label: Serving temperature
+  param_type: physicochemical_context
+  unit: degC
+  unit_status: filled_2026-08-24_confirm
+  measurement:
+    method: thermometer
+    cost_tier: cheap
+  defined_in_v0:
+  - ice_cream_layerA.yaml
+- id: P.sodium_content
+  label: Sodium content
+  param_type: composition
+  unit: mg/100 g (or % NaCl)
+  measurement:
+    method: recipe calc / conductivity
+    cost_tier: cheap
+  defined_in_v0:
+  - ow_emulsion_sauce_layerA.yaml
+- id: P.solids_volume_fraction
+  label: Dispersed solids volume fraction (phi_s)
+  param_type: composition
+  unit: v/v fraction (0-1)
+  measurement:
+    method: centrifuge / dry solids, or estimate from recipe
+    cost_tier: cheap
+  defined_in_v0:
+  - suspension_layerA.yaml
+- id: P.soluble_solids_brix
+  label: Soluble solids / sugar (Brix)
+  param_type: composition
+  unit: degBx
+  measurement:
+    method: refractometer
+    cost_tier: cheap
+  merged_note: 'label: Soluble solids / sugar (Brix) | Soluble solids (Brix) | Soluble solids (degrees
+    Brix)'
+  defined_in_v0:
+  - ice_cream_layerA.yaml
+  - ow_emulsion_beverage_layerA.yaml
+  - ow_emulsion_sauce_layerA.yaml
+- id: P.titratable_acidity
+  label: Titratable acidity
+  param_type: physicochemical
+  unit: '% as acid (or meq/L)'
+  measurement:
+    method: titration
+    cost_tier: cheap
+  defined_in_v0:
+  - ow_emulsion_sauce_layerA.yaml
+- id: P.turbidity_cloud
+  label: Turbidity / cloud
+  param_type: physical
+  unit: NTU / absorbance
+  measurement:
+    method: turbidimeter / spectrophotometer
+    cost_tier: mid
+  defined_in_v0:
+  - ow_emulsion_beverage_layerA.yaml
+- id: P.water_activity
+  label: Water activity (aw)
+  param_type: physicochemical
+  unit: aw (0-1)
+  scope: universal
+  safety_critical: true
+  measurement:
+    method: water activity meter
+    cost_tier: moderate
+  defined_in_v0:
+  - suspension_layerA.yaml
+- id: P.yield_stress
+  label: Yield stress
+  param_type: rheological
+  unit: Pa
+  measurement:
+    method: slump/spread test (cheap proxy) OR rheometer
+    cost_tier: mid
+  defined_in_v0:
+  - ow_emulsion_sauce_layerA.yaml
+- id: P.shear_thinning_index
+  label: Shear-thinning index (low-shear to high-shear viscosity ratio)
+  param_type: rheological
+  unit: dimensionless (eta at 1 1/s divided by eta at 100 1/s; 1 = Newtonian, higher = more shear-thinning)
+  unit_status: filled_2026-08-24_confirm
+  measurement:
+    method: rotational rheometer flow sweep; report the viscosity ratio between the two specified shear rates
+    cost_tier: mid
+  note: >-
+    Added 2026-08-24 to close the dangling reference from R-1 record PO.0009
+    (L.tx.pourability, SC.suspension), whose own note reads "Parameter to be
+    added to Layer A". Defined as a viscosity RATIO rather than the power-law
+    index n on purpose: PO.0009 asserts monotone increasing against
+    pourability, and the ratio rises with shear-thinning whereas n falls. The
+    ratio therefore keeps the existing record correct as written. If the lab
+    prefers to report n, add a separate parameter and give PO.0009 a
+    decreasing counterpart instead of reinterpreting this one.
+  added_in: v2 (2026-08-24)

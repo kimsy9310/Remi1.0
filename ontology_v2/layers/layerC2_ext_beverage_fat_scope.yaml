@@ -1,0 +1,48 @@
+# [layerC2 hotfix 2026-08-25] Reachability gap found by the rice-milk smoke test
+# (Invariant 6): beverage core terms L.tx.creaminess and L.tx.oiliness had zero
+# in-scope edges.
+#
+# Same class of defect as layerC2_ext_scope_hotfix.yaml (2026-08-18): v1 scoped the
+# FT.fat_source oil-phase edges to SC.emulsion.ow.sauce only, so a beverage got no
+# fat -> oil-phase link at all. Fat is the primary lever of the rice-milk DoE
+# (HANDOFF §3.1: palm oil 15-45), and the panel scores creaminess and oil flavour,
+# so the missing edges made the recorded data unusable.
+#
+# Fixed by APPENDING scoped tag-level edges; the originals stay frozen (Invariant 3).
+# Pairs with R-1 records PO.0059 / PO.0060 in layerR_seed.yaml, which carry the
+# oil-phase -> percept half of the composition (spec §5.11).
+#
+# STATUS: DRAFT - directions are uncontroversial, magnitudes are provisional.
+# Confidence is deliberately set medium/low so 20 recorded samples can overrule them.
+
+function_tags_ext:
+  - id: FT.fat_source_beverage_scope
+    label: "Fat source (beverage scope extension)"
+    definition: >-
+      Scope extension only: grants FT.fat_source members the beverage-scoped oil-phase
+      and viscosity edges that v1 wrote for sauces alone. Merge-time alias of FT.fat_source.
+    alias_of: FT.fat_source
+    effects:
+      - { to: P.oil_phase_fraction, direction: increase, magnitude: strong, scoped_to_structure_class: SC.emulsion.ow.beverage, source_type: prior, confidence: high,
+          note: "Definitional: added fat is the oil phase. Dilute beverage range is 0.0001-0.15 per the S profile, far below the sauce range." }
+      - { to: P.apparent_viscosity, direction: increase, magnitude: weak, scoped_to_structure_class: SC.emulsion.ow.beverage, source_type: prior, confidence: low,
+          note: "Much weaker than in a sauce - at beverage oil fractions the continuous phase still dominates viscosity. Weak/low so data can correct it." }
+
+  # [2026-08-25, second pass] Same defect found again while building the palette table:
+  # FT.thickener carries P.apparent_viscosity for SC.emulsion.ow.sauce only, so in a
+  # beverage no thickener could reach L.tx.body - even though R-1 already asserts
+  # P.apparent_viscosity -> L.tx.body for this scope. The ingredient->parameter half
+  # was simply never written for beverages.
+  #
+  # The recorded rice-milk data confirms the direction independently: fitting on 18
+  # samples put xanthan gum at +0.51 on body from a zero prior. That is data filling a
+  # hole in the ontology, which is exactly the case for writing the edge down.
+  - id: FT.thickener_beverage_scope
+    label: "Thickener (beverage scope extension)"
+    definition: >-
+      Scope extension only: grants FT.thickener members the beverage-scoped viscosity
+      edge that v1 wrote for sauces alone. Merge-time alias of FT.thickener.
+    alias_of: FT.thickener
+    effects:
+      - { to: P.apparent_viscosity, direction: increase, magnitude: medium, scoped_to_structure_class: SC.emulsion.ow.beverage, source_type: prior, confidence: medium,
+          note: "Composes with R-1 P.apparent_viscosity -> L.tx.body. Medium rather than strong: a drinkable beverage is held far below sauce viscosity, so the usable dose range is narrow." }

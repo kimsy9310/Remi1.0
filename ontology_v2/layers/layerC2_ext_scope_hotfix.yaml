@@ -1,0 +1,18 @@
+# [layerC2 hotfix 2026-08-18] Reachability gaps found by smoke test (Invariant 6):
+# suspension core terms heat_linger and thickness had zero in-scope edges -
+# v1 scoped FT.pungent_principle linger and FT.thickener thickness edges to
+# SC.emulsion.ow only. Fixed by APPENDING scoped tag-level edges (originals frozen).
+function_tags_ext:
+  - id: FT.thickener_suspension_scope
+    label: "Thickener (suspension scope extension)"
+    definition: "Scope extension only: grants FT.thickener members a suspension-scoped thickness edge. Merge-time alias of FT.thickener."
+    alias_of: FT.thickener
+    effects:
+      - { to: L.tx.thickness, direction: increase, magnitude: strong, scoped_to_structure_class: SC.suspension, source_type: prior, confidence: high }
+      - { to: L.tx.pourability, direction: decrease, magnitude: medium, scoped_to_structure_class: SC.suspension, source_type: prior, confidence: medium }
+  - id: FT.pungent_principle_suspension_scope
+    label: "Pungent principle (suspension scope extension)"
+    definition: "Scope extension only: linger edge for suspensions. Effect weakens when the formula has no oil phase (lipophilic partition)."
+    alias_of: FT.pungent_principle
+    effects:
+      - { to: L.ch.heat_linger, direction: increase, magnitude: medium, scoped_to_structure_class: SC.suspension, source_type: prior, confidence: medium, note: "tail lengthens with oil fraction; see PO record heat_linger<->P.oil_phase_fraction" }

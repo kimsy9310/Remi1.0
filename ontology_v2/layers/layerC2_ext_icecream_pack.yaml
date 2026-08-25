@@ -1,0 +1,99 @@
+# [layerC2 - spec v2 migration 2026-08-18] SA.* targets rewritten to L.* per
+# remi_ontology_spec_v2.md §6.3; v1 lesson ids renamed L.<x> -> LESSON.<x>
+# (namespace collision with Layer L). Source file frozen per Invariant 3.
+# =============================================================================
+# LAYER C - EXTENSION: ICE-CREAM / VEGAN INGREDIENT PACK   |  v0.1 seed
+# -----------------------------------------------------------------------------
+# New ingredients from a plant-based low-sugar ice-cream palette. Effects are
+# inherited from function tags (ice-cream-scoped generics); only deviations get
+# overrides. Seed magnitudes are LOW confidence unless noted -> DoE refines them.
+# =============================================================================
+ingredients_ext:
+  - id: ING.vegan_creamer
+    label: "Vegan creamer powder (fat + emulsifier blend)"
+    function_tags: [FT.fat_source, FT.emulsifier]
+    origin: plant
+    allergen: none
+    vegan_ok: true
+    descriptors: { source: plant, composition: "powdered fat + emulsifier system", oxidative_stability: medium }
+    overrides:
+      - { to: L.tx.creaminess, scoped_to_structure_class: SC.frozen.ice_cream, direction: increase, magnitude: strong, source_type: prior, confidence: low, note: "creamer system delivers fat + emulsification together" }
+      - { to: L.tx.body,   scoped_to_structure_class: SC.frozen.ice_cream, direction: increase, magnitude: strong, source_type: prior, confidence: low }
+    substitutes: [ING.high_fat_powder, ING.cream]
+
+  - id: ING.high_fat_powder
+    label: "High-fat powder (spray-dried coconut fat on dextrin, >80% fat)"
+    function_tags: [FT.fat_source]
+    origin: plant
+    allergen: none
+    vegan_ok: true
+    descriptors: { source: plant, base: coconut, fat_content: ">80%", carrier: dextrin, oxidative_stability: high }
+    overrides:
+      - { to: P.fat_content, scoped_to_structure_class: SC.frozen.ice_cream, direction: increase, magnitude: strong, source_type: prior, confidence: medium, note: "coconut = high SFC -> structure/body/meltdown resistance" }
+      - { to: L.tx.body,   scoped_to_structure_class: SC.frozen.ice_cream, direction: increase, magnitude: strong, source_type: prior, confidence: low }
+    substitutes: [ING.coconut_oil, ING.vegan_creamer]
+
+  - id: ING.emulaid
+    label: "OSA-modified starch emulsifier (octenyl succinic anhydride)"
+    function_tags: [FT.emulsifier]
+    origin: plant
+    allergen: none
+    vegan_ok: true
+    descriptors: { type: "OSA-modified starch", raises_viscosity: false, note: "emulsifies WITHOUT building viscosity - not a thickener" }
+    overrides:
+      - { to: P.fat_destabilization, scoped_to_structure_class: SC.frozen.ice_cream, direction: increase, magnitude: medium, source_type: prior, confidence: low, note: "aids fat structuring/aeration without viscosity build" }
+    substitutes: [ING.sucrose_ester, ING.mono_diglycerides]
+
+  - id: ING.arabic_gum
+    label: "Gum arabic (acacia)"
+    function_tags: [FT.emulsifier, FT.stabilizer]
+    origin: plant
+    allergen: none
+    vegan_ok: true
+    descriptors: { note: "beverage/emulsion emulsifier-stabilizer; low viscosity build" }
+    substitutes: [ING.cmc, ING.carrageenan]
+
+  - id: ING.microcrystalline_cellulose
+    label: "Microcrystalline cellulose (MCC)"
+    function_tags: [FT.fat_replacer, FT.stabilizer]
+    origin: plant
+    allergen: none
+    vegan_ok: true
+    descriptors: { note: "body/suspension + fat-like mouthfeel; heat-shock/meltdown control" }
+    substitutes: [ING.modified_starch, ING.maltodextrin]
+
+  - id: ING.sodium_citrate
+    label: "Sodium citrate (buffer / sequestrant)"
+    function_tags: [FT.stabilizer]
+    origin: synthetic
+    allergen: none
+    vegan_ok: true
+    descriptors: { role: "pH buffer + protein/emulsion stabilization (sequestrant)" }
+
+  - id: ING.citric_acid
+    label: "Citric acid"
+    function_tags: [FT.acidulant]
+    origin: plant
+    allergen: none
+    vegan_ok: true
+
+  - id: ING.salt
+    label: "Salt (sodium chloride)"
+    function_tags: []
+    origin: mineral
+    allergen: none
+    vegan_ok: true
+    descriptors: { role: "flavor enhancer; boosts perceived richness, suppresses bitterness" }
+
+  - id: ING.rice_bran_emulsifier
+    label: "Rice bran emulsifier"
+    function_tags: [FT.emulsifier]
+    origin: plant
+    allergen: none
+    vegan_ok: true
+    descriptors: { note: "plant emulsifier (rice-bran derived)" }
+    substitutes: [ING.mono_diglycerides, ING.sucrose_ester]
+
+provenance:
+  method: "plant-based ice-cream palette; effects inherit from function tags, deviations as overrides"
+  status: "seed v0.1 - mostly LOW confidence (new ingredients); DoE refines. AnyAddy_AN15 not added (need function)."

@@ -1,0 +1,67 @@
+# [layerC2 extension 2026-08-18] Coffee milk product pack.
+# Written as the intended workflow test: a new product needs NEW C ingredients but
+# NO new L terms (lexicon already covered coffee/dairy percepts). Beverage-scoped.
+#
+# Includes one edge authored for a reason worth recording: sucrose -> bitterness
+# (decrease). The sweet/bitter suppression already exists as R-2 IN.0006, but R-2
+# feeds Sigma0 (covariance) only - a perceptual masking effect must ALSO be a C
+# edge to appear in the mean prediction. See migration log F8.
+ingredients_ext:
+  - id: ING.coffee_extract
+    label: "Coffee extract (liquid, roasted)"
+    function_tags: [FT.flavorant, FT.colorant]
+    origin: plant
+    allergen: none
+    vegan_ok: true
+    descriptors: { actives: "chlorogenic acids, caffeine, roast volatiles (pyrazines/furans)", solids: "moderate" }
+    flavor_profile:
+      - { to: L.ar.coffee, direction: increase, intensity: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+      - { to: L.ar.roasted, direction: increase, intensity: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }
+      - { to: L.ta.bitter, direction: increase, intensity: strong, scoped_to_structure_class: any, source_type: prior, confidence: high, note: "chlorogenic acid degradation products + caffeine" }
+      - { to: L.ch.astringent, direction: increase, intensity: weak, scoped_to_structure_class: any, source_type: prior, confidence: medium }
+    overrides:
+      - { to: P.pH, scoped_to_structure_class: SC.emulsion.ow.beverage, direction: decrease, magnitude: weak, source_type: prior, confidence: medium, note: "coffee acids lower pH slightly; matters for the protein-stability window" }
+    limitations:
+      - { type: quality, statement: "roast level trades coffee aroma against bitterness; dark roast raises bitterness faster than aroma" }
+    substitutes: [ING.instant_coffee_powder]
+
+  - id: ING.instant_coffee_powder
+    label: "Instant coffee powder (spray-dried)"
+    function_tags: [FT.flavorant, FT.colorant]
+    origin: plant
+    allergen: none
+    vegan_ok: true
+    descriptors: { actives: "as coffee extract, dehydrated", solids: high }
+    flavor_profile:
+      - { to: L.ar.coffee, direction: increase, intensity: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+      - { to: L.ta.bitter, direction: increase, intensity: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+      - { to: L.ar.stale, direction: increase, intensity: weak, scoped_to_structure_class: any, source_type: prior, confidence: medium, note: "aroma loss on spray drying reads as flat/stale vs fresh extract" }
+    substitutes: [ING.coffee_extract]
+
+  - id: ING.whole_milk
+    label: "Whole milk (3.5% fat)"
+    function_tags: [FT.fat_source, FT.protein, FT.milk_protein]
+    origin: animal
+    allergen: milk
+    vegan_ok: false
+    descriptors: { source: milk, fat: "3.5%", solids: "~12%", charge: "casein micelles" }
+    flavor_profile:
+      - { to: L.ar.milky, direction: increase, intensity: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+      - { to: L.ta.sweet, direction: increase, intensity: weak, scoped_to_structure_class: any, source_type: prior, confidence: medium, note: "lactose" }
+    overrides:
+      - { to: P.turbidity_cloud, scoped_to_structure_class: SC.emulsion.ow.beverage, direction: increase, magnitude: strong, source_type: prior, confidence: high, note: "casein micelles + fat globules scatter light; the whiteness of a milk drink" }
+      - { to: P.apparent_viscosity, scoped_to_structure_class: SC.emulsion.ow.beverage, direction: increase, magnitude: medium, source_type: prior, confidence: high }
+      - { to: P.soluble_solids_brix, scoped_to_structure_class: SC.emulsion.ow.beverage, direction: increase, magnitude: medium, source_type: prior, confidence: high }
+    limitations:
+      - { type: process, statement: "casein aggregates below ~pH 4.6 with coffee acids present; keep the formulation out of that window or stabilize" }
+    substitutes: [ING.skim_milk_powder, ING.vegan_creamer]
+
+  - id: ING.sucrose_beverage_edges
+    label: "Sucrose (beverage-scoped edge extension)"
+    alias_of: ING.sucrose
+    function_tags: []
+    descriptors: { role: "edge extension only; the ingredient itself is defined in layerC2_ingredient_function.yaml" }
+    overrides:
+      - { to: L.ta.bitter, scoped_to_structure_class: SC.emulsion.ow.beverage, direction: decrease, magnitude: weak, source_type: prior, confidence: medium, note: "sweetness masks bitterness (mirror of R-2 IN.0006); authored as a C edge so the effect enters the MEAN prediction, not only Sigma0" }
+      - { to: P.soluble_solids_brix, scoped_to_structure_class: SC.emulsion.ow.beverage, direction: increase, magnitude: strong, source_type: prior, confidence: high }
+      - { to: P.apparent_viscosity, scoped_to_structure_class: SC.emulsion.ow.beverage, direction: increase, magnitude: weak, source_type: prior, confidence: medium }
