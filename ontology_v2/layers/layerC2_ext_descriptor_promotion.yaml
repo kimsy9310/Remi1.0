@@ -1,0 +1,284 @@
+# [layerC2 확장 2026-08-26] descriptors 를 효과 엣지로 승격
+# =============================================================================
+# 문제
+# ----
+# 재료를 구별하는 정보가 descriptors 에 앉아만 있고 모형은 그것을 읽지 않는다.
+# 모형이 읽는 것은 효과 엣지뿐이다. 그래서 같은 태그를 단 재료들이 전부 동일해진다.
+#
+#     아이스크림 완전중복 쌍 295건 · 소스 340건
+#
+#     유화제 5종의 효과가 글자 그대로 같았다:
+#       sucrose_ester_s1670  creaminess 0.6 · melting -1.0 · smoothness 1.0
+#       dmg95                creaminess 0.6 · melting -1.0 · smoothness 1.0
+#       lecithin             creaminess 0.6 · melting -1.0 · smoothness 1.0
+#       ...
+#
+#     그런데 descriptors 에는 HLB 가 16 과 4~5 로 또렷이 적혀 있었다.
+#
+# HANDOFF 가 핵심 도메인 지식으로 적은 "고HLB S-1670(16) + 저HLB DMG95(4~5)
+# 페어링" 이 모형에 전혀 들어가 있지 않았던 이유다. 산문으로는 있고 숫자로는
+# 없었다. 이 파일이 그 간극을 메운다.
+#
+# 원칙
+# ----
+# 1. descriptors 는 그대로 둔다. 사람이 읽는 사실이고 출처다. 여기서는 그
+#    사실이 함의하는 **효과**를 엣지로 쓴다.
+# 2. 기존 override 가 있는 재료는 건드리지 않는다(polysorbate_80 의 강한
+#    지방불안정화 등). 없는 재료만 채운다.
+# 3. 기작이 확립된 것만 승격한다. 애매한 것은 아래 '남겨 둔 것' 참조.
+#
+# STATUS: DRAFT — 방향과 상대 순서는 근거가 있으나 절대 크기는 잠정이다.
+# =============================================================================
+
+ingredients_ext:
+
+# =============================================================================
+# A. HLB — 유화제가 무엇을 하는가
+# =============================================================================
+# HLB 는 유화제가 물과 기름 중 어느 쪽을 좋아하는지를 나타내는 수치다.
+#
+#   고HLB(>=10)  친수성. O/W 계면에 잘 붙어 액적을 잘게 안정화한다.
+#                -> 음료·소스에서 액적크기 감소와 크리밍 억제가 강하다.
+#   저HLB(<7)    친유성. 지방상으로 들어가 지방구 표면의 단백질을 밀어낸다.
+#                -> 아이스크림에서 부분응집(지방 불안정화)이 강하다.
+#                   이것이 건조감·크리미·용해지연을 만든다.
+#
+# 즉 같은 '유화제' 라도 제형에 따라 역할이 갈리고, 그 갈림을 HLB 가 정한다.
+# HANDOFF 의 "컨텍스트 반전" 이 바로 이 이야기다.
+
+# ---- 고HLB: O/W 유화가 주특기 -------------------------------------------------
+- id: ING.sucrose_ester_s1670_hlb_ext
+  label: "Sucrose ester S-1670 (HLB 16 promotion)"
+  alias_of: ING.sucrose_ester_s1670
+  overrides:
+  - { to: P.droplet_size_d32, direction: decrease, magnitude: strong, scoped_to_structure_class: SC.emulsion.ow.sauce, source_type: prior, confidence: high,
+      note: "HLB 16 — 팔레트에서 가장 친수성. 미세 유화의 주력." }
+  - { to: P.creaming_index, direction: decrease, magnitude: strong, scoped_to_structure_class: SC.emulsion.ow.beverage, source_type: prior, confidence: high,
+      note: "음료 실측(ST01~05)에서 'S-1670 이 가장 강력' 이라는 결론이 나왔다(HANDOFF 3.1)." }
+  - { to: P.fat_destabilization, direction: increase, magnitude: weak, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: medium,
+      note: "고HLB 는 지방상으로 잘 들어가지 않아 부분응집 기여가 약하다. 저HLB 와 짝지어 쓰는 이유." }
+
+  - { to: L.tx.creaminess, direction: increase, magnitude: weak, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: medium,
+      note: "고HLB — 부분응집 기여가 작아 크리미 상승도 작다. 미세유화가 주특기다. FT.emulsifier 의 균일한 creaminess 엣지를 재료별로 덮는다 — 그 균일 엣지가 차별화된 합성 경로를 가리고 있었다." }
+- id: ING.sucrose_ester_s1170_hlb_ext
+  label: "Sucrose ester S-1170 (HLB 11 promotion)"
+  alias_of: ING.sucrose_ester_s1170
+  overrides:
+  - { to: P.droplet_size_d32, direction: decrease, magnitude: medium, scoped_to_structure_class: SC.emulsion.ow.sauce, source_type: prior, confidence: medium,
+      note: "HLB 11 — 중간. S-1670 보다 약하다." }
+  - { to: P.creaming_index, direction: decrease, magnitude: medium, scoped_to_structure_class: SC.emulsion.ow.beverage, source_type: prior, confidence: medium }
+  - { to: P.fat_destabilization, direction: increase, magnitude: weak, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: low }
+
+  - { to: L.tx.creaminess, direction: increase, magnitude: weak, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: medium,
+      note: "HLB 11 — 중간이지만 부분응집 쪽은 약하다. FT.emulsifier 의 균일한 creaminess 엣지를 재료별로 덮는다 — 그 균일 엣지가 차별화된 합성 경로를 가리고 있었다." }
+- id: ING.polysorbate_80_hlb_ext
+  label: "Polysorbate 80 (HLB 15 promotion)"
+  alias_of: ING.polysorbate_80
+  overrides:
+  - { to: P.droplet_size_d32, direction: decrease, magnitude: strong, scoped_to_structure_class: SC.emulsion.ow.sauce, source_type: prior, confidence: high }
+  - { to: P.creaming_index, direction: decrease, magnitude: strong, scoped_to_structure_class: SC.emulsion.ow.beverage, source_type: prior, confidence: high }
+  # 지방 불안정화는 기존 override(strong)를 그대로 둔다. 고HLB 규칙의 예외로,
+  # 계면활성이 워낙 강해 단백질을 공격적으로 밀어낸다. 원본 note 가 '매우
+  # 강력하나 라벨 이슈' 라고 적은 그대로다.
+
+  - { to: L.tx.creaminess, direction: increase, magnitude: strong, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: medium,
+      note: "고HLB 예외 — 계면활성이 강해 단백질을 밀어내고 부분응집을 크게 일으킨다. FT.emulsifier 의 균일한 creaminess 엣지를 재료별로 덮는다 — 그 균일 엣지가 차별화된 합성 경로를 가리고 있었다." }
+  - { to: L.tx.hardness, direction: increase, magnitude: strong, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: medium,
+      note: "부분응집이 매우 강하므로 같은 이유로 구조가 선다." }
+- id: ING.egg_yolk_hlb_ext
+  label: "Egg yolk (HLB ~10 promotion)"
+  alias_of: ING.egg_yolk
+  overrides:
+  - { to: P.creaming_index, direction: decrease, magnitude: strong, scoped_to_structure_class: SC.emulsion.ow.sauce, source_type: prior, confidence: high,
+      note: "고전적 마요네즈 유화제. 액적크기 엣지는 원본에 이미 있다." }
+
+# ---- 저HLB: 아이스크림 지방 불안정화가 주특기 -----------------------------------
+- id: ING.dmg95_hlb_ext
+  label: "DMG95 (HLB 4-5 promotion)"
+  alias_of: ING.dmg95
+  overrides:
+  - { to: P.fat_destabilization, direction: increase, magnitude: strong, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: high,
+      note: "저HLB -> 지방 부분응집 -> 건조감·크리미·용해지연. 팔레트 shortlist 가 이 재료에 붙인 설명 그대로다." }
+  - { to: P.droplet_size_d32, direction: decrease, magnitude: weak, scoped_to_structure_class: SC.emulsion.ow.sauce, source_type: prior, confidence: medium,
+      note: "친유성이라 O/W 미세유화에는 약하다. 그래서 고HLB 와 짝지어 총량+비율로 쓴다." }
+
+  - { to: L.tx.creaminess, direction: increase, magnitude: strong, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: medium,
+      note: "저HLB 부분응집의 주력. 건조감·크리미가 여기서 나온다. FT.emulsifier 의 균일한 creaminess 엣지를 재료별로 덮는다 — 그 균일 엣지가 차별화된 합성 경로를 가리고 있었다." }
+  - { to: L.tx.hardness, direction: increase, magnitude: strong, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: medium,
+      note: "부분응집이 지방 네트워크를 만들어 '건조감'을 준다 — shortlist 가 이 재료에 '건조·크리미·용해지연'이라 적은 그 건조다. 고HLB 에는 걸지 않는다: 미세유화만으로는 네트워크가 서지 않는다." }
+- id: ING.lecithin_hlb_ext
+  label: "Lecithin (HLB 4-7 promotion)"
+  alias_of: ING.lecithin
+  overrides:
+  - { to: P.fat_destabilization, direction: increase, magnitude: medium, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: medium }
+  - { to: P.droplet_size_d32, direction: decrease, magnitude: weak, scoped_to_structure_class: SC.emulsion.ow.sauce, source_type: prior, confidence: medium }
+
+  - { to: L.tx.creaminess, direction: increase, magnitude: medium, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: medium,
+      note: "저HLB 이지만 DMG95 보다 완만하다. FT.emulsifier 의 균일한 creaminess 엣지를 재료별로 덮는다 — 그 균일 엣지가 차별화된 합성 경로를 가리고 있었다." }
+  - { to: L.tx.hardness, direction: increase, magnitude: medium, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: medium,
+      note: "부분응집이 중간이라 구조 기여도 중간." }
+- id: ING.mono_diglycerides_hlb_ext
+  label: "Mono-diglycerides (HLB 3-6 promotion)"
+  alias_of: ING.mono_diglycerides
+  overrides:
+  - { to: P.droplet_size_d32, direction: decrease, magnitude: weak, scoped_to_structure_class: SC.emulsion.ow.sauce, source_type: prior, confidence: medium }
+  # 지방 불안정화는 기존 override(medium)를 유지한다.
+
+  - { to: L.tx.creaminess, direction: increase, magnitude: medium, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: medium,
+      note: "기존 지방불안정화 medium 과 짝을 맞춘다. FT.emulsifier 의 균일한 creaminess 엣지를 재료별로 덮는다 — 그 균일 엣지가 차별화된 합성 경로를 가리고 있었다." }
+  - { to: L.tx.hardness, direction: increase, magnitude: medium, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: medium,
+      note: "기존 지방불안정화 medium 과 짝을 맞춘다." }
+# =============================================================================
+# B. Scoville — 매운 정도는 재료마다 1000배 넘게 차이난다
+# =============================================================================
+# FT.pungent_principle 태그는 소속 재료 전부에 pungent_hot 을 strong 으로 준다.
+# 그런데 descriptors 를 보면 파프리카가 500 SHU 미만, 하바네로가 35만,
+# 고추 올레오레진이 200만이다. 이걸 같게 두면 모형이 매운맛을 조절할 수 없다.
+#
+# magnitude 는 weak/medium/strong 세 단계뿐이라 1000배 차이를 정밀하게 담지
+# 못한다. 그래도 균일한 것보다는 낫다. 정밀도가 필요해지면 SHU 를
+# P.capsaicinoid_shu 로 직접 넣고 R-1 로 잇는 편이 옳다.
+
+- id: ING.capsicum_oleoresin_shu_ext
+  label: "Capsicum oleoresin (0.5-2M SHU)"
+  alias_of: ING.capsicum_oleoresin
+  overrides:
+  - { to: P.capsaicinoid_shu, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high,
+      note: "표준화 추출물. 팔레트에서 압도적으로 강하다 — 극소량으로 조절한다." }
+
+- id: ING.habanero_shu_ext
+  label: "Habanero (100-350k SHU)"
+  alias_of: ING.habanero
+  overrides:
+  - { to: L.ch.pungent_hot, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+  - { to: P.capsaicinoid_shu, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+
+- id: ING.cayenne_powder_shu_ext
+  label: "Cayenne powder (30-50k SHU)"
+  alias_of: ING.cayenne_powder
+  overrides:
+  - { to: L.ch.pungent_hot, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+  - { to: P.capsaicinoid_shu, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }
+
+- id: ING.gochugaru_coarse_shu_ext
+  label: "Gochugaru coarse (1-8k SHU)"
+  alias_of: ING.gochugaru_coarse
+  overrides:
+  - { to: L.ch.pungent_hot, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high,
+      note: "고춧가루는 색과 향이 주역이고 매운맛은 중간이다." }
+  - { to: P.capsaicinoid_shu, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: high }
+
+- id: ING.chili_fresh_green_shu_ext
+  label: "Fresh green chili (2.5-10k SHU)"
+  alias_of: ING.chili_fresh_green
+  overrides:
+  - { to: L.ch.pungent_hot, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }
+  - { to: P.capsaicinoid_shu, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: high }
+
+- id: ING.chipotle_shu_ext
+  label: "Chipotle (2.5-8k SHU)"
+  alias_of: ING.chipotle
+  overrides:
+  - { to: L.ch.pungent_hot, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }
+  - { to: P.capsaicinoid_shu, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: high }
+
+- id: ING.chili_dried_ancho_shu_ext
+  label: "Ancho chili (1-2k SHU)"
+  alias_of: ING.chili_dried_ancho
+  overrides:
+  - { to: L.ch.pungent_hot, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: high,
+      note: "순한 고추 — 매운맛보다 건과일 향으로 쓴다." }
+  - { to: P.capsaicinoid_shu, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: high }
+
+- id: ING.gochujang_shu_ext
+  label: "Gochujang (low heat)"
+  alias_of: ING.gochujang
+  overrides:
+  - { to: L.ch.pungent_hot, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: high,
+      note: "descriptors 가 '매운맛은 색·단맛에 부차적' 이라 적고 있다." }
+
+# =============================================================================
+# C. 산화안정성 — 어떤 기름이 산패 위험을 지는가
+# =============================================================================
+# L.ar.rancid_oxidized 를 가리키는 엣지가 온톨로지 전체에 해바라기유 하나뿐이었다.
+# 그런데 descriptors 는 기름 12종의 산화안정성을 low/medium/high 로 적고 있다.
+#
+# 안정성이 높은 기름에는 엣지를 걸지 않는다. 산패를 '줄이는' 것이 아니라
+# '더하지 않는' 것이므로, 엣지가 없는 것이 옳은 표현이다.
+
+- id: ING.perilla_oil_oxid_ext
+  label: "Perilla oil (low oxidative stability)"
+  alias_of: ING.perilla_oil
+  overrides:
+  - { to: L.ar.rancid_oxidized, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high,
+      note: "오메가3 다가불포화가 많아 팔레트에서 가장 산화에 약하다. 해바라기유와 같은 등급." }
+
+- id: ING.rice_bran_oil_oxid_ext
+  label: "Rice bran oil (medium oxidative stability)"
+  alias_of: ING.rice_bran_oil
+  overrides:
+  - { to: L.ar.rancid_oxidized, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: medium,
+      note: "감마오리자놀이 어느 정도 보호하지만 PUFA 가 있다. 팔레트 shortlist 도 'PUFA 산화 관리 필요' 라 적었다." }
+
+- id: ING.canola_oil_oxid_ext
+  label: "Canola oil (medium oxidative stability)"
+  alias_of: ING.canola_oil
+  overrides:
+  - { to: L.ar.rancid_oxidized, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: medium }
+
+- id: ING.sesame_oil_toasted_oxid_ext
+  label: "Toasted sesame oil (medium oxidative stability)"
+  alias_of: ING.sesame_oil_toasted
+  overrides:
+  - { to: L.ar.rancid_oxidized, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: medium,
+      note: "배전 과정에서 생긴 항산화물이 어느 정도 보호한다." }
+
+- id: ING.vegan_creamer_oxid_ext
+  label: "Vegan creamer (medium oxidative stability)"
+  alias_of: ING.vegan_creamer
+  overrides:
+  - { to: L.ar.rancid_oxidized, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: low,
+      note: "분말 유지라 표면적이 크다. 제품마다 편차가 커 확신도 low." }
+
+# =============================================================================
+# D. 분자량·전하 — 잔탄이 왜 다른가
+# =============================================================================
+# 잔탄검은 MW 2~50 MDa 에 음이온성으로, 검류 중 전단담화가 압도적으로 강하다.
+# FT.thickener 가 주는 일반 엣지로는 전분과 구분되지 않는다.
+
+- id: ING.xanthan_gum_mw_ext
+  label: "Xanthan gum (very high MW, anionic)"
+  alias_of: ING.xanthan_gum
+  overrides:
+  - { to: P.shear_thinning_index, direction: increase, magnitude: strong, scoped_to_structure_class: SC.suspension, source_type: prior, confidence: high,
+      note: "MW 2-50 MDa. 정지 시 점도가 높고 전단 시 급격히 묽어진다 — 서스펜션이 흐르면서도 입자를 붙잡는 이유." }
+  - { to: P.yield_stress, direction: increase, magnitude: strong, scoped_to_structure_class: SC.suspension, source_type: prior, confidence: high }
+
+- id: ING.locust_bean_gum_mg_ext
+  label: "Locust bean gum (M/G 3.5)"
+  alias_of: ING.locust_bean_gum
+  overrides:
+  - { to: L.tx.creaminess, direction: increase, magnitude: medium, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: medium,
+      note: "갈락토만난 M/G 3.5 — 곁사슬이 적어 카라기난과 시너지를 내고 얼음 억제·크리미에 기여한다. 구아(M/G 1.5)와 갈리는 지점." }
+
+# =============================================================================
+# 남겨 둔 것 — 기작이 확립되지 않았거나 대응 축이 없다
+# =============================================================================
+#
+# sweetness (감미료 8종: 알룰로스 ~70%, 에리스리톨 60-70%, 덱스트로스 moderate …)
+#     상대감미도는 명확한 숫자이지만, 이것을 L.ta.sweet 크기로 옮기면 배합량과
+#     이중계산이 된다. 모형은 이미 '재료를 1 SD 올릴 때의 효과' 로 계수를 잡고
+#     스케일은 zsd 가 담당한다. 상대감미도는 오히려 **작업 범위**에 반영되어야
+#     하는 값이다(알룰로스는 설탕보다 많이 넣어야 같은 단맛).
+#     -> 팔레트 표의 하한·상한으로 다룰 것. 엣지가 아니다.
+#
+# ph (17종)
+#     P.pH 를 움직이는 것은 산도제이지 'pH 를 가진 재료' 가 아니다. 재료의 pH 는
+#     완충 용량과 함께 봐야 의미가 있는데 P.buffering_capacity 가 Layer A 에 없다.
+#
+# MW / charge (검류 일반)
+#     잔탄처럼 기작이 또렷한 것만 올렸다. 나머지는 'MW high' 정도로만 적혀 있어
+#     어떤 축을 얼마나 움직이는지 유도할 수 없다.
+#
+# solubility · form · heat_treated · source
+#     공정·취급 정보다. Layer O 영역이거나 관능 축에 직접 대응하지 않는다.
