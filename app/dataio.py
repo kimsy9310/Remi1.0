@@ -105,16 +105,15 @@ def load_warmloop(path, onto, profile, filler=None):
 
     # ---- 1) 관능 컬럼 -> L.* : M 카드의 legacy_column 이 다리다
     cards = onto._ref.load_cards(profile, onto.layers)
+    # 관능 컬럼 -> L.* 다리. legacy_column 이 있으면 그것을 쓰고, 없으면 term_id
+    # 자체를 컬럼명으로 인정한다. write_template 이 그렇게 쓰기 때문에, 이렇게
+    # 해야 "템플릿 생성 -> 랩이 채움 -> 다시 읽기" 왕복이 성립한다.
     col2term, term2col = {}, {}
     for c in cards:
-        lc = c.get("legacy_column")
-        if lc:
-            col2term[lc] = c["term_id"]
-            term2col[c["term_id"]] = lc
-    if not col2term:
-        raise ValueError(
-            f"프로파일 {profile} 의 M 카드에 legacy_column 이 없습니다. "
-            f"관능 컬럼을 L.* 로 잇는 다리가 없으면 데이터를 붙일 수 없습니다.")
+        t = c["term_id"]
+        lc = c.get("legacy_column") or t
+        col2term[lc] = t
+        term2col[t] = lc
 
     # ---- 2) 재료 컬럼 -> ING.*
     ing_map = read_dictionary(wb)
@@ -230,6 +229,11 @@ def load_warmloop(path, onto, profile, filler=None):
         missing_axes=missing, notes=notes)
 
 
+def _ing_col(ing_id):
+    """ING.rice_extract -> ing_rice_extract. 접두사가 겹치지 않게."""
+    return "ing_" + str(ing_id).replace("ING.", "")
+
+
 def write_template(path, onto, profile, palette, sample_ids=None):
     """랩이 채울 빈 xlsx 를 만든다. 컬럼 이름이 곧 규약이므로 여기서 생성한다."""
     cards = onto._ref.load_cards(profile, onto.layers)
@@ -237,7 +241,7 @@ def write_template(path, onto, profile, palette, sample_ids=None):
 
     ws = wb.active
     ws.title = "recipes"
-    ws.append(["sample_id", "is_benchmark", "notes"] + [f"ing_{g}" for g in palette])
+    ws.append(["sample_id", "is_benchmark", "notes"] + [_ing_col(g) for g in palette])
 
     ws2 = wb.create_sheet("sensory")
     cols = []
@@ -248,7 +252,7 @@ def write_template(path, onto, profile, palette, sample_ids=None):
     ws3 = wb.create_sheet("dictionary")
     ws3.append(["column_name", "real_ingredient", "ontology_id (ING.*)"])
     for g in palette:
-        ws3.append([f"ing_{g}", "", g])
+        ws3.append([_ing_col(g), g.replace("ING.", ""), g])
 
     ws4 = wb.create_sheet("README")
     for line in [
