@@ -1,0 +1,144 @@
+# [layerC2 확장 2026-08-26] R-1 이 쓰는데 움직일 수 없던 파라미터들
+# =============================================================================
+# 스펙 §5.9 는 "액추에이터가 없는 R-1 레코드를 로더가 반드시 플래그하라"고
+# 적었다. 그 검사를 구현하고 나니 15건이 나왔다.
+#
+# 원인은 한 가지 패턴이다. v1 이 C 엣지를 **한 스코프에만** 썼는데 R-1 은 여러
+# 스코프에 걸쳐 있다. 그래서 관계의 절반(파라미터 -> 관능)만 있고 나머지 절반
+# (재료 -> 파라미터)이 비어 있었다. 앞서 고친 두 건과 같은 종류다.
+#
+#     2026-08-25  FT.fat_source  -> P.oil_phase_fraction   (음료에 없었음)
+#     2026-08-25  FT.thickener   -> P.apparent_viscosity   (음료에 없었음)
+#     2026-08-26  이 파일          나머지 스코프들
+#
+# 여기서는 **정의에 가깝거나 HANDOFF 에 문서화된 것만** 채운다. 애매한 것은
+# 손대지 않고 아래 '남겨 둔 것'에 이유를 적었다.
+#
+# STATUS: DRAFT — 방향은 근거가 있으나 크기는 잠정이다.
+# =============================================================================
+
+function_tags_ext:
+
+# ---------------------------------------------------------------- 정의에 가까운 것
+- id: FT.sweetener_brix_scope
+  label: "Sweetener (brix scope extension)"
+  definition: >-
+    Scope extension only: 용해된 감미료는 곧 가용성 고형분이다. R-1 은
+    P.soluble_solids_brix -> L.ta.sweet 을 scope=any 로 이미 갖고 있는데, 이
+    파라미터를 움직이는 엣지는 음료의 개별 재료 두 개뿐이었다.
+  alias_of: FT.sweetener
+  effects:
+  - { to: P.soluble_solids_brix, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high,
+      note: "정의에 가까운 관계 — 용해된 당은 Brix 로 읽힌다." }
+
+- id: FT.pungent_shu_scope
+  label: "Pungent principle (SHU scope extension)"
+  definition: >-
+    Scope extension only: 캡사이시노이드 함량은 매운 원료의 정의적 지표다.
+  alias_of: FT.pungent_principle
+  effects:
+  - { to: P.capsaicinoid_shu, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+
+- id: FT.fat_source_suspension_scope
+  label: "Fat source (suspension scope extension)"
+  definition: >-
+    Scope extension only: 유상분율은 지방을 넣으면 오르는 정의적 관계인데
+    서스펜션 스코프에만 빠져 있었다. R-1 은 이 스코프에서
+    P.oil_phase_fraction -> L.ch.heat_linger 을 쓴다(캡사이시노이드가 지용성이라
+    유상이 많을수록 매운맛이 길게 남는다).
+  alias_of: FT.fat_source
+  effects:
+  - { to: P.oil_phase_fraction, direction: increase, magnitude: strong, scoped_to_structure_class: SC.suspension, source_type: prior, confidence: high }
+
+# ---------------------------------------------------------------- 표준 레올로지
+- id: FT.thickener_yield_scope
+  label: "Thickener (yield stress scope extension)"
+  definition: >-
+    Scope extension only: 증점제는 항복응력을 올린다. R-1 이 소스에서
+    P.yield_stress -> L.tx.thickness / L.tx.cling 을, 서스펜션에서 cling 을
+    쓰는데 그 파라미터를 움직이는 것이 FT.firming_agent(소속 재료 0종)와
+    이오타 카라기난뿐이었다. 소스의 L.tx.spreadability 가 이것 때문에
+    어떤 재료로도 움직이지 않았다.
+  alias_of: FT.thickener
+  effects:
+  - { to: P.yield_stress, direction: increase, magnitude: medium, scoped_to_structure_class: SC.emulsion.ow.sauce, source_type: prior, confidence: medium }
+  - { to: P.yield_stress, direction: increase, magnitude: medium, scoped_to_structure_class: SC.suspension, source_type: prior, confidence: medium }
+  - { to: P.shear_thinning_index, direction: increase, magnitude: medium, scoped_to_structure_class: SC.suspension, source_type: prior, confidence: low,
+      note: "검 종류마다 편차가 크다 — 잔탄은 강하게 전단담화하지만 전분은 훨씬 덜하다. 확신도를 low 로 두어 실측이 곧바로 덮게 했다." }
+
+- id: FT.emulsifier_coalescence_scope
+  label: "Emulsifier (coalescence scope extension)"
+  definition: >-
+    Scope extension only: 유화제는 계면막을 만들어 액적 합일을 늦춘다.
+    이미 P.creaming_index 는 갖고 있었으나 P.coalescence_rate 는 비어 있었다.
+  alias_of: FT.emulsifier
+  effects:
+  - { to: P.coalescence_rate, direction: decrease, magnitude: medium, scoped_to_structure_class: SC.emulsion.ow.sauce, source_type: prior, confidence: medium }
+
+- id: FT.stabilizer_serum_scope
+  label: "Stabilizer (serum separation scope extension)"
+  definition: >-
+    Scope extension only: 안정제는 연속상 점도와 망상 구조로 입자 침강과
+    혈청 분리를 늦춘다. 서스펜션에서 P.serum_separation_index 가 비어 있었다.
+  alias_of: FT.stabilizer
+  effects:
+  - { to: P.serum_separation_index, direction: decrease, magnitude: medium, scoped_to_structure_class: SC.suspension, source_type: prior, confidence: medium }
+
+# ---------------------------------------------------------------- HANDOFF 문서화분
+- id: FT.stabilizer_ice_scope
+  label: "Stabilizer (ice crystal scope extension)"
+  definition: >-
+    Scope extension only: HANDOFF 가 "구아검 = 얼음결정 억제 주력" 이라 적은
+    관계. P.ice_recrystallization(저장 중 성장)은 이미 있었으나 결정 크기
+    자체는 비어 있었다. R-1 이 이것으로 icy / smoothness / creaminess 셋을
+    쓴다.
+  alias_of: FT.stabilizer
+  effects:
+  - { to: P.ice_crystal_size, direction: decrease, magnitude: strong, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: high }
+
+- id: FT.sweetener_icephase_scope
+  label: "Sweetener (ice phase volume scope extension)"
+  definition: >-
+    Scope extension only: HANDOFF 의 "설탕의 3중 역할" 중 빙점강하가 얼음
+    분율로 이어지는 고리. 빙점이 낮아지면 같은 온도에서 언 물의 비율이 준다.
+    R-1 이 P.ice_phase_volume -> L.tx.hardness 로 쓴다.
+  alias_of: FT.sweetener
+  effects:
+  - { to: P.ice_phase_volume, direction: decrease, magnitude: strong, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: high }
+
+- id: FT.fat_source_gloss_scope
+  label: "Fat source (gloss scope extension)"
+  definition: >-
+    Scope extension only: 유상이 표면 광택을 만든다. 소스의 L.ap.glossy 가
+    이것 없이는 움직이지 않았다.
+  alias_of: FT.fat_source
+  effects:
+  - { to: P.gloss_optical, direction: increase, magnitude: medium, scoped_to_structure_class: SC.emulsion.ow.sauce, source_type: prior, confidence: medium }
+
+# =============================================================================
+# 남겨 둔 것 — 지어내지 않는다
+# =============================================================================
+#
+# P.serving_temperature (icecream, L.tx.cold_perceived)
+#     제공 조건이지 배합이 아니다. 탄산(L.ch.carbonation_bite)과 같은 성격 —
+#     공정/사용 변수라 Layer O 영역이다. 스펙 §7 이 의도적으로 비워 둔 곳.
+#
+# P.particle_size_d90 (suspension, L.tx.grittiness)
+#     스펙 §5.9 가 명시한다 — "O 층이 생기기 전에는 입자 크기류 파라미터가
+#     재료 변종 선택(C descriptors)으로만 움직인다". 변종 선택은 아직 결정
+#     변수가 아니므로 액추에이터가 없는 것이 맞다. 고춧가루 굵은/고운 구분이
+#     바로 그 변종 선택이다.
+#
+# P.flavor_release_dynamics (sauce, L.ta.aftertaste_length)
+#     **파라미터 정의 자체가 모호하다.** 라벨이 "Flavor release / matrix
+#     binding" 으로 서로 반대인 두 개념을 한 이름에 담고 있고, unit 은
+#     "release-rate profile (qualitative unless instrumented)" 이다.
+#     방출이 빠르면 여운은 짧아야 하는데 R-1 은 increasing -> 여운 증가로
+#     적혀 있다. 즉 이 파라미터는 사실상 '보유/결합'을 뜻하는 듯하다.
+#     방향을 추측해 엣지를 걸면 부호가 반대일 위험이 있어 손대지 않았다.
+#     -> Layer A 에서 이름과 단위를 정리한 뒤 엣지를 걸 것.
+#
+# FT.firming_agent
+#     소속 재료가 0종인 죽은 태그다. P.yield_stress 엣지를 갖고 있으나 아무
+#     재료도 달고 있지 않아 효력이 없었다. 위 FT.thickener_yield_scope 가
+#     그 자리를 메운다. 태그 자체는 남겨 둔다(ID 는 추가만, 삭제 금지).

@@ -1,3 +1,4 @@
+  # [2026-08-26] direction 보강: 이 필드가 없으면 로더가 엣지를 조용히 건너뛴다
 # [layerC2 - spec v2 migration 2026-08-18] SA.* targets rewritten to L.* per
 # remi_ontology_spec_v2.md §6.3; v1 lesson ids renamed L.<x> -> LESSON.<x>
 # (namespace collision with Layer L). Source file frozen per Invariant 3.
@@ -73,7 +74,7 @@ ingredients_ext:
       - { type: ingredient_upper_limit, statement: "excess -> pasty/starchy, gummy body", scoped_to_structure_class: SC.emulsion.ow.sauce }
     substitutes: [ING.maltodextrin, ING.inulin]
     overrides:
-      - { to: L.tx.creaminess, scoped_to_structure_class: SC.emulsion.ow.sauce, magnitude: strong, source_type: prior, confidence: high, note: "~4x more effective fat replacer than maltodextrin; enables oil below the creaminess floor" }
+      - { to: L.tx.creaminess, direction: increase, scoped_to_structure_class: SC.emulsion.ow.sauce, magnitude: strong, source_type: prior, confidence: high, note: "~4x more effective fat replacer than maltodextrin; enables oil below the creaminess floor" }
 
   - id: ING.maltodextrin
     label: "Maltodextrin"
@@ -81,7 +82,7 @@ ingredients_ext:
     descriptors: { MW: "moderate-high (low DE)", sweetness: low, water_binding: high }
     substitutes: [ING.polydextrose, ING.inulin]
     overrides:
-      - { to: P.freezing_point_depression, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: weak, source_type: prior, confidence: high, note: "little FPD effect -> good pure bulk/solids" }
+      - { to: P.freezing_point_depression, direction: increase, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: weak, source_type: prior, confidence: high, note: "little FPD effect -> good pure bulk/solids" }
 
   - id: ING.inulin
     label: "Inulin"
@@ -101,7 +102,7 @@ ingredients_ext:
     descriptors: { MW: low, sweetness: "partial", cooling_effect: true }
     substitutes: [ING.dextrose]
     overrides:
-      - { to: P.freezing_point_depression, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: strong, source_type: prior, confidence: high, note: "stronger FPD than sugar per weight -> lower dose; blends tune the freezing curve" }
+      - { to: P.freezing_point_depression, direction: increase, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: strong, source_type: prior, confidence: high, note: "stronger FPD than sugar per weight -> lower dose; blends tune the freezing curve" }
 
   - id: ING.dextrose
     label: "Dextrose (glucose)"
@@ -109,7 +110,7 @@ ingredients_ext:
     descriptors: { MW: 180, sweetness: moderate }
     substitutes: [ING.sugar_alcohol]
     overrides:
-      - { to: P.freezing_point_depression, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: strong, source_type: prior, confidence: high, note: "monosaccharide ~2x FPD of sucrose per mole" }
+      - { to: P.freezing_point_depression, direction: increase, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: strong, source_type: prior, confidence: high, note: "monosaccharide ~2x FPD of sucrose per mole" }
 
   - id: ING.glucose_syrup
     label: "Glucose syrup / corn syrup solids"
@@ -117,7 +118,7 @@ ingredients_ext:
     descriptors: { DE: variable, sweetness: "low-moderate" }
     substitutes: [ING.maltodextrin]
     overrides:
-      - { to: P.mix_viscosity, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: medium, source_type: prior, confidence: medium, note: "raises Tg' (storage stability), body; less sweet, moderate FPD" }
+      - { to: P.mix_viscosity, direction: increase, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: medium, source_type: prior, confidence: medium, note: "raises Tg' (storage stability), body; less sweet, moderate FPD" }
 
   - id: ING.high_intensity_sweetener
     label: "High-intensity sweetener (sucralose, stevia)"
@@ -125,7 +126,7 @@ ingredients_ext:
     descriptors: { potency: "100-600x sucrose", contributes_solids: false }
     substitutes: []
     overrides:
-      - { to: L.ta.sweet, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: strong, source_type: prior, confidence: high, note: "sweetness ONLY - NO body, NO FPD; must pair with bulking_agent + fpd_agent (see LESSON.sugar_triple_role)" }
+      - { to: L.ta.sweet, direction: increase, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: strong, source_type: prior, confidence: high, note: "sweetness ONLY - NO body, NO FPD; must pair with bulking_agent + fpd_agent (see LESSON.sugar_triple_role)" }
 
   - id: ING.carrageenan
     label: "Carrageenan (리파인드 — 카파형 가정)"

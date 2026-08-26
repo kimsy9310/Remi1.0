@@ -1,3 +1,4 @@
+  # [2026-08-26] direction 보강: 이 필드가 없으면 로더가 엣지를 조용히 건너뛴다
 # [layerC2 - spec v2 migration 2026-08-18] SA.* targets rewritten to L.* per
 # remi_ontology_spec_v2.md §6.3; v1 lesson ids renamed L.<x> -> LESSON.<x>
 # (namespace collision with Layer L). Source file frozen per Invariant 3.
@@ -96,7 +97,7 @@ ingredients:
     limitations: []
     substitutes: [ING.polysorbate_80, ING.lecithin]
     overrides:
-      - { to: P.fat_destabilization, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: medium, source_type: prior, confidence: high, note: "weaker fat destabilizer than polysorbate 80" }
+      - { to: P.fat_destabilization, direction: increase, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: medium, source_type: prior, confidence: high, note: "weaker fat destabilizer than polysorbate 80" }
 
   - id: ING.polysorbate_80
     label: "Polysorbate 80"
@@ -110,7 +111,7 @@ ingredients:
       - { type: regulatory_limit, statement: "use level regulated; region-specific max" }
     substitutes: [ING.mono_diglycerides]
     overrides:
-      - { to: P.fat_destabilization, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: strong, source_type: prior, confidence: high, note: "displaces MORE protein -> stronger destabilization; best in blend with MDG" }
+      - { to: P.fat_destabilization, direction: increase, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: strong, source_type: prior, confidence: high, note: "displaces MORE protein -> stronger destabilization; best in blend with MDG" }
 
   - id: ING.egg_yolk
     label: "Egg yolk"
@@ -123,7 +124,7 @@ ingredients:
     limitations: []
     substitutes: [ING.lecithin]
     overrides:
-      - { to: P.droplet_size_d32, scoped_to_structure_class: SC.emulsion.ow.sauce, magnitude: strong, source_type: prior, confidence: high, note: "classic mayonnaise O/W emulsifier" }
+      - { to: P.droplet_size_d32, direction: decrease, scoped_to_structure_class: SC.emulsion.ow.sauce, magnitude: strong, source_type: prior, confidence: high, note: "classic mayonnaise O/W emulsifier" }
 
   - id: ING.xanthan_gum
     label: "Xanthan gum"
@@ -167,7 +168,7 @@ ingredients:
     vegan_ok: true
     substitutes: [ING.glucose_syrup, ING.high_intensity_sweetener]
     overrides:
-      - { to: P.freezing_point_depression, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: strong, source_type: prior, confidence: high, note: "low-MW -> strong FPD; replacing with high-intensity sweetener LOSES FPD + body -> harder, icier, thin" }
+      - { to: P.freezing_point_depression, direction: increase, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: strong, source_type: prior, confidence: high, note: "low-MW -> strong FPD; replacing with high-intensity sweetener LOSES FPD + body -> harder, icier, thin" }
 
 # =============================================================================
 # INTERACTIONS (ingredient<->ingredient synergy/antagonism; scoped)

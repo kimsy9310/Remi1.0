@@ -217,6 +217,42 @@ check("크리미니스를 올리려 지방을 늘린다(방향이 식품과학�
 ok, msg = raises(onto.suggest, built, {"L.tx.nonexistent": 1.0})
 check("모르는 축을 목표로 주면 거부한다", ok)
 
+
+# ---------------------------------------------------------------- 온톨로지 감사
+print("")
+print("[감사] 스펙이 요구하나 정본 로더가 안 하는 검사")
+
+# 의도적으로 효과가 없는 재료 — 이유가 문서화된 것만 허용한다
+ALLOWED_INERT = {
+    "ING.plant_extract",      # shortlist 가 효과 없음으로 제외 등급을 매김
+    "ING.calcium_lactate",    # 중성염. 역할은 칼슘 공급인데 대응 P 가 없다
+    "ING.potassium_sorbate",  # 보존제. 관능/물성 축이 아니다
+}
+
+aud = onto.audit()
+
+check("direction 없는 엣지가 없다", not aud["directionless"],
+      f"{len(aud['directionless'])}건 — 있으면 로더가 조용히 0 으로 만든다")
+for _k, _o, _t, _s in aud["directionless"][:5]:
+    print(f"        {_k} {_o} -> {_t}")
+
+_inert = [g for g in aud["untagged"] if g not in ALLOWED_INERT]
+check("효과를 하나도 못 내는 재료가 없다", not _inert, str(_inert))
+
+check("향미재가 모두 향 축을 움직인다", not aud["unfulfilled"],
+      f"{len(aud['unfulfilled'])}건")
+for _g, _t, _w in aud["unfulfilled"][:5]:
+    print(f"        {_g}: {_w}")
+
+check("어떤 재료로도 못 움직이는 core 축이 없다", not aud["dead_core"],
+      str(aud["dead_core"]))
+
+# 스펙 5.9 — 액추에이터 없는 R-1 은 플래그 대상이지 실패는 아니다.
+# 없는 파라미터를 지어내는 것보다 보이게 두는 편이 낫다.
+_n_orphan = sum(len(v) for v in aud["orphan_proxies"].values())
+print(f"  참고  액추에이터 없는 R-1 {_n_orphan}건 (스펙 5.9 플래그)")
+for _p, _xs in aud["orphan_proxies"].items():
+    print(f"        [{_p}] {chr(44).join(_xs)}")
 print("\n" + "=" * 62)
 print(f"  {_n_pass}건 통과 · {_n_fail}건 실패")
 print("=" * 62)

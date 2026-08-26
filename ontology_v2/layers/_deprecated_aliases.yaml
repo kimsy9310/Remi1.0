@@ -64,12 +64,36 @@ deprecated_sa_to_l:
   SA.umami: L.ta.umami
   SA.whiteness: L.ap.milky_whiteness
 deprecated_sa_special:
-  SA.numbing_tingle: L.ch.tingling + L.ch.numbing (split)
-  SA.oiliness: L.tx.oiliness + L.tx.greasiness (split)
-  SA.richness: R-3 DC.0003 (edges retargeted to L.tx.body)
-  SA.off_flavor: L.ar.rancid_oxidized (representative) / off_note subcategory
-  SA.color: L.ap.color_intensity (representative of 4 color attributes)
-  SA.flavor.sweet_aromatic_note: L.ar.caramel (representative leaf)
+  # [2026-08-26] 이 파일은 스스로 machine-readable 을 표방하는데 이 절만 값이
+  # 산문이었다. 도구가 SA.oiliness 를 물으면 ID 가 아니라 문장을 받는다.
+  # 산문은 note 로 남기고 기계가 읽을 targets 를 나란히 둔다.
+  # kind: split(둘로 쪼개짐) · representative(대표 하나로) · to_r3(R-3 로 이관)
+  SA.numbing_tingle:
+    kind: split
+    targets: [L.ch.tingling, L.ch.numbing]
+    note: "L.ch.tingling + L.ch.numbing (split)"
+  SA.oiliness:
+    kind: split
+    targets: [L.tx.oiliness, L.tx.greasiness]
+    note: "L.tx.oiliness + L.tx.greasiness (split)"
+  SA.richness:
+    kind: to_r3
+    targets: [L.tx.body]
+    r3_record: DC.0003
+    note: "R-3 DC.0003 (edges retargeted to L.tx.body)"
+  SA.off_flavor:
+    kind: representative
+    targets: [L.ar.rancid_oxidized]
+    subcategory: off_note
+    note: "L.ar.rancid_oxidized (representative) / off_note subcategory"
+  SA.color:
+    kind: representative
+    targets: [L.ap.color_intensity]
+    note: "L.ap.color_intensity (representative of 4 color attributes)"
+  SA.flavor.sweet_aromatic_note:
+    kind: representative
+    targets: [L.ar.caramel]
+    note: "L.ar.caramel (representative leaf)"
 deprecated_lesson_ids:
   L.sugar_triple_role: LESSON.sugar_triple_role
   L.overrun_bounds: LESSON.overrun_bounds

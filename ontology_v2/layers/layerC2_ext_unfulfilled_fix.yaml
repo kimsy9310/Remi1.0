@@ -1,0 +1,222 @@
+# [layerC2 확장 2026-08-26] 태그만 있고 효과가 없던 재료들
+# =============================================================================
+# 세 제품(트러플 마요·오레가노 케첩·체리 코크) 부하 테스트에서 드러난 결손.
+#
+#   · function_tags 가 빈 재료 10종  -> 아무 축도 움직이지 못했다
+#   · FT.flavorant 인데 flavor_profile 이 없는 재료 14종
+#     (FT.flavorant 는 효과 엣지를 갖지 않는 선언용 태그다. 향은 재료가
+#      직접 선언해야 하는데 빠뜨리면 향미재가 향을 못 낸다.)
+#
+# 가장 눈에 띈 결과: 모형은 "간장은 짜지만 소금은 짜지 않다" 고 믿고 있었다.
+# 트러플 마요에 짠맛 +1.5 를 요청하면 소금 대신 MSG 를 넣었다.
+#
+# 방식
+# ----
+# 원본 파일은 건드리지 않고 alias_of 로 얹는다(불변식 3). 로더는 ingredient 의
+# alias_of 를 만나면 그 overrides 를 기반 재료에 합치고 별칭을 지운다.
+#
+# flavor_profile 이 아니라 overrides 를 쓰는 이유: 로더의 alias 접기가
+# overrides 만 병합하고 flavor_profile 은 병합하지 않는다. 효과 계산에서는
+# 둘 다 동등하게 읽히므로(scope 만 맞으면) 결과는 같다. scope 는 향이 제형과
+# 무관하게 살아 있도록 any 로 둔다.
+#
+# STATUS: DRAFT — 방향은 자명하나 크기는 잠정이다. 확신도를 medium 이하로
+# 둔 항목은 실측이 들어오면 곧바로 덮인다.
+# =============================================================================
+
+ingredients_ext:
+
+# ---------------------------------------------------------------- 태그가 없던 재료
+- id: ING.salt_effects_ext
+  label: "Salt (effect extension)"
+  alias_of: ING.salt
+  overrides:
+  - { to: L.ta.salty, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high,
+      note: "정의에 가까운 관계. 이것이 없어서 모형이 짠맛을 간장/MSG 로만 올렸다." }
+  - { to: P.sodium_content, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high,
+      note: "R-1 이 P.sodium_content -> L.ta.salty 를 이미 갖고 있었는데 이 파라미터를 움직이는 재료가 없어 고아였다(스펙 5.9)." }
+  - { to: L.ta.bitter, direction: decrease, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: medium,
+      note: "원본 descriptors 에 suppresses bitterness 로 적혀 있던 것을 엣지로 올림." }
+
+- id: ING.lemon_juice_effects_ext
+  label: "Lemon juice (effect extension)"
+  alias_of: ING.lemon_juice
+  overrides:
+  - { to: L.ta.sour, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+  - { to: L.ar.lemon, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+  - { to: L.ar.citrus, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }
+  - { to: P.pH, direction: decrease, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+
+- id: ING.jalapeno_effects_ext
+  label: "Jalapeno (effect extension)"
+  alias_of: ING.jalapeno
+  overrides:
+  - { to: L.ch.pungent_hot, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }
+  - { to: L.ar.fresh_chili_green, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+  - { to: L.ar.green_bell_pepper, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: medium }
+
+- id: ING.shallot_effects_ext
+  label: "Shallot (effect extension)"
+  alias_of: ING.shallot
+  overrides:
+  - { to: L.ar.onion, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+  - { to: L.ar.cooked_allium_sweet, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: medium }
+
+- id: ING.garlic_roasted_effects_ext
+  label: "Roasted garlic (effect extension)"
+  alias_of: ING.garlic_roasted
+  overrides:
+  - { to: L.ar.roasted_garlic, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+  - { to: L.ar.garlic, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }
+  - { to: L.ta.umami, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: medium }
+
+- id: ING.paprika_smoked_effects_ext
+  label: "Smoked paprika (effect extension)"
+  alias_of: ING.paprika_smoked
+  overrides:
+  - { to: L.ar.smoky, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+  - { to: L.ap.color_intensity, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+
+- id: ING.calcium_carbonate_effects_ext
+  label: "Calcium carbonate (effect extension)"
+  alias_of: ING.calcium_carbonate
+  overrides:
+  - { to: P.pH, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high,
+      note: "알칼리성 무기염 — 산을 중화한다. 젖산칼슘과 달리 pH 를 실제로 올린다." }
+
+# ING.calcium_lactate 는 일부러 비워 둔다. HANDOFF 가 중성염(완충 파트너,
+# 산성화 아님)으로 결론지었고, 실제 역할은 칼슘 공급(이오타 카라기난 겔화)인데
+# 그에 대응하는 P 파라미터가 Layer A 에 없다. 없는 것을 지어내지 않는다.
+#
+# ING.plant_extract 도 비워 둔다. 팔레트 shortlist 가 관능/물성 효과 없음으로
+# 제외 등급을 매긴 재료다. 빈 것이 맞다.
+#
+# ING.water 는 필러라 정상적으로 비어 있다.
+
+# ---------------------------------------------------------------- 향이 없던 향미재
+- id: ING.black_pepper_flavor_ext
+  label: "Black pepper (flavor extension)"
+  alias_of: ING.black_pepper
+  overrides:
+  - { to: L.ar.black_pepper_aroma, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+  - { to: L.ch.peppery_bite, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }
+
+- id: ING.chili_fresh_red_flavor_ext
+  label: "Fresh red chili (flavor extension)"
+  alias_of: ING.chili_fresh_red
+  overrides:
+  - { to: L.ch.pungent_hot, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+  - { to: L.ap.color_intensity, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }
+  - { to: L.ar.fresh_chili_green, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: low,
+      note: "Layer L 에 '신선한 홍고추' 향 용어가 없다. 가장 가까운 것이 fresh_chili_green 이라 약하게 건다. 렉시콘 결손이므로 용어를 추가하는 편이 더 옳다." }
+
+- id: ING.cumin_flavor_ext
+  label: "Cumin (flavor extension)"
+  alias_of: ING.cumin
+  overrides:
+  - { to: L.ar.cumin, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+  - { to: L.ar.earthy, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: medium }
+
+- id: ING.garlic_powder_flavor_ext
+  label: "Garlic powder (flavor extension)"
+  alias_of: ING.garlic_powder
+  overrides:
+  - { to: L.ar.garlic, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+  - { to: L.ar.sulfury, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: medium }
+
+- id: ING.ginger_fresh_flavor_ext
+  label: "Fresh ginger (flavor extension)"
+  alias_of: ING.ginger_fresh
+  overrides:
+  - { to: L.ar.ginger_aroma, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+  - { to: L.ch.pungent_hot, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: medium,
+      note: "진저롤 계열 — 캡사이신과 기작이 다르지만 매운 감각축을 공유한다." }
+
+- id: ING.ginger_powder_flavor_ext
+  label: "Ginger powder (flavor extension)"
+  alias_of: ING.ginger_powder
+  overrides:
+  - { to: L.ar.ginger_aroma, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+  - { to: L.ch.nasal_pungent, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: medium }
+
+- id: ING.gochugaru_fine_flavor_ext
+  label: "Gochugaru fine (flavor extension)"
+  alias_of: ING.gochugaru_fine
+  overrides:
+  - { to: L.ar.dried_red_chili, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+  - { to: L.ap.color_intensity, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+
+- id: ING.onion_powder_flavor_ext
+  label: "Onion powder (flavor extension)"
+  alias_of: ING.onion_powder
+  overrides:
+  - { to: L.ar.onion, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+  - { to: L.ar.cooked_allium_sweet, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: medium }
+
+- id: ING.oregano_mexican_flavor_ext
+  label: "Mexican oregano (flavor extension)"
+  alias_of: ING.oregano_mexican
+  overrides:
+  - { to: L.ar.herbal, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high,
+      note: "오레가노 케첩이 불변식 6 으로 걸린 지점. 이 엣지가 없어 오레가노는 입자 효과(grittiness/sediment)만 주고 향은 하나도 내지 못했다." }
+
+- id: ING.paprika_sweet_flavor_ext
+  label: "Sweet paprika (flavor extension)"
+  alias_of: ING.paprika_sweet
+  overrides:
+  - { to: L.ap.color_intensity, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+  - { to: L.ar.dried_red_chili, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: medium }
+
+- id: ING.perilla_oil_flavor_ext
+  label: "Perilla oil (flavor extension)"
+  alias_of: ING.perilla_oil
+  overrides:
+  - { to: L.ar.perilla_oil, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+  - { to: L.ar.roasted_sesame, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: medium }
+
+- id: ING.rice_extract_flavor_ext
+  label: "Rice extract (flavor extension)"
+  alias_of: ING.rice_extract
+  overrides:
+  - { to: L.ar.cooked_rice, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+  - { to: L.ta.sweet, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high,
+      note: "당 35% 를 함유한다(HANDOFF 3.3). 저당 회계에서 이 제품의 유일한 당류 공급원." }
+
+- id: ING.tomato_diced_flavor_ext
+  label: "Diced tomato (flavor extension)"
+  alias_of: ING.tomato_diced
+  overrides:
+  - { to: L.ar.tomato_fresh, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high }
+  - { to: L.ap.color_intensity, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }
+
+- id: ING.yeast_extract_flavor_ext
+  label: "Yeast extract (flavor extension)"
+  alias_of: ING.yeast_extract
+  overrides:
+  - { to: L.ar.yeasty, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high,
+      note: "감칠맛은 FT.umami_source 태그가 이미 준다. 여기서는 효모 특유의 향만 보탠다." }
+
+# ---------------------------------------------------------------- 저당 감미료의 부수 특성
+# 2026-08-26 추가. L.ta.aftertaste_length 는 온톨로지 전체에 직접 엣지가 0건이었고,
+# 소스에서만 R-1(지방 -> 여운)으로 간신히 닿았다. 나머지 4개 프로파일에서는
+# 아예 움직이지 않는 축이었다.
+#
+# 고감미도 감미료의 여운은 이 제품군의 대표적 약점이고 저당 트랙의 핵심 트레이드
+# 오프인데 기록이 없었다. HANDOFF 도 에리스리톨의 쿨링 오프노트를 경고한다.
+
+- id: ING.high_intensity_sweetener_aftertaste_ext
+  label: "High-intensity sweetener (aftertaste extension)"
+  alias_of: ING.high_intensity_sweetener
+  overrides:
+  - { to: L.ta.aftertaste_length, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high,
+      note: "스테비아/수크랄로스 계열의 정의적 약점. 벌크 감미료와 갈리는 지점이라 FT.sweetener 가 아니라 재료에 건다." }
+  - { to: L.ta.bitter, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: medium,
+      note: "특히 스테비올 배당체에서 고용량일 때. 확신도 medium — 감미료 종류마다 편차가 크다." }
+
+- id: ING.erythritol_cooling_ext
+  label: "Erythritol (cooling extension)"
+  alias_of: ING.erythritol
+  overrides:
+  - { to: L.ch.minty_cool, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high,
+      note: "용해열이 크게 음(-)이라 입 안에서 냉각감을 준다. HANDOFF 가 '쿨링 오프노트 주의'로 적어 둔 것. 알룰로스가 저당 linchpin 인 이유가 바로 이 쿨링이 없다는 점이다." }
+

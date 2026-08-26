@@ -191,6 +191,138 @@ class V2Ontology:
         """이 프로파일에서 하나라도 축을 움직이는 재료들."""
         return [g for g, e in self.effects_for(profile).items() if e]
 
+    # ---------------------------------------------------------------- 감사
+    def audit(self):
+        """
+        온톨로지 정합성 감사 — 스펙이 요구하지만 정본 로더가 구현하지 않은 검사들.
+
+        loader_reference.py 는 스펙이 지정한 참조 구현이라 편집하지 않는다.
+        그래서 빠진 검사를 여기에 둔다. 셋 다 "조용히 틀리는" 종류라서
+        경고가 없으면 영영 안 보인다.
+
+          1. direction 누락    필수 필드가 없으면 로더가 그 엣지를 건너뛴다.
+                               오류도 경고도 없이 0 이 된다.
+          2. R-1 액추에이터    스펙 §5.9: "액추에이터가 없는 R-1 레코드를
+                               로더는 반드시 플래그해야 한다". 미구현이었다.
+          3. 태그 불이행       FT.flavorant 는 효과 엣지를 갖지 않는 선언용
+                               태그다. 향은 재료가 flavor_profile 로 직접
+                               선언해야 하는데, 빠뜨리면 향미재가 향을 못 낸다.
+
+        반환은 항목별 리스트. 비어 있으면 깨끗하다는 뜻이다.
+        """
+        out = dict(directionless=[], untagged=[], unfulfilled=[],
+                   orphan_proxies={}, dead_core={}, unreachable_active=[])
+
+        # --- 1) direction 누락
+        for tid, t in self.tags.items():
+            for e in (t.get("effects") or []):
+                if "direction" not in e:
+                    out["directionless"].append(
+                        ("tag", tid, e.get("to"), e.get("scoped_to_structure_class")))
+        for gid, g in self.ingredients.items():
+            for key in ("overrides", "flavor_profile"):
+                for e in (g.get(key) or []):
+                    if "direction" not in e:
+                        out["directionless"].append(
+                            (key, gid, e.get("to"), e.get("scoped_to_structure_class")))
+
+        # --- 3) 재료가 실제로 아무 효과도 내지 못하는 경우
+        #
+        # "function_tags 가 비었나" 가 아니라 "효과가 나오나" 를 본다. 태그로
+        # 상속받든 overrides 로 직접 쓰든 결과가 같기 때문이다. 필드 유무를
+        # 보면 alias_of 확장으로 고친 재료를 계속 결손으로 오인한다.
+        all_eff = {}
+        for prof in self.profiles:
+            try:
+                for g, e in self.effects_for(prof).items():
+                    if e:
+                        all_eff.setdefault(g, set()).update(e)
+            except Exception:                                  # noqa: BLE001
+                continue
+        for gid, g in self.ingredients.items():
+            if gid in all_eff:
+                continue
+            if gid == "ING.water":            # 필러는 비어 있는 것이 정상
+                continue
+            out["untagged"].append(gid)
+
+        # FT.flavorant 는 선언용 태그다 — 향은 재료가 직접 줘야 한다.
+        # 향 축(L.ar.*)을 하나도 움직이지 못하면 향미재 구실을 못 하는 것이다.
+        for gid, g in self.ingredients.items():
+            if "FT.flavorant" not in (g.get("function_tags") or []):
+                continue
+            aroma = {t for t in all_eff.get(gid, set()) if t.startswith("L.ar.")}
+            if not aroma:
+                out["unfulfilled"].append((gid, "FT.flavorant", "향 축을 하나도 움직이지 못함"))
+
+        # --- 2) 프로파일별: 액추에이터 없는 R-1, 그리고 못 움직이는 core 축
+        for prof in self.profiles:
+            scopes = self.profiles[prof]["scopes"]
+            moved = set()
+            for _, t in self.tags.items():
+                for e in (t.get("effects") or []):
+                    sc = e.get("scoped_to_structure_class", "any")
+                    sc = sc if isinstance(sc, list) else [sc]
+                    if str(e.get("to", "")).startswith("P.") and e.get("direction")                             and any(x in scopes for x in sc):
+                        moved.add(e["to"])
+            for _, g in self.ingredients.items():
+                for e in (g.get("overrides") or []):
+                    sc = e.get("scoped_to_structure_class", "any")
+                    sc = sc if isinstance(sc, list) else [sc]
+                    if str(e.get("to", "")).startswith("P.") and e.get("direction")                             and any(x in scopes for x in sc):
+                        moved.add(e["to"])
+            refd = {r["parameter"] for r in self.stack["R"]["relations_proxy"]
+                    if r["scope"] in scopes}
+            orphan = sorted(refd - moved)
+            if orphan:
+                out["orphan_proxies"][prof] = orphan
+
+            try:
+                cards = self._ref.load_cards(prof, self.layers)
+            except Exception:                                  # noqa: BLE001
+                continue
+            core = [c["term_id"] for c in cards if c["tier"] == "core"]
+            # 활성 용어 전체의 도달성도 본다. 단 숙성 속성(sample_aged)은
+            # 배합이 아니라 시간이 만드는 것이라 R-4 kinetics 로 다루는 것이
+            # 맞다(스펙 5.8). R-4 가 덮고 있으면 결손이 아니다.
+            r4 = {r.get("subject") or r.get("phenomenon")
+                  for r in (self.stack["R"].get("relations_kinetics") or [])}
+            for c in cards:
+                t = c["term_id"]
+                if any(t in self.effects_for(prof)[g] for g in self.effects_for(prof)):
+                    continue
+                if c.get("evidence_required") == "sample_aged" and t in r4:
+                    continue                      # R-4 가 담당 — 정상
+                out.setdefault("unreachable_active", []).append((prof, t, c["tier"]))
+            eff = self.effects_for(prof)
+            dead = [t for t in core if not any(t in eff[g] for g in eff)]
+            if dead:
+                out["dead_core"][prof] = dead
+        return out
+
+    def audit_report(self):
+        """감사 결과를 사람이 읽는 줄글로."""
+        a = self.audit()
+        L = []
+        L.append(f"direction 누락 엣지 {len(a['directionless'])}건 (조용히 0 이 된다)")
+        for kind, owner, to, sc in a["directionless"]:
+            L.append(f"    {kind:14s} {owner:30s} -> {str(to):28s} {sc}")
+        L.append(f"function_tags 가 빈 재료 {len(a['untagged'])}종 (아무 축도 못 움직인다)")
+        for g in a["untagged"]:
+            L.append(f"    {g}")
+        L.append(f"태그를 이행하지 않는 재료 {len(a['unfulfilled'])}건")
+        for g, t, why in a["unfulfilled"]:
+            L.append(f"    {g:34s} {t:18s} {why}")
+        if a["orphan_proxies"]:
+            L.append("액추에이터가 없는 R-1 (스펙 §5.9):")
+            for p, xs in a["orphan_proxies"].items():
+                L.append(f"    [{p}] {', '.join(xs)}")
+        if a["dead_core"]:
+            L.append("어떤 재료로도 못 움직이는 core 축:")
+            for p, xs in a["dead_core"].items():
+                L.append(f"    [{p}] {', '.join(xs)}")
+        return chr(10).join(L)
+
     # ---------------------------------------------------------------- 조립
     def build(self, profile, palette, bounds=None, x0=None, total=100.0,
               sigma_from_cards=True):

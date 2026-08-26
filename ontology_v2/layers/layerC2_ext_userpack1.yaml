@@ -1,3 +1,4 @@
+  # [2026-08-26] direction 보강: 이 필드가 없으면 로더가 엣지를 조용히 건너뛴다
 # [layerC2 - spec v2 migration 2026-08-18] SA.* targets rewritten to L.* per
 # remi_ontology_spec_v2.md §6.3; v1 lesson ids renamed L.<x> -> LESSON.<x>
 # (namespace collision with Layer L). Source file frozen per Invariant 3.
@@ -30,7 +31,7 @@ ingredients_ext:
     function_tags: [FT.sweetener, FT.bulking_agent, FT.flavorant]
     descriptors: { composition: "glucose/maltose/maltotriose", sweetness: "mild (< sucrose)", MW: "mixed low-moderate" }
     overrides:
-      - { to: P.freezing_point_depression, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: medium, source_type: prior, confidence: medium, note: "mixed saccharides -> moderate FPD (between dextrose and glucose syrup)" }
+      - { to: P.freezing_point_depression, direction: increase, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: medium, source_type: prior, confidence: medium, note: "mixed saccharides -> moderate FPD (between dextrose and glucose syrup)" }
     flavor_profile:
       - { to: L.ar.cooked_rice, direction: increase, intensity: weak, scoped_to_structure_class: any, source_type: prior, confidence: medium }
     note: "clean-label partial sucrose replacement (bulk + mild sweet + some FPD)"
@@ -65,7 +66,7 @@ ingredients_ext:
     function_tags: [FT.emulsifier]
     descriptors: { HLB: "1-16 tunable (monoester 10-16 -> O/W; diester 7-10; triester 3-7 -> W/O)", solubility: "HLB-dependent" }
     overrides:
-      - { to: P.fat_destabilization, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: medium, source_type: prior, confidence: medium, note: "like other emulsifiers - promotes fat destabilization (context inversion)" }
+      - { to: P.fat_destabilization, direction: increase, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: medium, source_type: prior, confidence: medium, note: "like other emulsifiers - promotes fat destabilization (context inversion)" }
       - { to: P.overrun,            scoped_to_structure_class: SC.frozen.ice_cream, direction: increase, magnitude: medium, source_type: prior, confidence: medium, note: "stabilizes air in ice cream" }
     note: "HLB choice sets O/W vs W/O; wide applicability (beverage/dairy/ice cream)"
     substitutes: [ING.mono_diglycerides, ING.polysorbate_80, ING.lecithin]
@@ -77,7 +78,7 @@ ingredients_ext:
     descriptors: { MW: 122, sweetness: "60-70%", calorie: "~0", cooling_effect: true }
     specializes: ING.sugar_alcohol
     overrides:
-      - { to: P.freezing_point_depression, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: strong, source_type: prior, confidence: high }
+      - { to: P.freezing_point_depression, direction: increase, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: strong, source_type: prior, confidence: high }
     limitations:
       - { type: quality, statement: "endothermic COOLING effect (unpleasant in an already-cold dessert); crystallization/grittiness at high level", scoped_to_structure_class: SC.frozen.ice_cream }
     substitutes: [ING.sugar_alcohol, ING.allulose]
@@ -89,7 +90,7 @@ ingredients_ext:
     descriptors: { sweetness: "~70%", calorie: "0.4 kcal/g", browning: true, cooling_effect: false }
     labeling_kr: { sugars_dangryu: excluded, total_carbohydrate: included, kcal_per_g: "0~0.4", note: "한국 표시기준상 당류(단당류+이당류)에는 미산입, 총탄수화물에는 산입. 사용자 확인 2026-07-28. 저당 클레임 계산에서 제외할 것" }
     overrides:
-      - { to: P.freezing_point_depression, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: strong, source_type: prior, confidence: high, note: "~1.9x sucrose FPD -> softer/scoopable; too soft at high dose" }
+      - { to: P.freezing_point_depression, direction: increase, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: strong, source_type: prior, confidence: high, note: "~1.9x sucrose FPD -> softer/scoopable; too soft at high dose" }
     note: >
       NEAR-COMPLETE SUGAR MIMIC: fills all THREE sucrose roles (sweetness + bulk +
       FPD) in one ingredient, plus browning and clean sweetness with no cooling.
