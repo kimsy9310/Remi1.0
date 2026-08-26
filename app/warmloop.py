@@ -144,13 +144,19 @@ def run(onto, data, profile, bounds=None):
         n=len(X), eff_directions=eff, warnings=warns)
 
 
-def suggest(res: WarmLoopResult, target, x0, bounds=None, stay=0.02, iters=3000):
+def suggest(res: WarmLoopResult, target, x0, bounds=None, stay=0.02, iters=3000,
+            free_axes=None):
     """
     목표 관능 변화에 맞는 다음 배합.
 
-    target : {L.* : 변화량} 또는 길이 m 배열. 0 = 유지.
-    bounds : {ING.* : (lo, hi)} — 없으면 상한이 없어 물리적으로 불가능한 값이
-             나올 수 있다(온톨로지 G5). 되도록 넘길 것.
+    target    : {L.* : 목표값} 또는 길이 m 배열. 척도가 벤치마크 상대이므로
+                0 은 '벤치마크와 같게' 라는 뜻이지 '현재 유지' 가 아니다.
+    bounds    : {ING.* : (lo, hi)} — 없으면 상한이 없어 물리적으로 불가능한 값이
+                나올 수 있다(온톨로지 G5). 되도록 넘길 것.
+    free_axes : 목적함수에서 아예 뺄 축들. 신경 쓰지 않는 축을 0 으로 묶어 두면
+                그 축을 끌어당기는 힘이 정작 조절하려는 축을 눌러버린다.
+                실제로 겪은 일이다 — body 목표를 0 에서 2 로 올려도 나머지 4축을
+                벤치마크로 끌어당기는 힘이 압도해 배합이 거의 그대로였다.
     """
     if isinstance(target, dict):
         unknown = [k for k in target if k not in res.y_terms]
@@ -167,7 +173,22 @@ def suggest(res: WarmLoopResult, target, x0, bounds=None, stay=0.02, iters=3000)
     if bounds:
         lo = np.array([float(bounds.get(g, (0.0, 100.0))[0]) for g in res.free])
         hi = np.array([float(bounds.get(g, (0.0, 100.0))[1]) for g in res.free])
-    return propose(res.model, target=t, x0=x0, lo=lo, hi=hi, stay=stay, iters=iters)
+
+    W = None
+    if free_axes:
+        unknown = [a for a in free_axes if a not in res.y_terms]
+        if unknown:
+            raise KeyError(f"이 모형의 축이 아닙니다: {unknown}")
+        W = np.array(res.model.Sigma_inv, dtype=float, copy=True)
+        for a in free_axes:                       # 행·열을 지워 목적함수에서 뺀다
+            i = res.y_terms.index(a)
+            W[i, :] = 0.0
+            W[:, i] = 0.0
+        if not np.any(np.diag(W)):
+            raise ValueError("모든 축을 자유로 두면 최적화할 목표가 없습니다.")
+
+    return propose(res.model, target=t, x0=x0, lo=lo, hi=hi, weight=W,
+                   stay=stay, iters=iters)
 
 
 def compare_prediction(res: WarmLoopResult, x):

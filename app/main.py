@@ -12,6 +12,7 @@ import os
 import sys
 
 import numpy as np
+import pandas as pd
 import streamlit as st
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -25,6 +26,12 @@ import palette as pal                            # noqa: E402
 import store                                     # noqa: E402
 import warmloop as wl                            # noqa: E402
 from formulator.v2adapter import V2Ontology      # noqa: E402
+
+try:                                    # 제안 근거 표시에만 쓴다
+    import scipy  # noqa: F401
+    _HAS_SCIPY = True
+except ImportError:
+    _HAS_SCIPY = False
 
 st.set_page_config(page_title="Remi 1.0", page_icon="🧪", layout="wide")
 
@@ -231,49 +238,218 @@ with tab_suggest:
     order = [data.names.index(g) for g in res.names]
     x0 = data.X[base_ix][order]
 
-    st.markdown("##### 목표 (0 = 유지)")
+    y_base = res.model.predict(x0[None, :])[0]
+
+    st.markdown("##### 목표 (벤치마크 대비)")
+    st.caption(
+        "척도가 벤치마크 상대라 **0 은 '벤치마크와 같게'** 라는 뜻입니다 — '현재 유지' 가 "
+        "아닙니다. 그래서 슬라이더 기본값을 **기준 배합의 현재 예측값**으로 둡니다. "
+        "한 축만 움직이면 그 요청만 반영됩니다. "
+        "신경 쓰지 않는 축은 **자유**로 두세요. 자유가 아니면 그 축도 목표로 붙잡으므로, "
+        "정작 조절하려는 축이 눌립니다.")
+
     cols = st.columns(len(res.y_terms))
-    target = {}
-    for c, t in zip(cols, res.y_terms):
-        target[t] = c.slider(axis_label(t), -3.0, 3.0, 0.0, 0.25, key=f"tg_{t}")
+    target, free_axes = {}, []
+    for c, t, yb in zip(cols, res.y_terms, y_base):
+        c.markdown(f"**{axis_label(t)}**")
+        fr = c.checkbox("자유", key=f"fr_{t}",
+                        help="이 축을 목적함수에서 뺍니다. 결과가 어떻게 되든 상관없을 때.")
+        # 스텝을 0.05 로 두어 기본값이 현재 예측값과 정확히 맞게 한다.
+        # 0.25 스텝이면 기본값이 현재값에서 최대 0.12 어긋나고, 손대지 않아도
+        # 그만큼이 '요청' 으로 잡혀 배합이 움직인다 — 무엇이 내 조작인지 흐려진다.
+        v = c.slider(" ", -3.0, 3.0, float(np.clip(round(yb, 2), -3, 3)), 0.05,
+                     key=f"tg_{t}", label_visibility="collapsed", disabled=fr)
+        c.caption(f"현재 {yb:+.2f}")
+        if fr:
+            free_axes.append(t)
+        target[t] = v
 
-    if st.button("제안 만들기", type="primary"):
-        try:
-            x = wl.suggest(res, target, x0, bounds=bounds or None)
-        except Exception as e:                                    # noqa: BLE001
-            st.error(f"제안에 실패했습니다: {e}")
-            st.stop()
+    if len(free_axes) == len(res.y_terms):
+        st.warning("모든 축을 자유로 두면 최적화할 목표가 없습니다. 하나 이상 풀어주세요.",
+                   icon="⚠️")
+        st.stop()
 
-        delta = x - x0
-        st.markdown("##### 배합 변경")
+    # ---- 슬라이더가 바뀌면 즉시 재계산 (버튼 없음)
+    try:
+        x = wl.suggest(res, target, x0, bounds=bounds or None,
+                       free_axes=free_axes or None)
+    except Exception as e:                                        # noqa: BLE001
+        st.error(f"제안에 실패했습니다: {e}")
+        st.stop()
+
+    delta = x - x0
+    y0 = res.model.predict(x0[None, :])[0]
+    y1 = res.model.predict(x[None, :])[0]
+    moved = np.abs(delta) > 1e-3
+    # '요청' 은 현재 예측과 다르게 잡은 축이다. 슬라이더 기본값이 현재값이므로
+    # 움직이지 않은 축은 요청이 아니다.
+    # 한 스텝(0.05)의 절반보다 작게 움직인 것은 반올림 잔차이지 요청이 아니다.
+    tgt_axes = [t for k, t in enumerate(res.y_terms)
+                if t not in free_axes and abs(target[t] - y_base[k]) > 0.026]
+
+    # ---- 목표를 아무것도 안 줬을 때
+    if not tgt_axes:
+        st.info("슬라이더가 모두 현재값 그대로입니다. 하나를 움직여 보세요 — "
+                "그 축만 요청으로 잡히고 나머지는 지금 수준에서 유지됩니다.", icon="🎚️")
+
+    # ---- 왜 안 움직이는가 진단 (이게 없으면 '반응이 없다'로만 보인다)
+    elif not moved.any():
+        why = []
+        for t in tgt_axes:
+            k = res.y_terms.index(t)
+            gap = target[t] - y0[k]
+            if abs(gap) < 0.02:
+                why.append(f"**{axis_label(t)}** 는 기준 배합이 이미 목표에 있습니다"
+                           f"(현재 {y0[k]:+.2f}).")
+                continue
+            movers = [g for i, g in enumerate(res.free)
+                      if abs(res.Gamma_post[i, k]) > 1e-9]
+            if not movers:
+                why.append(f"**{axis_label(t)}** 를 움직일 수 있는 재료가 이 팔레트에 "
+                           f"없습니다. 온톨로지에 엣지가 없거나 팔레트에서 빠졌습니다.")
+                continue
+            pinned = []
+            for g in movers:
+                if g in bounds:
+                    v = x[res.names.index(g)]
+                    lo, hi = bounds[g]
+                    if v <= lo + 1e-6:
+                        pinned.append(f"{ing_label(g)}(하한 {lo})")
+                    elif v >= hi - 1e-6:
+                        pinned.append(f"{ing_label(g)}(상한 {hi})")
+            if pinned and len(pinned) == len(movers):
+                why.append(f"**{axis_label(t)}** 를 움직일 재료가 전부 경계에 걸려 "
+                           f"있습니다: {', '.join(pinned)}. ④ 팔레트에서 범위를 넓히세요.")
+            else:
+                why.append(f"**{axis_label(t)}** 는 다른 축을 유지하라는 제약과 "
+                           f"상충해 움직이지 못했습니다. 유지할 축을 줄여 보세요.")
+        st.warning("배합이 바뀌지 않았습니다. 이유:\n\n" + "\n\n".join(f"- {w}" for w in why),
+                   icon="🔎")
+
+    # ---- 배합 변경: 바뀐 것만, 큰 순서로, 색으로
+    st.markdown("##### 배합 변경")
+    if moved.any():
+        idx = np.argsort(-np.abs(delta))
+        rows = []
+        for i in idx:
+            if not moved[i]:
+                continue
+            g = res.names[i]
+            lo, hi = bounds.get(g, (None, None))
+            pin = ""
+            if lo is not None:
+                if x[i] <= lo + 1e-6:
+                    pin = f"하한 {lo:g}"
+                elif x[i] >= hi - 1e-6:
+                    pin = f"상한 {hi:g}"
+            rows.append({
+                "재료": ing_label(g),
+                "기준": round(float(x0[i]), 3),
+                "제안": round(float(x[i]), 3),
+                "변화": round(float(delta[i]), 3),
+                "": "▲" if delta[i] > 0 else "▼",
+                "경계": pin,
+            })
+        df = pd.DataFrame(rows)
+        vmax = float(np.abs(delta).max()) or 1.0
+
+        def _tint(v):
+            """증가는 초록, 감소는 빨강. 진하기는 변화 크기에 비례.
+            matplotlib 없이 인라인 CSS 로 칠한다 — 의존성을 늘리지 않으려고."""
+            try:
+                f = float(v)
+            except (TypeError, ValueError):
+                return ""
+            if abs(f) < 1e-9:
+                return ""
+            a = 0.15 + 0.45 * min(abs(f) / vmax, 1.0)
+            rgb = "46,139,87" if f > 0 else "178,34,34"
+            return f"background-color: rgba({rgb},{a:.2f})"
+
         st.dataframe(
-            {"재료": [ing_label(g) for g in res.names],
-             "기준": np.round(x0, 3).tolist(),
-             "제안": np.round(x, 3).tolist(),
-             "변화": [f"{d:+.3f}" if abs(d) > 1e-4 else "" for d in delta]},
+            df.style
+              .map(_tint, subset=["변화"])
+              .format({"기준": "{:.3f}", "제안": "{:.3f}", "변화": "{:+.3f}"}),
             use_container_width=True, hide_index=True)
-        st.caption(f"합계 {x.sum():.4f}")
+        n_un = int((~moved).sum())
+        if n_un:
+            with st.expander(f"변화 없는 재료 {n_un}종"):
+                st.dataframe(
+                    {"재료": [ing_label(g) for i, g in enumerate(res.names) if not moved[i]],
+                     "값": [round(float(x0[i]), 3) for i in range(len(x0)) if not moved[i]]},
+                    use_container_width=True, hide_index=True)
+    else:
+        st.caption("바뀐 재료가 없습니다.")
+    st.caption(f"합계 {x.sum():.4f}")
 
-        y0 = res.model.predict(x0[None, :])[0]
-        y1 = res.model.predict(x[None, :])[0]
-        st.markdown("##### 예측 관능")
-        st.dataframe(
-            {"축": [axis_label(t) for t in res.y_terms],
-             "목표": [target[t] for t in res.y_terms],
-             "기준 예측": np.round(y0, 2).tolist(),
-             "제안 예측": np.round(y1, 2).tolist()},
-            use_container_width=True, hide_index=True)
+    # ---- 예측 관능: 목표 · 기준 · 제안 · 달성
+    st.markdown("##### 예측 관능")
+    ach = []
+    for k, t in enumerate(res.y_terms):
+        gap0, gap1 = abs(target[t] - y0[k]), abs(target[t] - y1[k])
+        ach.append("—" if gap0 < 1e-9 else ("달성" if gap1 < 0.05 else
+                   f"{max(0.0, (gap0 - gap1) / gap0) * 100:.0f}%"))
+    st.dataframe(
+        {"축": [axis_label(t) for t in res.y_terms],
+         "목표": [target[t] for t in res.y_terms],
+         "기준 예측": np.round(y0, 2).tolist(),
+         "제안 예측": np.round(y1, 2).tolist(),
+         "목표 접근": ach},
+        use_container_width=True, hide_index=True)
 
-        if np.abs(y1).max() > 3.0:
-            st.error(
-                f"예측이 ±3 관능 척도를 벗어났습니다(최대 {np.abs(y1).max():.1f}). "
-                f"재료 범위가 없거나 너무 넓을 때 생깁니다.", icon="🚨")
+    if np.abs(y1).max() > 3.0:
+        st.error(
+            f"예측이 ±3 관능 척도를 벗어났습니다(최대 {np.abs(y1).max():.1f}). "
+            f"재료 범위가 없거나 너무 넓을 때 생깁니다.", icon="🚨")
 
+    # ---- 근거: 모형이 무엇을 보고 이렇게 골랐나
+    with st.expander("이 제안이 나온 근거"):
+        if not tgt_axes:
+            st.caption("목표를 주면 여기에 근거가 나옵니다.")
+        else:
+            st.markdown("**목표로 준 축을 움직이는 재료와 그 계수**")
+            st.caption(
+                "계수는 '이 재료를 1 표준편차 올릴 때 그 축이 몇 칸 움직이나'입니다. "
+                "실측이 있으면 보정된 값이고, 없으면 온톨로지 사전값입니다. "
+                "부호가 목표와 같아야 그 재료를 올립니다.")
+            for t in tgt_axes:
+                k = res.y_terms.index(t)
+                items = [(res.free[i], float(res.Gamma_post[i, k]))
+                         for i in range(len(res.free))
+                         if abs(res.Gamma_post[i, k]) > 1e-9]
+                items.sort(key=lambda z: -abs(z[1]))
+                st.markdown(f"**{axis_label(t)}**  (목표 {target[t]:+.2f})")
+                if not items:
+                    st.caption("   이 축을 움직이는 재료가 팔레트에 없습니다.")
+                    continue
+                st.dataframe(
+                    {"재료": [ing_label(g) for g, _ in items[:10]],
+                     "계수": [round(v, 3) for _, v in items[:10]],
+                     "이번 변화": [round(float(delta[res.names.index(g)]), 3)
+                                for g, _ in items[:10]]},
+                    use_container_width=True, hide_index=True)
+            st.divider()
+            st.markdown("**경계에 걸린 재료**")
+            pinned = []
+            for i, g in enumerate(res.names):
+                if g in bounds:
+                    lo, hi = bounds[g]
+                    if x[i] <= lo + 1e-6:
+                        pinned.append(f"{ing_label(g)} = 하한 {lo:g}")
+                    elif x[i] >= hi - 1e-6:
+                        pinned.append(f"{ing_label(g)} = 상한 {hi:g}")
+            st.caption(", ".join(pinned) if pinned else "없음 — 모두 범위 안쪽입니다.")
+            st.caption(
+                f"풀이: {'scipy SLSQP' if _HAS_SCIPY else '경사하강(scipy 없음)'} · "
+                f"자유변수 {res.model.q} · 필러 {ing_label(res.filler)}")
+
+    # ---- 이력 저장은 명시적으로
+    if st.button("이 제안을 이력에 저장", type="primary"):
         store.log_run(profile, fname, res.n, res.y_terms,
                       target={axis_label(k): v for k, v in target.items()},
                       proposal={ing_label(g): round(float(v), 4)
                                 for g, v in zip(res.names, x)})
-        st.success("제안을 이력에 저장했습니다.")
+        st.success("저장했습니다.")
 
     hist = store.recent_runs(5)
     if hist:

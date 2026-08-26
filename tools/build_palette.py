@@ -175,15 +175,27 @@ def build():
             used = col[col > 0]
             if used.size == 0:
                 continue
-            lo, hi = float(used.min()), float(used.max())
-            if hi - lo < 1e-9:
+            # **하한은 그 재료가 모든 샘플에 들어갔을 때만 0 보다 크다.**
+            # 일부 샘플에만 쓰인 재료에 사용량 최솟값을 하한으로 걸면, 그 재료를
+            # 안 쓰던 배합에까지 강제로 밀어 넣는다. 실제로 그렇게 됐다 —
+            # 해바라기유가 18건 중 4건에만 쓰였는데 하한 5.8 이 걸려, 기준 배합
+            # (해바라기유 0)에서 제안을 내면 곧장 +5.8 이 튀어나와 다른 모든
+            # 변화를 덮어버렸다. DoE 규칙 3 이 말하는 '필수 기능 재료' 만
+            # 0 을 피해야 하고, 선택 재료는 0 이 정상이다.
+            always = int((col > 0).sum()) == len(col)
+            lo = float(used.min()) if always else 0.0
+            hi = float(used.max())
+            if always and hi - lo < 1e-9:
                 # 모든 런에서 같은 수준으로만 썼다 → 범위에 대해 아는 것이 없다.
                 # 작업점 둘레로 임의 폭을 주되 그렇게 적어 둔다. 상한=하한은
                 # propose 의 경계로 못 쓰고(구간이 비어 있다) 스케일도 0 이 된다.
                 lo, hi = lo * 0.5, hi * 1.5
                 basis = f"실측 {used.size}건 모두 같은 수준({used[0]:.3g}) — 임의 폭, 검토 필요"
+            elif always:
+                basis = f"실측 {used.size}건 전부에 사용 — 사용 범위, 검토 필요"
             else:
-                basis = f"실측 {used.size}건의 사용 범위 — 검토 필요"
+                basis = (f"실측 {len(col)}건 중 {used.size}건에만 사용 — 선택 재료라 "
+                         f"하한 0, 상한은 최대 사용량. 검토 필요")
             records.append(dict(
                 프로파일=prof2, 슬롯="(실측에서 자동)", 재료=gid.replace("ING.", ""),
                 온톨로지ID=gid, 등급="권장",
