@@ -50,14 +50,34 @@ def get_data(path, profile, _mtime):
 
 
 @st.cache_data(show_spinner=False)
-def get_palette(profile, _mtime):
-    return pal.load(profile)
+def get_palette(profile, _mtime, variant=None):
+    return pal.load(profile, variant=variant)
 
 
-def load_palette(profile):
+def variants_of(profile):
+    """이 프로파일에 정의된 목적 목록. 기본(빈 값)은 항상 첫째."""
+    try:
+        import openpyxl
+        wb = openpyxl.load_workbook(pal.DEFAULT_PATH, data_only=True)
+        ws = wb["palette"]
+        hdr = [str(c.value).strip() if c.value else "" for c in ws[1]]
+        iP, iV = hdr.index("프로파일"), hdr.index("목적")
+        out = []
+        for r in ws.iter_rows(min_row=2, values_only=True):
+            if str(r[iP] or "").strip() != profile:
+                continue
+            v = str(r[iV] or "").strip()
+            if v and v not in out:
+                out.append(v)
+        return out
+    except Exception:                                          # noqa: BLE001
+        return []
+
+
+def load_palette(profile, variant=None):
     """팔레트 표. 없거나 이 프로파일 행이 없으면 None 을 준다(앱은 계속 돈다)."""
     try:
-        t = get_palette(profile, os.path.getmtime(pal.DEFAULT_PATH))
+        t = get_palette(profile, os.path.getmtime(pal.DEFAULT_PATH), variant)
         return t if t.rows else None
     except FileNotFoundError:
         return None
@@ -97,6 +117,13 @@ if not xlsx:
 fname = st.sidebar.selectbox("실측 데이터", xlsx)
 fpath = os.path.join(DATA_DIR, fname)
 
+_vars = variants_of(profile)
+variant = None
+if _vars:
+    _pick = st.sidebar.selectbox("목적", ["(기본)"] + _vars,
+                                 help="같은 제형이라도 목적에 따라 재료 범위가 달라집니다.")
+    variant = None if _pick == "(기본)" else _pick
+
 st.sidebar.divider()
 st.sidebar.caption(
     f"온톨로지 재료 {len(onto.ingredients)}종 · 태그 {len(onto.tags)}종\n\n"
@@ -112,8 +139,8 @@ except Exception as e:                                            # noqa: BLE001
         "`ontology_v2/layers/layerM_cards_*.yaml` 을 확인하세요.")
     st.stop()
 
-tab_data, tab_learn, tab_suggest, tab_bounds = st.tabs(
-    ["① 데이터", "② 학습", "③ 제안", "④ 팔레트"])
+tab_data, tab_learn, tab_suggest, tab_bounds, tab_entry = st.tabs(
+    ["① 데이터", "② 학습", "③ 제안", "④ 팔레트", "⑤ 실험 입력"])
 
 # ================================================================= ① 데이터
 with tab_data:
@@ -149,7 +176,7 @@ with tab_data:
 # ================================================================= ② 학습
 with tab_learn:
     st.subheader("사전값을 실측이 얼마나 밀어냈나")
-    ptab = load_palette(profile)
+    ptab = load_palette(profile, variant)
     bounds = ptab.bounds() if ptab else {}
     try:
         res = wl.run(onto, data, profile, bounds=bounds or None)
@@ -217,7 +244,7 @@ with tab_suggest:
         st.info("먼저 ② 학습 탭을 여세요.")
         st.stop()
 
-    ptab = load_palette(profile)
+    ptab = load_palette(profile, variant)
     bounds = ptab.bounds() if ptab else {}
     if not bounds:
         st.warning(
@@ -461,7 +488,7 @@ with tab_suggest:
 # ================================================================= ④ 팔레트
 with tab_bounds:
     st.subheader("팔레트와 작업 범위")
-    ptab = load_palette(profile)
+    ptab = load_palette(profile, variant)
 
     if ptab is None:
         st.error(
@@ -547,7 +574,8 @@ with tab_bounds:
             if lo is not None and hi is not None and hi <= lo:
                 bad2.append(f"{ing_label(e['온톨로지ID'])}: 상한({hi}) ≤ 하한({lo})")
                 continue
-            out.append({"프로파일": profile, "슬롯": e["슬롯"], "재료": e["재료"],
+            out.append({"프로파일": profile, "목적": variant or "",
+                        "슬롯": e["슬롯"], "재료": e["재료"],
                         "온톨로지ID": e["온톨로지ID"], "등급": e["등급"],
                         "하한": lo, "상한": hi, "범위근거": e["범위근거"],
                         "담당축": e["담당축"], "메모": e["메모"], "확인": e["확인"]})
@@ -555,7 +583,7 @@ with tab_bounds:
             for b in bad2:
                 st.error(b)
         else:
-            pal.save_rows(profile, out)
+            pal.save_rows(profile, out, variant=variant)
             st.cache_data.clear()
             st.success(f"{len(out)}행을 저장했습니다.")
             st.rerun()
@@ -567,3 +595,129 @@ with tab_bounds:
             "죽은 코너가 사라지고 런이 낭비되지 않습니다.")
         for slot, gs in ptab.slots().items():
             st.write(f"**{slot}** ({len(gs)}) — {', '.join(ing_label(g) for g in gs)}")
+
+
+# ================================================================= ⑤ 실험 입력
+with tab_entry:
+    st.subheader("실험 데이터 넣기")
+    st.caption(
+        "새 배치를 시작하려면 **① 양식 만들기** 로 빈 파일을 받아 랩에 넘기고, "
+        "평가가 끝나면 **② 올리기** 로 되돌려 놓으세요. 올린 파일은 `data/` 에 "
+        "저장되어 사이드바에서 고를 수 있게 됩니다.")
+
+    ptab_e = load_palette(profile, variant)
+
+    c1, c2 = st.columns(2)
+
+    # ---------------------------------------------------------- ① 양식 만들기
+    with c1:
+        st.markdown("##### ① 양식 만들기")
+        if ptab_e is None:
+            st.warning("팔레트 표가 없어 재료 목록을 만들 수 없습니다.", icon="🚧")
+        else:
+            grades = st.multiselect(
+                "넣을 재료 등급", ["필수", "권장", "옵션", "제한"],
+                default=["필수", "권장"],
+                help="팔레트에서 이 등급인 재료만 배합 열로 만듭니다.")
+            n_s = st.number_input("샘플 행 수", 1, 40, 5, 1)
+            prefix = st.text_input("샘플 ID 접두사", value=profile.split("_")[0].upper()[:3],
+                                   help="예: RM -> RM01, RM02 …")
+            pal_e = [r["온톨로지ID"] for r in ptab_e.rows if r["등급"] in grades]
+            nb = [g for g in pal_e if g not in ptab_e.bounds()]
+            st.caption(f"재료 {len(pal_e)}종"
+                       + (f" · 범위 없는 재료 {len(nb)}종" if nb else " · 범위 모두 있음"))
+
+            if st.button("양식 만들기", type="primary", disabled=not pal_e):
+                filler_e = onto.filler_of(profile)
+                plist = list(pal_e) + ([filler_e] if filler_e not in pal_e else [])
+                sids = [f"{prefix}{i:02d}" for i in range(1, int(n_s) + 1)]
+                tag = f"_{variant}" if variant else ""
+                out = os.path.join(DATA_DIR, f"{profile}{tag}_batch.xlsx")
+                if os.path.exists(out):
+                    seq = 2
+                    while os.path.exists(
+                            os.path.join(DATA_DIR, f"{profile}{tag}_batch{seq}.xlsx")):
+                        seq += 1
+                    out = os.path.join(DATA_DIR, f"{profile}{tag}_batch{seq}.xlsx")
+                dataio.write_template(out, onto, profile, plist, sample_ids=sids)
+                st.success(f"만들었습니다: `{os.path.basename(out)}`")
+                with open(out, "rb") as fh:
+                    st.download_button("내려받기", fh.read(),
+                                       file_name=os.path.basename(out),
+                                       mime="application/vnd.openxmlformats-officedocument."
+                                            "spreadsheetml.sheet")
+                st.caption(
+                    "recipes 시트에 배합을, sensory 시트에 벤치마크 상대 점수(−3…+3)를 "
+                    "채우세요. 벤치마크 자신은 전 축 0 으로 적고 `is_benchmark=yes` 로 "
+                    "표시합니다. 축 정의는 README 시트에 있습니다.")
+
+    # ---------------------------------------------------------- ② 올리기
+    with c2:
+        st.markdown("##### ② 채운 파일 올리기")
+        up = st.file_uploader("xlsx 파일", type=["xlsx"], key="up_data")
+        if up is not None:
+            tmp = os.path.join(DATA_DIR, f"_검사중_{up.name}")
+            with open(tmp, "wb") as fh:
+                fh.write(up.getbuffer())
+            try:
+                chk = dataio.load_warmloop(tmp, onto, profile)
+            except Exception as e:                             # noqa: BLE001
+                os.remove(tmp)
+                st.error(f"읽지 못했습니다: {e}")
+                st.info(
+                    "컬럼 이름이 양식과 같은지 확인해 주세요. 관능 컬럼은 M 카드의 "
+                    "`legacy_column` 또는 축 ID 와 정확히 일치해야 합니다.")
+            else:
+                st.success(f"읽었습니다 — 샘플 {len(chk.sample_ids)}건 · "
+                           f"재료 {len(chk.names)}종 · 축 {len(chk.y_terms)}개")
+                for n in chk.notes:
+                    st.warning(n, icon="⚠️")
+                if chk.unmapped_columns:
+                    st.warning(f"온톨로지 ID 로 잇지 못한 컬럼: {chk.unmapped_columns}",
+                               icon="⚠️")
+                st.dataframe(
+                    {"sample": chk.sample_ids,
+                     **{axis_label(t): chk.Y[:, k].tolist()
+                        for k, t in enumerate(chk.y_terms)}},
+                    use_container_width=True, hide_index=True)
+
+                dest = os.path.join(DATA_DIR, up.name)
+                exists = os.path.exists(dest)
+                if exists:
+                    st.warning(f"`{up.name}` 이 이미 있습니다. 저장하면 덮어씁니다.",
+                               icon="⚠️")
+                if st.button("이 데이터로 저장", type="primary"):
+                    os.replace(tmp, dest)
+                    st.cache_data.clear()
+                    st.success(f"저장했습니다: `{up.name}` — "
+                               f"사이드바 '실측 데이터' 에서 고르면 학습에 들어갑니다.")
+                    st.rerun()
+                else:
+                    st.caption("저장을 누르기 전까지는 반영되지 않습니다.")
+
+    # ---------------------------------------------------------- 현재 데이터
+    st.divider()
+    st.markdown("##### `data/` 에 있는 실측 파일")
+    rows_e = []
+    for f in sorted(os.listdir(DATA_DIR)):
+        if not f.endswith(".xlsx") or f.startswith(("~", "_검사중_")):
+            continue
+        if f in ("palette.xlsx", "draft_review.xlsx", "palette_review.xlsx"):
+            continue
+        fp = os.path.join(DATA_DIR, f)
+        got = "—"
+        for pf in sorted(onto.profiles):
+            try:
+                dd = dataio.load_warmloop(fp, onto, pf)
+                got = f"{pf} · 샘플 {len(dd.sample_ids)} · 축 {len(dd.y_terms)}"
+                break
+            except Exception:                                  # noqa: BLE001
+                continue
+        rows_e.append({"파일": f, "읽힌 내용": got,
+                       "크기": f"{os.path.getsize(fp) // 1024} KB"})
+    if rows_e:
+        st.dataframe(rows_e, use_container_width=True, hide_index=True)
+    else:
+        st.caption("아직 없습니다.")
+
+

@@ -217,21 +217,27 @@ def profiles_in(path=None):
     return seen
 
 
-def save_rows(profile, rows, path=None):
+def save_rows(profile, rows, path=None, variant=None):
     """
-    한 프로파일의 행을 표에 되쓴다. 다른 프로파일 행과 시트는 건드리지 않는다.
-    앱의 편집 화면이 부르는 경로다.
+    한 프로파일·한 목적의 행을 표에 되쓴다.
+
+    **다른 목적의 행은 건드리지 않는다.** 이게 중요하다 — 앱이 기본 행만 읽어
+    저장하면 저당 행이 통째로 사라진다. 실제로 그 버그가 있었다.
+    rows 안에 '목적' 키가 있으면 그 값을 쓰고, 없으면 variant 인자를 쓴다.
     """
     p = path or DEFAULT_PATH
     wb = openpyxl.load_workbook(p)
     ws = wb["palette"]
     hdr = [None if c.value is None else str(c.value).strip() for c in ws[1]]
+    tgt = (variant or "").strip()
 
     keep = []
     for r in range(2, ws.max_row + 1):
         vals = [ws.cell(r, c + 1).value for c in range(len(hdr))]
         d = dict(zip(hdr, vals))
-        if str(d.get("프로파일") or "").strip() != profile:
+        same_prof = str(d.get("프로파일") or "").strip() == profile
+        same_var = str(d.get("목적") or "").strip() == tgt
+        if not (same_prof and same_var):
             keep.append(vals)
 
     fills = {}
@@ -242,6 +248,8 @@ def save_rows(profile, rows, path=None):
     for vals in keep:
         ws.append(vals)
     for d in rows:
-        ws.append([d.get(c, "") if d.get(c) is not None else "" for c in hdr])
+        row = dict(d)
+        row.setdefault("목적", tgt)          # 목적을 빠뜨리면 기본 행으로 들어간다
+        ws.append([row.get(c, "") if row.get(c) is not None else "" for c in hdr])
     wb.save(p)
     return p
