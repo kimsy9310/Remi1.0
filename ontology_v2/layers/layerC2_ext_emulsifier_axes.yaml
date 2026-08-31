@@ -1,0 +1,80 @@
+# [layerC2 확장 2026-08-31] 유화제의 담당축을 넓힌다
+# =============================================================================
+# 팔레트 검토 지적 (유화제 6종에 같은 메모가 달렸다):
+#
+#   "유화제의 담당축 재고 필요. Creaminess 뿐 아니라, 기름 맛(oxidized and
+#    nutty 등), 물성 전반 등 다양한 효과가 있는데 담당축이 하나뿐임."
+#
+# 맞는 지적이다. 아이스크림에서 유화제가 움직이는 core 축이 creaminess 하나뿐이라,
+# 모형이 유화제를 "크리미 올리는 재료" 로만 이해하고 있었다.
+#
+# 무엇을 넣고 무엇을 미뤘나
+# -------------------------
+# 유화제가 실제로 하는 일은 크게 셋이다.
+#
+#   1. 계면 형성   액적을 잘게 만들고 합일을 늦춘다        -> 이미 있음
+#   2. 지방 구조화 부분응집으로 지방 네트워크를 세운다      -> 이미 있음(creaminess/hardness)
+#   3. 기름의 노출 액적이 잘게 쪼개지면 표면적이 커진다     -> **이 파일**
+#
+# 3번이 기름 맛과 이어지는 고리다. 다만 방향이 **양쪽으로 갈린다.**
+#
+#   · 잘게 쪼개지고 계면막이 덮이면  유리 기름이 줄어 기름짐이 준다
+#   · 그러나 표면적이 커지면         산소와 닿는 면이 늘어 산화가 빨라진다
+#
+# 앞의 것은 물리적으로 분명하니 지금 넣는다. 뒤의 것은 계면막이 오히려 산화를
+# 막는 경우도 있어 문헌이 갈리고, 무엇보다 **기름 관련 관능 용어 자체가 아직
+# 정리 중**이다(ontology_v2/기름_관능용어_정리.md). 그래서 미룬다.
+#
+# 물성 전반은 이미 상당 부분 들어와 있다 — creaming_index · droplet_size_d32 ·
+# coalescence_rate · fat_destabilization · overrun. 여기서는 그 결과가 관능으로
+# 이어지는 마지막 한 칸(기름짐)을 잇는다.
+#
+# STATUS: DRAFT — 방향은 기작이 분명하나 크기는 잠정.
+# =============================================================================
+
+function_tags_ext:
+
+- id: FT.emulsifier_oiliness_scope
+  label: "Emulsifier (oiliness scope extension)"
+  definition: >-
+    Scope extension only: 유화가 잘 될수록 유리 기름이 줄어 입안의 기름짐이
+    준다. 액적이 계면막에 싸여 있으면 혀에 닿는 자유 지방이 적다.
+    R-1 이 이미 P.droplet_size_d32 -> L.tx.oiliness 를 소스 스코프에서 쓰고
+    있으나, 그 파라미터를 재료가 어느 방향으로 움직이는지가 재료마다 달라
+    태그 수준에서 한 번 더 못 박는다.
+  alias_of: FT.emulsifier
+  effects:
+  - { to: L.tx.oiliness, direction: decrease, magnitude: medium, scoped_to_structure_class: SC.emulsion.ow.sauce, source_type: prior, confidence: medium,
+      note: "유화가 깨진 시료가 기름져 보이는 것과 같은 이야기를 반대편에서 말한 것." }
+  - { to: L.tx.oiliness, direction: decrease, magnitude: medium, scoped_to_structure_class: SC.emulsion.ow.beverage, source_type: prior, confidence: medium }
+
+- id: FT.emulsifier_overrun_scope
+  label: "Emulsifier (overrun scope extension)"
+  definition: >-
+    Scope extension only: 부분응집한 지방이 기포막을 지탱해 오버런을 올리고
+    그것이 가벼운 식감으로 이어진다. 아이스크림에서 유화제를 쓰는 두 번째
+    이유이며, 첫 번째(크리미)만 들어와 있었다.
+  alias_of: FT.emulsifier
+  effects:
+  - { to: P.overrun, direction: increase, magnitude: medium, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: medium }
+
+# =============================================================================
+# 미룬 것 — 기름 관능 용어가 정리된 뒤에
+# =============================================================================
+#
+# 유화제 -> L.ar.rancid_oxidized
+#     액적이 잘게 쪼개지면 표면적이 커져 산화가 빨라진다는 기작이 있고,
+#     반대로 계면막이 산소 접근을 막아 오히려 늦춘다는 보고도 있다. 방향이
+#     한쪽으로 정해지지 않는다.
+#     게다가 지금 L.ar.rancid_oxidized 축 자체가 검토 중이다 — 패널의
+#     "oxidated oil" 이 무엇을 잰 것인지, 고소함(L.ar.nutty)과 어떻게 갈리는지가
+#     아직 정리되지 않았다.
+#     -> 기름_관능용어_정리.md 4절대로 다음 패널이 세 축(고소함/쩐내/기름짐)을
+#        따로 재고 나면, 그 데이터로 방향을 정한다. 지금 추측해 걸면 부호가
+#        반대일 위험이 있다.
+#
+# 유화제 -> L.ar.nutty
+#     같은 이유. 유화가 향 방출에 영향을 준다는 것은 분명하지만(지방상이
+#     휘발성을 붙잡는다), 그 결과가 고소함을 올리는지 내리는지는 제형과
+#     기름 종류에 달렸다. P.flavor_release_dynamics 파라미터 정의가 모호한
+#     문제와도 얽혀 있다.

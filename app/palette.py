@@ -6,7 +6,17 @@
 이 프로젝트의 모든 큐레이션이 이미 엑셀로 되어 있고, 등급·메모·근거를 함께
 보면서 고치는 일이라 표가 맞다. DB 는 실행 이력만 맡는다.
 
-표 한 줄이 (프로파일 × 재료) 하나다:
+표 한 줄이 (프로파일 × 목적 × 재료) 하나다:
+
+**목적(variant)** 은 같은 제형이라도 무엇을 만드느냐에 따라 범위가 달라지기
+때문에 있다. 검토에서 나온 지적이다 —
+
+    "목적에 따라 상한/하한이 바뀐다. 지금껀 일반 아이스크림 기준으로,
+     저당 아이스크림은 상한이 5, 하한은 0이 된다."
+
+목적이 빈 행은 **기본값**으로 모든 목적에 적용된다. 특정 목적의 행이 있으면
+그 행이 기본값을 덮는다. 설탕처럼 목적에 따라 정반대가 되는 재료만 목적별
+행을 두면 되고, 나머지는 기본 행 하나로 충분하다.
 
     프로파일 · 슬롯 · 재료 · 온톨로지ID · 등급 · 하한 · 상한 · 범위근거 · 담당축 · 메모 · 확인
 
@@ -25,7 +35,7 @@ import openpyxl
 _HERE = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_PATH = os.path.join(os.path.dirname(_HERE), "data", "palette.xlsx")
 
-COLS = ["프로파일", "슬롯", "재료", "온톨로지ID", "등급",
+COLS = ["프로파일", "목적", "슬롯", "재료", "온톨로지ID", "등급",
         "하한", "상한", "범위근거", "담당축", "메모", "확인"]
 
 GRADES = ["필수", "권장", "옵션", "제한", "제외"]
@@ -46,6 +56,7 @@ class PaletteTable:
     profile: str
     rows: list = field(default_factory=list)
     path: str = ""
+    variant: str = None
 
     # ------------------------------------------------------------- 기본 조회
     def _usable(self, include_restricted=True):
@@ -137,7 +148,11 @@ class PaletteTable:
 
 
 # ------------------------------------------------------------------ 읽기/쓰기
-def load(profile, path=None):
+def load(profile, path=None, variant=None):
+    """
+    variant : 목적. None 이면 기본 행(목적이 빈 행)만 쓴다.
+              값을 주면 그 목적의 행이 기본 행을 덮는다.
+    """
     p = path or DEFAULT_PATH
     if not os.path.exists(p):
         raise FileNotFoundError(
@@ -153,16 +168,20 @@ def load(profile, path=None):
     if miss:
         raise ValueError(f"필수 열이 없습니다: {miss}. 있는 열: {hdr}")
 
-    rows = []
+    base, over = {}, {}
     for r in it:
         d = dict(zip(hdr, r))
         if not d.get("온톨로지ID"):
             continue
         if str(d.get("프로파일") or "").strip() != profile:
             continue
+        v = str(d.get("목적") or "").strip()
+        if v and v != (variant or ""):
+            continue                       # 다른 목적의 행은 무시
         grade = str(d.get("등급") or "").strip()
-        rows.append(dict(
+        rec = dict(
             프로파일=profile,
+            목적=v,
             슬롯=str(d.get("슬롯") or "").strip(),
             재료=str(d.get("재료") or "").strip(),
             온톨로지ID=str(d["온톨로지ID"]).strip(),
@@ -171,8 +190,14 @@ def load(profile, path=None):
             범위근거=str(d.get("범위근거") or "").strip(),
             담당축=str(d.get("담당축") or "").strip(),
             메모=str(d.get("메모") or "").strip(),
-            확인=str(d.get("확인") or "").strip()))
-    return PaletteTable(profile=profile, rows=rows, path=p)
+            확인=str(d.get("확인") or "").strip())
+        (over if v else base)[rec["온톨로지ID"]] = rec
+
+    # 목적별 행이 기본 행을 덮는다
+    merged = dict(base)
+    merged.update(over)
+    return PaletteTable(profile=profile, rows=list(merged.values()),
+                        path=p, variant=variant)
 
 
 def profiles_in(path=None):

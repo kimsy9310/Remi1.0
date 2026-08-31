@@ -100,6 +100,27 @@ def parse_ids(raw):
     return out
 
 
+def split_names(raw_name, ids, onto):
+    """
+    "에멀에이드 / 현미호분추출분말" + [ING.emulaid, ING.rice_bran_emulsifier]
+      -> ["에멀에이드", "현미호분추출분말"]
+
+    한 줄에 재료가 여럿일 때 이름도 같이 쪼갠다. 안 쪼개면 두 행이 같은 이름으로
+    보여서 어느 것을 보고 있는지 알 수 없다. 실제로 검토에서 그 혼선이 났다 —
+    "에멀에이드와 현미호분추출분말은 다른 재료임" 이라는 지적이 나온 이유다.
+
+    이름 조각 수가 ID 수와 다르면 쪼개지 않고, 온톨로지의 label 을 붙여 구별한다.
+    """
+    parts = [x.strip() for x in str(raw_name or "").split("/") if x.strip()]
+    if len(parts) == len(ids):
+        return parts
+    out = []
+    for g in ids:
+        lab = (onto.ingredients.get(g) or {}).get("label_ko")             or (onto.ingredients.get(g) or {}).get("label")             or g.replace("ING.", "")
+        out.append(f"{raw_name} — {lab}" if len(ids) > 1 else str(raw_name))
+    return out
+
+
 def axes_of(onto, profile, ing_id, core_terms):
     """이 재료가 이 프로파일에서 움직이는 목표축. 규칙 3(슬롯마다 담당축)의 자동 부분."""
     eff = onto.effects_for(profile).get(ing_id) or {}
@@ -147,13 +168,14 @@ def build():
         if not ids:
             unresolved.append((row["name"], row["ids"], "ID 를 하나도 못 읽음"))
             continue
-        for gid in ids:
+        names = split_names(row["name"], ids, onto)
+        for gid, nm in zip(ids, names):
             ok = gid in onto.ingredients
             if not ok:
                 unresolved.append((row["name"], gid, "온톨로지에 없음"))
             lo, hi, basis = SEED_ICECREAM.get(gid, ("", "", ""))
             records.append(dict(
-                프로파일=prof, 슬롯=row["slot"], 재료=row["name"], 온톨로지ID=gid,
+                프로파일=prof, 슬롯=row["slot"], 재료=nm, 온톨로지ID=gid,
                 등급=row["grade"], 하한=lo, 상한=hi, 범위근거=basis,
                 담당축=axes_of(onto, prof, gid, core) if ok else "",
                 메모=row["memo"],
