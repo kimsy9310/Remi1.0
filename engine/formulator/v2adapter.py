@@ -58,6 +58,7 @@ DEFAULT_ROOT = os.path.join(_PROJECT, "ontology_v2")
 # 작업 범위를 모를 때 쓰는 임시 스케일 규칙(폭/4 ≈ 1 SD 로 보는 것)
 RANGE_TO_SD = 4.0
 FALLBACK_SD = 0.5          # 범위도 x0 도 없을 때의 최후 기본값
+FILLER_HEADROOM = 2.0      # 기준 배합에서 필러에 남겨 두는 최소 몫(총량 대비 %)
 
 # 제품 단위로 얹는 프로파일(스펙 F7). 정체성은 SC×APP×ST 뿐이라 "제품" 차원이
 # 없으므로, 제품별 M 카드를 상위 프로파일 위에 레이어링한다. coffee_milk 가
@@ -165,17 +166,26 @@ class V2Ontology:
         없고 상위(beverage)의 것을 쓴다(F7).
         """
         scopes = self.profiles[profile]["scopes"]
-        out = []
+        exact, loose = [], []
         for sp in self.stack["S"]:
             parts = [sp.get("structure_class"), sp.get("application"), sp.get("state")]
             ident = "|".join(p for p in parts if p)
-            if ident in scopes or sp.get("structure_class") in scopes:
-                out.append(sp)
-        # 더 구체적인 정체성을 먼저 (아이스크림이 음료보다 앞서야 한다)
-        out.sort(key=lambda sp: -sum(1 for p in (sp.get("structure_class"),
-                                                 sp.get("application"),
-                                                 sp.get("state")) if p))
-        return out
+            if ident in scopes:
+                exact.append(sp)              # 정체성이 그대로 맞는 것
+            elif sp.get("structure_class") in scopes:
+                loose.append(sp)              # 구조클래스만 맞는 것
+        # 정체성이 맞는 것이 항상 우선한다.
+        #
+        # 이걸 구분하지 않으면 엉뚱한 S 항목이 붙는다 — 음료 프로파일의 스코프에
+        # 'SC.emulsion.ow' 가 들어 있으므로, 같은 구조클래스인 아이스크림 항목이
+        # 걸리고 부분 개수가 많다는 이유로 앞섰다. 그 결과 음료·소스가 전부
+        # 아이스크림의 정의·경계를 물려받았다. 필러는 넷 다 ING.water 라서
+        # 겉으로 드러나지 않았을 뿐이다.
+        for grp in (exact, loose):
+            grp.sort(key=lambda sp: -sum(1 for p in (sp.get("structure_class"),
+                                                     sp.get("application"),
+                                                     sp.get("state")) if p))
+        return exact + loose
 
     def effects_for(self, profile):
         """이 프로파일에서 각 재료가 움직일 수 있는 축. 팔레트 고르기용."""
@@ -388,9 +398,34 @@ class V2Ontology:
                 x0[palette.index(g)] = zbar[i]
             rest = total - x0.sum()
             if rest < 0:
-                raise ValueError(
-                    f"작업 범위 중앙값의 합이 {x0.sum():.2f} 로 총량 {total} 을 넘습니다. "
-                    f"팔레트를 줄이거나 범위를 낮추세요.")
+                # 작업 범위를 재료마다 따로 뽑으면(실측 min/max) 혼합물 제약을 모른다.
+                # 서로 대체하는 재료 — 쌀시럽과 알룰로스처럼 한쪽이 높으면 다른 쪽이
+                # 낮은 짝 — 은 각자의 중앙값이 동시에 성립하지 않는다. 그렇다고 범위가
+                # 틀린 것은 아니다. 그래서 모두를 하한 쪽으로 **같은 비율만큼** 당겨
+                # 실현 가능한 기준점을 잡는다. 각 재료는 제 범위 안에 그대로 있고,
+                # 재료 사이의 크기 순서도 보존된다.
+                lo_v = np.array([float(bounds[g][0]) if g in bounds else 0.0
+                                 for g in free_names])
+                cur = np.array([x0[palette.index(g)] for g in free_names])
+                slack = cur - lo_v                     # 하한 위로 올라간 몫
+                need = -rest + FILLER_HEADROOM
+                if slack.sum() <= need:
+                    raise ValueError(
+                        f"작업 범위 하한의 합이 {lo_v.sum():.2f} 로 총량 {total} 에 "
+                        f"너무 가깝습니다(필러 여유 {FILLER_HEADROOM}). 재료를 줄이거나 "
+                        f"하한을 낮추세요.")
+                over = -rest
+                pull = need / slack.sum()
+                cur = cur - slack * pull
+                for i, g in enumerate(free_names):
+                    x0[palette.index(g)] = cur[i]
+                zbar = cur.copy()                      # 기준점이 곧 zbar 다
+                rest = total - x0.sum()
+                warns.append(
+                    f"작업 범위 중앙값의 합이 총량을 {over:.2f} 넘어, 재료를 하한 쪽으로 "
+                    f"{pull * 100:.0f}% 당겨 기준 배합을 잡았습니다. "
+                    f"서로 대체하는 재료가 팔레트에 함께 있다는 뜻입니다 — "
+                    f"범위는 재료마다 따로 뽑혀 혼합물 총량 제약을 모릅니다.")
             x0[fi] = rest
         else:
             x0 = np.asarray(x0, float)

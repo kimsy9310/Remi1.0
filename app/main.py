@@ -23,6 +23,7 @@ for p in (os.path.join(_ROOT, "engine"), _HERE):
 
 import dataio                                    # noqa: E402
 import palette as pal                            # noqa: E402
+import user_flow                                 # noqa: E402
 import store                                     # noqa: E402
 import warmloop as wl                            # noqa: E402
 from formulator.v2adapter import V2Ontology      # noqa: E402
@@ -104,8 +105,43 @@ def ing_label(g):
 onto = get_onto()
 
 st.sidebar.title("Remi 1.0")
-st.sidebar.caption("식품 레시피 포뮬레이터 · 웜루프")
+st.sidebar.caption("식품 레시피 포뮬레이터")
 
+# ---- 화면 선택이 가장 먼저다.
+# 사용자 화면은 프로파일·실측 데이터 선택을 쓰지 않는다. 그것들을 먼저 그리면
+# 단계 ① 과 겹쳐 보이고, data/ 가 비었을 때 사용자 화면까지 막힌다.
+mode = st.sidebar.radio("화면", ["사용자", "전문가"], horizontal=True,
+                        help="사용자: 질문에 답하면 배합을 제안합니다. "
+                             "전문가: 데이터·학습·팔레트를 직접 다룹니다.")
+
+if mode == "사용자":
+    st.sidebar.divider()
+    st.sidebar.caption(
+        f"온톨로지 재료 {len(onto.ingredients)}종 · 태그 {len(onto.tags)}종  — 만들 것을 고르고 질문에 답하시면 배합을 제안합니다.")
+
+    def _build(profile_, palette_ids, bounds_, variant_=None):
+        return onto.build(profile_, palette_ids, bounds=bounds_ or None)
+
+    def _propose(built, target, x0, lo, hi, free_axes):
+        t = np.zeros(len(built.y_terms))
+        for k, term in enumerate(built.y_terms):
+            t[k] = float(target.get(term, 0.0))
+        W = None
+        if free_axes:
+            W = np.array(built.model.Sigma_inv, dtype=float, copy=True)
+            for a in free_axes:
+                i = built.y_terms.index(a)
+                W[i, :] = 0.0
+                W[:, i] = 0.0
+            if not np.any(np.diag(W)):
+                W = None
+        from formulator.mixture import propose as _p
+        return _p(built.model, target=t, x0=x0, lo=lo, hi=hi, weight=W)
+
+    user_flow.render(onto, load_palette, _build, _propose)
+    st.stop()
+
+# ---- 여기부터 전문가 화면
 profiles = sorted(onto.profiles)
 default_ix = profiles.index("beverage_rice_milk") if "beverage_rice_milk" in profiles else 0
 profile = st.sidebar.selectbox("프로파일", profiles, index=default_ix)
@@ -139,6 +175,8 @@ except Exception as e:                                            # noqa: BLE001
         "`ontology_v2/layers/layerM_cards_*.yaml` 을 확인하세요.")
     st.stop()
 
+# 데이터·학습·팔레트는 전문가가 뒤에서 손보는 부분이다.
+# 사용자에게 필요한 것("무엇을 만들고 싶은가")은 위 user_flow 가 이미 처리했다.
 tab_data, tab_learn, tab_suggest, tab_bounds, tab_entry = st.tabs(
     ["① 데이터", "② 학습", "③ 제안", "④ 팔레트", "⑤ 실험 입력"])
 
