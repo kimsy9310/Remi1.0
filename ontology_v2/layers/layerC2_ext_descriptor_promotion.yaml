@@ -81,10 +81,11 @@ ingredients_ext:
   # 계면활성이 워낙 강해 단백질을 공격적으로 밀어낸다. 원본 note 가 '매우
   # 강력하나 라벨 이슈' 라고 적은 그대로다.
 
-  - { to: L.tx.creaminess, direction: increase, magnitude: strong, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: medium,
-      note: "고HLB 예외 — 계면활성이 강해 단백질을 밀어내고 부분응집을 크게 일으킨다. FT.emulsifier 의 균일한 creaminess 엣지를 재료별로 덮는다 — 그 균일 엣지가 차별화된 합성 경로를 가리고 있었다." }
-  - { to: L.tx.hardness, direction: increase, magnitude: strong, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: medium,
-      note: "부분응집이 매우 강하므로 같은 이유로 구조가 선다." }
+  # [검토 2026-08-31 · 보류] creaminess / hardness 엣지 보류.
+  # "폴리소르베이트는 가격도 비싸고 실제 사용하는 경우가 흔치 않으니 우선 보류" 라는 지적.
+  # 액적크기·크리밍 엣지는 O/W 유화 기작이라 남겨 둔다(팔레트에서 제한 등급으로 관리).
+  # - { to: L.tx.creaminess, ... } 보류
+  # - { to: L.tx.hardness,   ... } 보류
 - id: ING.egg_yolk_hlb_ext
   label: "Egg yolk (HLB ~10 promotion)"
   alias_of: ING.egg_yolk
@@ -220,11 +221,10 @@ ingredients_ext:
   - { to: L.ar.rancid_oxidized, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: medium,
       note: "감마오리자놀이 어느 정도 보호하지만 PUFA 가 있다. 팔레트 shortlist 도 'PUFA 산화 관리 필요' 라 적었다." }
 
-- id: ING.canola_oil_oxid_ext
-  label: "Canola oil (medium oxidative stability)"
-  alias_of: ING.canola_oil
-  overrides:
-  - { to: L.ar.rancid_oxidized, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: medium }
+# [검토 2026-08-31 · 보류] canola_oil -> L.ar.rancid_oxidized
+# "기름 맛 / 산화취 / oiliness 를 정리한 뒤 다시 결정" 이라는 지적.
+# 아래 '기름 용어 정리' 절을 먼저 확정하고 되살릴 것.
+# - id: ING.canola_oil_oxid_ext  ... 보류
 
 - id: ING.sesame_oil_toasted_oxid_ext
   label: "Toasted sesame oil (medium oxidative stability)"

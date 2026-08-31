@@ -109,7 +109,19 @@ def run(onto, data, profile, bounds=None):
     """온톨로지 사전 + 실측 → 보정된 모형."""
     built = onto.build(profile, palette=list(data.names), bounds=bounds,
                        x0=data.X[0] if len(data.X) else None)
-    G0, lam, S0 = _align(built, data.y_terms)
+
+    # dataio 는 M 카드에 있는 축을 전부 읽어 온다(core + monitored). 모형은
+    # core 만 적합한다 — 스펙 5.7 이 "monitored 는 점수를 기록하되 목적함수에서
+    # 제외한다" 고 정한 대로다. 여기서 걸러 낸다.
+    keep = [k for k, t in enumerate(data.y_terms) if t in built.y_terms]
+    dropped = [t for t in data.y_terms if t not in built.y_terms]
+    if not keep:
+        raise ValueError(
+            f"데이터의 축이 모두 monitored 이거나 프로파일 밖입니다: {data.y_terms}")
+    y_terms = [data.y_terms[k] for k in keep]
+    Y = data.Y[:, keep]
+
+    G0, lam, S0 = _align(built, y_terms)
 
     free = [n for n in built.palette if n != built.filler]
     # dataio 의 열 순서와 built.palette 의 순서를 맞춘다
@@ -117,13 +129,18 @@ def run(onto, data, profile, bounds=None):
     X = data.X[:, order]
 
     warns = list(built.warnings)
+    if dropped:
+        warns.append(
+            f"monitored 축 {len(dropped)}개는 학습에서 제외했습니다: "
+            f"{[t.split('.')[-1] for t in dropped]} — 점수는 데이터에 남아 있고, "
+            f"core 로 올리면 곧바로 학습에 들어옵니다(스펙 5.7).")
 
     prior_model = MixtureModel(built.palette, filler=built.filler, total=100.0)
     prior_model.fit_prior_only(prior=G0, prior_precision=lam, sigma=S0,
                                zbar=built.zbar, zsd=built.zsd)
 
     model = MixtureModel(built.palette, filler=built.filler, total=100.0)
-    model.fit(X, data.Y, prior=G0, prior_precision=lam)
+    model.fit(X, Y, prior=G0, prior_precision=lam)
 
     eff = effective_directions(model.to_free(X))
     q = len(free)
@@ -139,7 +156,7 @@ def run(onto, data, profile, bounds=None):
 
     return WarmLoopResult(
         model=model, prior_model=prior_model, names=list(built.palette),
-        free=free, filler=built.filler, y_terms=list(data.y_terms),
+        free=free, filler=built.filler, y_terms=list(y_terms),
         Gamma_prior=G0, Gamma_post=model.G, Lambda=lam,
         n=len(X), eff_directions=eff, warnings=warns)
 

@@ -35,8 +35,8 @@ meta:
       rice flavour and oxidation to monitored first.
   counts:
     cards: 6
-    core: 6
-    monitored: 0
+    core: 5
+    monitored: 1
     sample_aged: 0
 
 measurement_cards:
@@ -81,7 +81,13 @@ measurement_cards:
 
 - term_id: L.tx.oiliness
   active_in: ['SC.emulsion.ow|APP.beverage']
-  tier: core
+  # [검토 2026-08-31 · 보류] core -> monitored.
+  # 패널의 "oil flavor" 컬럼이 고소함(L.ar.nutty)을 잰 것인지 기름짐(식감)을
+  # 잰 것인지 기록이 없다. 무엇을 잰 축인지 모르는 채로 목적함수에 넣으면
+  # 모형이 엉뚱한 방향으로 최적화한다. 점수는 계속 기록하되 목표에서 뺀다.
+  # 다음 패널이 세 축(고소함 / 쩐내 / 기름짐)을 따로 재면 되살린다.
+  # 자세한 내용: ontology_v2/기름_관능용어_정리.md
+  tier: monitored
   method: benchmark_difference
   scale_type: diff_7
   benchmark: current_recipe

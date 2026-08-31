@@ -239,9 +239,21 @@ for _k, _o, _t, _s in aud["directionless"][:5]:
 _inert = [g for g in aud["untagged"] if g not in ALLOWED_INERT]
 check("효과를 하나도 못 내는 재료가 없다", not _inert, str(_inert))
 
-check("향미재가 모두 향 축을 움직인다", not aud["unfulfilled"],
-      f"{len(aud['unfulfilled'])}건")
-for _g, _t, _w in aud["unfulfilled"][:5]:
+# 검토에서 '보류' 로 판정해 일부러 엣지를 뺀 재료. 결함이 아니라 결정이다.
+# 보류 사유가 문서에 남아 있는 것만 여기 넣는다.
+HELD_PENDING_REVIEW = {
+    # 2026-08-31 검토: "'신선한' 향이라는 정의 자체가 불분명하다. 영어 fresh 와
+    # 한글 '신선한' 은 느낌이 다르다" -> 용어 정의 확정 전까지 향 엣지 보류.
+    # ontology_v2/기름_관능용어_정리.md 3절 참조.
+    "ING.chili_fresh_red",
+}
+_unful = [x for x in aud["unfulfilled"] if x[0] not in HELD_PENDING_REVIEW]
+_held = [x for x in aud["unfulfilled"] if x[0] in HELD_PENDING_REVIEW]
+check("향미재가 모두 향 축을 움직인다", not _unful,
+      f"{len(_unful)}건" + (f" · 보류 {len(_held)}건 제외" if _held else ""))
+for _g, _t, _w in _held:
+    print(f"        보류  {_g}: {_w} (검토 결정)")
+for _g, _t, _w in _unful[:5]:
     print(f"        {_g}: {_w}")
 
 check("어떤 재료로도 못 움직이는 core 축이 없다", not aud["dead_core"],

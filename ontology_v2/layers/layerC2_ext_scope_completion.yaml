@@ -109,11 +109,27 @@ function_tags_ext:
 - id: FT.fat_source_gloss_scope
   label: "Fat source (gloss scope extension)"
   definition: >-
-    Scope extension only: 유상이 표면 광택을 만든다. 소스의 L.ap.glossy 가
-    이것 없이는 움직이지 않았다.
+    Scope extension only: 유상이 표면 광택을 만든다.
   alias_of: FT.fat_source
   effects:
   - { to: P.gloss_optical, direction: increase, magnitude: medium, scoped_to_structure_class: SC.emulsion.ow.sauce, source_type: prior, confidence: medium }
+
+# [검토 2026-08-31 · 수정] "제형에 따라 기름 없이도 L.ap.glossy 가 구현되는 경우가
+# 있으니, 기름 없이는 움직이지 않는다는 건 틀린 듯" 이라는 지적.
+#
+# 원래 엣지가 "기름이 광택을 올린다" 고만 말하고 '필수' 라고 주장한 적은 없지만,
+# 그것이 **유일한 경로**였던 탓에 결과적으로 기름 없이는 광택을 못 만들었다.
+# 다른 경로를 보태 그 함의를 없앤다.
+- id: FT.thickener_gloss_scope
+  label: "Thickener (gloss scope extension)"
+  definition: >-
+    Scope extension only: 검류와 호화 전분은 매끈한 연속상을 만들어 표면 광택을
+    올린다. 무지방 소스가 윤이 나는 이유다.
+  alias_of: FT.thickener
+  effects:
+  - { to: P.gloss_optical, direction: increase, magnitude: medium, scoped_to_structure_class: SC.emulsion.ow.sauce, source_type: prior, confidence: medium,
+      note: "잔탄·전분 계열이 특히 그렇다. 기름과 독립된 경로." }
+  - { to: P.gloss_optical, direction: increase, magnitude: weak, scoped_to_structure_class: SC.suspension, source_type: prior, confidence: low }
 
 # =============================================================================
 # 남겨 둔 것 — 지어내지 않는다

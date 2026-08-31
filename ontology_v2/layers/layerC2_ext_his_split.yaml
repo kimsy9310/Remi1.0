@@ -1,0 +1,102 @@
+# [layerC2 확장 2026-08-31] 고감미도 감미료를 종류별로 쪼갠다
+# =============================================================================
+# 검토 지적:
+#   "High intensity sweetener 라는 항목 자체를 지울 필요가 있을 듯? HIS 마다
+#    특징이 다 다른데, HIS 를 등록하여 어떤 정의를 내리는 것 자체는 의미가 없는 듯함."
+#
+# 맞는 지적이다. 유화제를 HLB 로 쪼갠 것과 같은 문제다 — 하나의 총칭 아래
+# 성질이 정반대인 것들이 묶여 있으면 모형이 아무것도 구분하지 못한다.
+#
+#   스테비아    쓴 여운이 길다 · 감초 뉘앙스 · 천연 라벨
+#   수크랄로스  여운이 비교적 깨끗 · 열 안정 · 합성
+#   아세설팜K   금속성 여운 · 단독보다 블렌드로 · 상승효과
+#   아스파탐    설탕에 가까운 프로파일 · 산성/열에 분해 · 페닐케톤뇨 표시
+#
+# ID 는 추가만 하고 삭제하지 않는다(불변식 3). ING.high_intensity_sweetener 는
+# 남기되 **총칭 자리표시자**로 명시하고, 실제 배합에는 아래 개별 ID 를 쓴다.
+#
+# STATUS: DRAFT — 방향과 상대 순서는 문헌 통설이나 크기는 잠정.
+# =============================================================================
+
+ingredients_ext:
+
+# ---------------------------------------------------------------- 총칭 항목 표시
+- id: ING.high_intensity_sweetener_deprecation_note
+  label: "High-intensity sweetener (generic — placeholder)"
+  alias_of: ING.high_intensity_sweetener
+  overrides: []
+  note: >-
+    이 ID 는 총칭 자리표시자다. HIS 는 종류마다 여운·오프노트·안정성이 달라
+    하나로 묶으면 모형이 구분하지 못한다. 새 배합에는 아래 개별 ID 를 쓸 것.
+    기존 데이터가 이 ID 를 참조하고 있어 삭제하지 않는다(불변식 3).
+    팔레트 표에서는 '제한' 등급으로 두어 실수로 고르지 않게 한다.
+
+# ---------------------------------------------------------------- 개별 감미료
+- id: ING.stevia_reb_a
+  label: "Stevia (rebaudioside A)"
+  label_ko: "스테비아(레바우디오사이드 A)"
+  function_tags: [FT.sweetener]
+  origin: plant
+  vegan_ok: true
+  allergen: none
+  descriptors:
+    sweetness: "200-300x sucrose"
+    label_claim: natural
+    note: "steviol glycoside. Reb A 가 가장 흔하고, Reb M 은 여운이 더 깨끗하나 비싸다"
+  overrides:
+  - { to: L.ta.aftertaste_length, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high,
+      note: "HIS 중에서도 여운이 길다. 이 계열의 대표적 약점." }
+  - { to: L.ta.bitter, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high,
+      note: "고용량에서 쓴맛·감초 뉘앙스. 저당 배합의 상한을 정하는 요인." }
+  limitations:
+  - { type: dose, statement: "설탕 대비 감미도 200-300배. 벌크와 FPD 가 없어 다른 재료로 메워야 한다" }
+
+- id: ING.sucralose
+  label: "Sucralose"
+  label_ko: "수크랄로스"
+  function_tags: [FT.sweetener]
+  origin: synthetic
+  vegan_ok: true
+  allergen: none
+  descriptors:
+    sweetness: "600x sucrose"
+    heat_stability: high
+    note: "HIS 중 여운이 비교적 깨끗한 편"
+  overrides:
+  - { to: L.ta.aftertaste_length, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high,
+      note: "스테비아보다 짧지만 설탕보다는 길다." }
+  limitations:
+  - { type: label, statement: "합성 감미료 — 클린라벨 지향 제품과 상충" }
+
+- id: ING.acesulfame_k
+  label: "Acesulfame potassium"
+  label_ko: "아세설팜칼륨"
+  function_tags: [FT.sweetener]
+  origin: synthetic
+  vegan_ok: true
+  allergen: none
+  descriptors:
+    sweetness: "200x sucrose"
+    note: "단독 사용 시 금속성 여운. 아스파탐/수크랄로스와 블렌드하면 상승효과"
+  overrides:
+  - { to: L.ta.aftertaste_length, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }
+  - { to: L.ar.metallic, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: medium,
+      note: "단독 고용량에서 두드러진다. 블렌드로 완화하는 것이 통상." }
+
+- id: ING.aspartame
+  label: "Aspartame"
+  label_ko: "아스파탐"
+  function_tags: [FT.sweetener]
+  origin: synthetic
+  vegan_ok: true
+  allergen: none
+  descriptors:
+    sweetness: "200x sucrose"
+    heat_stability: low
+    note: "설탕에 가장 가까운 프로파일이나 산성·고온에서 분해"
+  overrides:
+  - { to: L.ta.aftertaste_length, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: high,
+      note: "HIS 중 여운이 가장 짧다 — 프로파일이 설탕에 가깝다는 뜻." }
+  limitations:
+  - { type: stability, statement: "산성 음료·가열 공정에서 분해되어 단맛이 줄어든다" }
+  - { type: regulatory, statement: "페닐알라닌 함유 표시 의무" }
