@@ -8,6 +8,7 @@
 # edge to appear in the mean prediction. See migration log F8.
 ingredients_ext:
   - id: ING.coffee_extract
+    ko: "커피 추출액"
     label: "Coffee extract (liquid, roasted)"
     function_tags: [FT.flavorant, FT.colorant]
     origin: plant
@@ -26,6 +27,7 @@ ingredients_ext:
     substitutes: [ING.instant_coffee_powder]
 
   - id: ING.instant_coffee_powder
+    ko: "인스턴트 커피 분말"
     label: "Instant coffee powder (spray-dried)"
     function_tags: [FT.flavorant, FT.colorant]
     origin: plant
@@ -39,6 +41,7 @@ ingredients_ext:
     substitutes: [ING.coffee_extract]
 
   - id: ING.whole_milk
+    ko: "우유 (전지, 유지방 3.5%)"
     label: "Whole milk (3.5% fat)"
     function_tags: [FT.fat_source, FT.protein, FT.milk_protein]
     origin: animal

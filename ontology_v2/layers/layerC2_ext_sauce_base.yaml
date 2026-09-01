@@ -42,6 +42,9 @@
 function_tags_ext:
 
   - id: FT.pungent_principle
+    ko: "매운맛 성분"
+    typical_use_pct: [0, 5]
+    typical_use_basis: "선례가 없을 때 쓰는 기능군 통상 사용량. 실측이 들어오면 덮어쓴다. 재료의 limitations 가 자유 서술이라 기계가 읽지 못해 둔 값이다(G5)."
     label: "Pungent principle (chemesthetic irritant)"
     definition: "Delivers trigeminal burn or tingle rather than taste: capsaicinoids, piperine, isothiocyanates, gingerols, sanshools."
     descriptor_relevance: [pungent_compound, scoville, lipophilicity, onset]
@@ -50,6 +53,9 @@ function_tags_ext:
       - { to: L.ch.heat_linger, direction: increase, magnitude: medium, scoped_to_structure_class: SC.emulsion.ow, source_type: prior, confidence: medium, note: "lipophilic actives partition into the oil phase: lower peak, longer tail" }
 
   - id: FT.umami_source
+    ko: "감칠맛 재료"
+    typical_use_pct: [0, 10]
+    typical_use_basis: "선례가 없을 때 쓰는 기능군 통상 사용량. 실측이 들어오면 덮어쓴다. 재료의 limitations 가 자유 서술이라 기계가 읽지 못해 둔 값이다(G5)."
     label: "Umami source"
     definition: "Supplies free glutamate and/or 5'-ribonucleotides. Synergistic: glutamate + ribonucleotide together give far more umami than the sum."
     descriptor_relevance: [glutamate_level, ribonucleotide, salt_contribution]
@@ -59,6 +65,9 @@ function_tags_ext:
       - { to: L.tx.body, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: medium }
 
   - id: FT.aromatic_allium
+    ko: "향신 채소 (마늘·양파류)"
+    typical_use_pct: [0, 8]
+    typical_use_basis: "선례가 없을 때 쓰는 기능군 통상 사용량. 실측이 들어오면 덮어쓴다. 재료의 limitations 가 자유 서술이라 기계가 읽지 못해 둔 값이다(G5)."
     label: "Aromatic allium (garlic, onion, shallot, leek)"
     definition: "Alliums as a distinct tag, separate from generic flavorant, BECAUSE OF SAFETY. Fresh alliums are low-acid, carry soil-borne C. botulinum spores, and are the classic vector for ambient-stable oil infusions. The tag exists so the rule engine can find them."
     descriptor_relevance: [form, heat_treated, acidified]
@@ -69,6 +78,9 @@ function_tags_ext:
       - { type: safety_bound, statement: "FRESH (raw, unacidified) allium held in an oil or low-oxygen phase at ambient temperature is a Clostridium botulinum growth vector. Requires refrigeration, acidification to pH <= 4.6 throughout, or dehydration. Dried and heat-treated forms do not carry the same hazard.", non_negotiable: true }
 
   - id: FT.fermented_paste
+    ko: "발효 장류"
+    typical_use_pct: [0, 20]
+    typical_use_basis: "선례가 없을 때 쓰는 기능군 통상 사용량. 실측이 들어오면 덮어쓴다. 재료의 limitations 가 자유 서술이라 기계가 읽지 못해 둔 값이다(G5)."
     label: "Fermented soy / grain paste"
     definition: "Brings umami, colour, acid, salt, sugar and suspended solids at once. Behaves as an ingredient AND a process condition."
     descriptor_relevance: [salt_pct, ph, solids_pct]
@@ -80,6 +92,9 @@ function_tags_ext:
       - { type: composition, statement: "carries its own salt (5-14%) and acid. Dosing for flavour sets the salt and pH of the batch as a side effect; recalculate the salt budget and the pH target after every dose change." }
 
   - id: FT.particulate
+    ko: "분산 고형분 (건더기)"
+    typical_use_pct: [0, 30]
+    typical_use_basis: "선례가 없을 때 쓰는 기능군 통상 사용량. 실측이 들어오면 덮어쓴다. 재료의 limitations 가 자유 서술이라 기계가 읽지 못해 둔 값이다(G5)."
     label: "Particulate / dispersed solid phase"
     definition: "Insoluble solids that constitute the dispersed phase of a suspension. The defining component of SC.suspension: they carry colour and texture and they are what settles."
     descriptor_relevance: [particle_size_d50, particle_size_d90, density, hydration]
@@ -92,6 +107,9 @@ function_tags_ext:
       - { type: physical, statement: "Stokes: settling velocity scales with the SQUARE of particle diameter and with density difference. Halving particle size slows settling roughly fourfold - usually cheaper and more robust than adding thickener, and it does not change the mouthfeel the way a gum does." }
 
   - id: FT.aroma_oil
+    ko: "비정제 향미유"
+    typical_use_pct: [0, 3]
+    typical_use_basis: "선례가 없을 때 쓰는 기능군 통상 사용량. 실측이 들어오면 덮어쓴다. 재료의 limitations 가 자유 서술이라 기계가 읽지 못해 둔 값이다(G5)."
     label: "Unrefined aroma oil"
     definition: "Oil used for its aroma rather than as a bulk fat phase: toasted sesame, perilla, unrefined olive. Dosed at flavour level, not structure level."
     descriptor_relevance: [oxidative_stability, pufa_pct, roast_level]
@@ -102,6 +120,9 @@ function_tags_ext:
       - { type: stability, statement: "high in polyunsaturates and used unrefined: oxidises to a rancid note well before microbial failure. In a sesame or perilla product this is usually the shelf-life-limiting mechanism, and it is a FLAVOUR failure that a microbiological shelf-life test will not detect." }
 
   - id: FT.aw_depressant
+    ko: "수분활성 저하제"
+    typical_use_pct: [0, 20]
+    typical_use_basis: "선례가 없을 때 쓰는 기능군 통상 사용량. 실측이 들어오면 덮어쓴다. 재료의 limitations 가 자유 서술이라 기계가 읽지 못해 둔 값이다(G5)."
     label: "Water-activity depressant (preservation hurdle)"
     definition: "Lowers water activity and so suppresses microbial growth. Preservation by hurdle rather than by additive."
     descriptor_relevance: [molecular_weight, solubility]
@@ -114,6 +135,7 @@ ingredients_ext:
 
   # ==================================================== CHILLI / PUNGENT
   - id: ING.gochugaru_coarse
+    ko: "고춧가루 (굵은)"
     label: "Korean chilli flakes, coarse (gochugaru)"
     function_tags: [FT.pungent_principle, FT.colorant, FT.particulate, FT.flavorant]
     origin: plant
@@ -132,6 +154,7 @@ ingredients_ext:
     substitutes: [ING.gochugaru_fine, ING.paprika_sweet, ING.cayenne_powder]
 
   - id: ING.gochugaru_fine
+    ko: "고춧가루 (고운)"
     label: "Korean chilli powder, fine (gochugaru, goun)"
     specializes: ING.gochugaru_coarse
     function_tags: [FT.pungent_principle, FT.colorant, FT.particulate, FT.flavorant]
@@ -142,6 +165,7 @@ ingredients_ext:
     substitutes: [ING.gochugaru_coarse, ING.capsicum_oleoresin]
 
   - id: ING.chili_fresh_green
+    ko: "풋고추 (청양·할라피뇨류)"
     label: "Fresh green chilli (cheongyang / serrano / jalapeno type)"
     function_tags: [FT.pungent_principle, FT.particulate, FT.flavorant]
     origin: plant
@@ -156,6 +180,7 @@ ingredients_ext:
     substitutes: [ING.jalapeno, ING.chili_fresh_red]
 
   - id: ING.chili_fresh_red
+    ko: "홍고추 (생)"
     label: "Fresh red chilli"
     specializes: ING.chili_fresh_green
     function_tags: [FT.pungent_principle, FT.colorant, FT.particulate, FT.flavorant]
@@ -164,12 +189,14 @@ ingredients_ext:
     substitutes: [ING.chili_fresh_green, ING.gochugaru_fine]
 
   - id: ING.jalapeno
+    ko: "할라피뇨"
     label: "Jalapeno pepper"
     specializes: ING.chili_fresh_green
     descriptors: { scoville: "2,500-8,000 SHU" }
     substitutes: [ING.chili_fresh_green, ING.chipotle]
 
   - id: ING.chipotle
+    ko: "치포틀레 (훈연 건 할라피뇨)"
     label: "Chipotle (smoke-dried jalapeno)"
     function_tags: [FT.pungent_principle, FT.flavorant, FT.colorant, FT.particulate]
     origin: plant
@@ -182,6 +209,7 @@ ingredients_ext:
     substitutes: [ING.paprika_smoked, ING.chili_dried_ancho]
 
   - id: ING.chili_dried_ancho
+    ko: "안초 (건 포블라노)"
     label: "Ancho / dried poblano"
     function_tags: [FT.flavorant, FT.colorant, FT.particulate, FT.pungent_principle]
     origin: plant
@@ -193,6 +221,7 @@ ingredients_ext:
     substitutes: [ING.chipotle, ING.paprika_sweet]
 
   - id: ING.habanero
+    ko: "하바네로"
     label: "Habanero / Scotch bonnet"
     function_tags: [FT.pungent_principle, FT.flavorant]
     origin: plant
@@ -206,6 +235,7 @@ ingredients_ext:
     substitutes: [ING.capsicum_oleoresin, ING.cayenne_powder]
 
   - id: ING.cayenne_powder
+    ko: "카옌 고춧가루"
     label: "Cayenne pepper powder"
     function_tags: [FT.pungent_principle, FT.colorant, FT.particulate]
     origin: plant
@@ -215,6 +245,7 @@ ingredients_ext:
     substitutes: [ING.capsicum_oleoresin, ING.gochugaru_fine]
 
   - id: ING.capsicum_oleoresin
+    ko: "고추 올레오레진"
     label: "Capsicum oleoresin"
     function_tags: [FT.pungent_principle, FT.colorant]
     origin: plant
@@ -228,6 +259,7 @@ ingredients_ext:
     substitutes: [ING.cayenne_powder, ING.habanero]
 
   - id: ING.paprika_sweet
+    ko: "스위트 파프리카"
     label: "Sweet paprika"
     function_tags: [FT.colorant, FT.flavorant, FT.particulate]
     origin: plant
@@ -237,6 +269,7 @@ ingredients_ext:
     substitutes: [ING.paprika_smoked, ING.gochugaru_fine]
 
   - id: ING.paprika_smoked
+    ko: "훈제 파프리카"
     label: "Smoked paprika (pimenton)"
     specializes: ING.paprika_sweet
     flavor_profile:
@@ -244,6 +277,7 @@ ingredients_ext:
     substitutes: [ING.chipotle, ING.paprika_sweet]
 
   - id: ING.black_pepper
+    ko: "후추"
     label: "Black pepper"
     function_tags: [FT.pungent_principle, FT.flavorant, FT.particulate]
     origin: plant
@@ -255,6 +289,7 @@ ingredients_ext:
 
   # ==================================================== FERMENTED / UMAMI
   - id: ING.gochujang
+    ko: "고추장"
     label: "Gochujang (fermented chilli paste)"
     function_tags: [FT.fermented_paste, FT.pungent_principle, FT.colorant, FT.umami_source, FT.sweetener, FT.particulate]
     origin: plant
@@ -270,6 +305,7 @@ ingredients_ext:
     substitutes: [ING.doenjang, ING.gochugaru_fine]
 
   - id: ING.doenjang
+    ko: "된장"
     label: "Doenjang (fermented soybean paste)"
     function_tags: [FT.fermented_paste, FT.umami_source, FT.aw_depressant, FT.particulate]
     origin: plant
@@ -285,6 +321,7 @@ ingredients_ext:
     substitutes: [ING.miso, ING.soy_sauce_brewed]
 
   - id: ING.miso
+    ko: "미소"
     label: "Miso"
     function_tags: [FT.fermented_paste, FT.umami_source, FT.aw_depressant]
     origin: plant
@@ -295,6 +332,7 @@ ingredients_ext:
     substitutes: [ING.doenjang]
 
   - id: ING.soy_sauce_brewed
+    ko: "양조간장"
     label: "Brewed soy sauce (ganjang)"
     function_tags: [FT.umami_source, FT.aw_depressant, FT.colorant, FT.acidulant]
     origin: plant
@@ -309,6 +347,7 @@ ingredients_ext:
     substitutes: [ING.fish_sauce_anchovy, ING.doenjang]
 
   - id: ING.fish_sauce_anchovy
+    ko: "멸치액젓"
     label: "Anchovy fish sauce (aekjeot)"
     function_tags: [FT.umami_source, FT.aw_depressant]
     origin: animal
@@ -323,6 +362,7 @@ ingredients_ext:
     substitutes: [ING.soy_sauce_brewed]
 
   - id: ING.oyster_sauce
+    ko: "굴소스"
     label: "Oyster sauce"
     function_tags: [FT.umami_source, FT.thickener, FT.sweetener]
     origin: animal
@@ -333,6 +373,7 @@ ingredients_ext:
     substitutes: [ING.soy_sauce_brewed]
 
   - id: ING.msg
+    ko: "글루탐산나트륨 (MSG)"
     label: "Monosodium glutamate"
     function_tags: [FT.umami_source]
     origin: fermentation
@@ -346,6 +387,7 @@ ingredients_ext:
     substitutes: [ING.yeast_extract, ING.soy_sauce_brewed]
 
   - id: ING.yeast_extract
+    ko: "효모 추출물"
     label: "Yeast extract"
     function_tags: [FT.umami_source, FT.flavorant]
     origin: fermentation
@@ -356,6 +398,7 @@ ingredients_ext:
 
   # ==================================================== ALLIUM / AROMATICS
   - id: ING.garlic_fresh
+    ko: "생마늘"
     label: "Fresh garlic"
     function_tags: [FT.aromatic_allium, FT.flavorant, FT.particulate]
     origin: plant
@@ -370,6 +413,7 @@ ingredients_ext:
     substitutes: [ING.garlic_powder, ING.garlic_roasted, ING.black_garlic]
 
   - id: ING.garlic_roasted
+    ko: "구운 마늘"
     label: "Roasted garlic"
     specializes: ING.garlic_fresh
     descriptors: { form: heat_treated, heat_treated: true }
@@ -377,6 +421,7 @@ ingredients_ext:
     substitutes: [ING.black_garlic, ING.garlic_fresh]
 
   - id: ING.black_garlic
+    ko: "흑마늘"
     label: "Black garlic (aged)"
     function_tags: [FT.flavorant, FT.umami_source, FT.colorant]
     origin: plant
@@ -389,6 +434,7 @@ ingredients_ext:
     substitutes: [ING.garlic_roasted]
 
   - id: ING.garlic_powder
+    ko: "마늘 분말"
     label: "Garlic powder / granules"
     function_tags: [FT.aromatic_allium, FT.flavorant]
     origin: plant
@@ -398,6 +444,7 @@ ingredients_ext:
     substitutes: [ING.garlic_fresh]
 
   - id: ING.onion_fresh
+    ko: "양파"
     label: "Fresh onion"
     function_tags: [FT.aromatic_allium, FT.flavorant, FT.particulate, FT.sweetener]
     origin: plant
@@ -411,6 +458,7 @@ ingredients_ext:
     substitutes: [ING.onion_powder, ING.shallot]
 
   - id: ING.onion_powder
+    ko: "양파 분말"
     label: "Onion powder"
     function_tags: [FT.aromatic_allium, FT.flavorant]
     origin: plant
@@ -419,12 +467,14 @@ ingredients_ext:
     substitutes: [ING.onion_fresh]
 
   - id: ING.shallot
+    ko: "샬롯"
     label: "Shallot"
     specializes: ING.onion_fresh
     note: "sweeter, less sulphurous"
     substitutes: [ING.onion_fresh]
 
   - id: ING.ginger_fresh
+    ko: "생강"
     label: "Fresh ginger"
     function_tags: [FT.pungent_principle, FT.flavorant, FT.particulate]
     origin: plant
@@ -436,6 +486,7 @@ ingredients_ext:
     substitutes: [ING.ginger_powder]
 
   - id: ING.ginger_powder
+    ko: "생강 분말"
     label: "Ginger powder"
     function_tags: [FT.pungent_principle, FT.flavorant]
     origin: plant
@@ -446,6 +497,7 @@ ingredients_ext:
 
   # ==================================================== ACID / SOUR
   - id: ING.vinegar_brewed
+    ko: "양조식초"
     label: "Brewed vinegar (acetic acid ~4-7%)"
     function_tags: [FT.acidulant, FT.preservative, FT.flavorant]
     origin: fermentation
@@ -461,6 +513,7 @@ ingredients_ext:
     substitutes: [ING.citric_acid, ING.lactic_acid, ING.lime_juice]
 
   - id: ING.lime_juice
+    ko: "라임즙"
     label: "Lime juice"
     function_tags: [FT.acidulant, FT.flavorant]
     origin: plant
@@ -473,12 +526,14 @@ ingredients_ext:
     substitutes: [ING.lemon_juice, ING.citric_acid]
 
   - id: ING.lemon_juice
+    ko: "레몬즙"
     label: "Lemon juice"
     specializes: ING.lime_juice
     descriptors: { acid: citric, ph: "2.0-2.6" }
     substitutes: [ING.lime_juice, ING.citric_acid]
 
   - id: ING.maesil_syrup
+    ko: "매실청"
     label: "Maesil (green plum) syrup"
     function_tags: [FT.sweetener, FT.acidulant, FT.flavorant, FT.aw_depressant]
     origin: plant
@@ -493,6 +548,7 @@ ingredients_ext:
 
   # ==================================================== TOMATO / VEGETABLE BASE
   - id: ING.tomato_paste
+    ko: "토마토 페이스트"
     label: "Tomato paste (concentrate)"
     function_tags: [FT.colorant, FT.flavorant, FT.particulate, FT.umami_source, FT.thickener]
     origin: plant
@@ -510,6 +566,7 @@ ingredients_ext:
     substitutes: [ING.tomato_diced, ING.paprika_sweet]
 
   - id: ING.tomato_diced
+    ko: "다진 토마토"
     label: "Diced / crushed tomato"
     function_tags: [FT.particulate, FT.flavorant, FT.colorant]
     origin: plant
@@ -521,6 +578,7 @@ ingredients_ext:
     substitutes: [ING.tomato_paste]
 
   - id: ING.tomatillo
+    ko: "토마티요"
     label: "Tomatillo"
     function_tags: [FT.particulate, FT.acidulant, FT.flavorant]
     origin: plant
@@ -534,6 +592,7 @@ ingredients_ext:
     substitutes: [ING.chili_fresh_green]
 
   - id: ING.cilantro
+    ko: "고수"
     label: "Cilantro / coriander leaf"
     function_tags: [FT.flavorant, FT.particulate]
     origin: plant
@@ -547,6 +606,7 @@ ingredients_ext:
     substitutes: []
 
   - id: ING.cumin
+    ko: "커민"
     label: "Cumin"
     function_tags: [FT.flavorant, FT.particulate]
     origin: plant
@@ -555,6 +615,7 @@ ingredients_ext:
     substitutes: []
 
   - id: ING.oregano_mexican
+    ko: "멕시칸 오레가노"
     label: "Mexican oregano"
     function_tags: [FT.flavorant, FT.particulate]
     origin: plant
@@ -564,6 +625,7 @@ ingredients_ext:
 
   # ==================================================== OIL / FAT
   - id: ING.sesame_oil_toasted
+    ko: "참기름"
     label: "Toasted sesame oil"
     function_tags: [FT.aroma_oil, FT.flavorant, FT.fat_source]
     origin: plant
@@ -579,6 +641,7 @@ ingredients_ext:
     substitutes: [ING.perilla_oil]
 
   - id: ING.perilla_oil
+    ko: "들기름"
     label: "Perilla oil"
     function_tags: [FT.aroma_oil, FT.flavorant, FT.fat_source]
     origin: plant
@@ -589,6 +652,7 @@ ingredients_ext:
     substitutes: [ING.sesame_oil_toasted]
 
   - id: ING.olive_oil_evoo
+    ko: "엑스트라버진 올리브유"
     label: "Extra virgin olive oil"
     function_tags: [FT.aroma_oil, FT.fat_source]
     origin: plant
@@ -601,6 +665,7 @@ ingredients_ext:
     substitutes: [ING.canola_oil, ING.high_oleic_sunflower_oil]
 
   - id: ING.canola_oil
+    ko: "카놀라유"
     label: "Canola / rapeseed oil"
     function_tags: [FT.fat_source]
     origin: plant

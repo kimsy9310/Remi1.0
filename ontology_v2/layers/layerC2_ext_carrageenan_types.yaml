@@ -45,6 +45,7 @@ ingredients_ext:
   # every existing reference to it meant kappa in practice anyway.
 
   - id: ING.iota_carrageenan
+    ko: "이오타 카라기난"
     label: "Iota carrageenan"
     function_tags: [FT.stabilizer, FT.thickener]
     origin: plant
@@ -66,6 +67,7 @@ ingredients_ext:
     note: "Freeze-thaw stable and syneresis-free where kappa is neither. The correct default for a chilled or frozen sauce."
 
   - id: ING.carrageenan_semi_refined
+    ko: "반정제 카라기난"
     label: "Semi-refined carrageenan (PES / SRC)"
     specializes: ING.carrageenan
     function_tags: [FT.stabilizer, FT.thickener, FT.particulate]
@@ -102,6 +104,9 @@ provenance:
 # =============================================================================
 function_tags_ext:
   - id: FT.mineral_fortifier
+    ko: "미네랄 강화제"
+    typical_use_pct: [0, 1]
+    typical_use_basis: "선례가 없을 때 쓰는 기능군 통상 사용량. 실측이 들어오면 덮어쓴다. 재료의 limitations 가 자유 서술이라 기계가 읽지 못해 둔 값이다(G5)."
     label: "Mineral fortifier"
     definition: "Supplies a mineral for nutritional labelling; may also act functionally through its ions."
     descriptor_relevance: [solubility, ion]
@@ -109,6 +114,9 @@ function_tags_ext:
       - { to: L.ta.bitter, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: medium, note: "many mineral salts carry a chalky or bitter note at fortification levels" }
 
   - id: FT.firming_agent
+    ko: "경화제 (2가 양이온)"
+    typical_use_pct: [0, 0.5]
+    typical_use_basis: "선례가 없을 때 쓰는 기능군 통상 사용량. 실측이 들어오면 덮어쓴다. 재료의 limitations 가 자유 서술이라 기계가 읽지 못해 둔 값이다(G5)."
     label: "Firming agent (divalent cation source)"
     definition: "Supplies Ca2+ (or Mg2+) that crosslinks pectin and iota carrageenan, firming texture."
     descriptor_relevance: [ion, solubility]

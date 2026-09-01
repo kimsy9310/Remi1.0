@@ -16,6 +16,9 @@
 
 function_tags_ext:
   - id: FT.stabilizer
+    ko: "안정제"
+    typical_use_pct: [0, 1]
+    typical_use_basis: "선례가 없을 때 쓰는 기능군 통상 사용량. 실측이 들어오면 덮어쓴다. 재료의 limitations 가 자유 서술이라 기계가 읽지 못해 둔 값이다(G5)."
     label: "Stabilizer"
     definition: "Maintains a dispersion/structure over TIME: controls ice recrystallization, water binding/syneresis, creaming and serum (whey) separation. Distinct from thickener (viscosity)."
     descriptor_relevance: [MW, charge, water_binding, gelation]

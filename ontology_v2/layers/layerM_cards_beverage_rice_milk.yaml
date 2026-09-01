@@ -137,7 +137,7 @@ measurement_cards:
       '-3': '기준보다 뚜렷하게 깨끗하다'
       '0': '기준과 구분되지 않는다'
       '+3': '쩐내·종이·절은 기름 냄새가 기준보다 뚜렷하다'
-    evaluation_note: '이 트랙에서는 신선 시료에서 매긴 점수입니다(review_items 참조). 훈련되지 않은 패널은 산화를 늦게, 들쭉날쭉하게 감지하므로 신뢰도가 낮습니다 — 작은 차이는 잡음으로 보세요. 이 축이 의사결정을 좌우한다면 블라인드 반복이 필요합니다(스펙 5.4).'
+    evaluation_note: '갓 만든 시료에서 매기는 점수입니다. 훈련되지 않은 평가자는 산패취를 늦게, 들쭉날쭉하게 감지하므로 작은 차이는 잡음으로 보세요. 이 축으로 결정을 내릴 때는 어느 시료인지 모르게 하고 두 번 이상 맡아 보셔야 합니다.'
     pitfalls:
     - '해바라기유는 산화가 잘 됩니다. 기름 종류를 바꾸면 이 축이 넣은 양과 뒤섞입니다.'
   active_in: ['SC.emulsion.ow|APP.beverage']
@@ -166,7 +166,7 @@ measurement_cards:
       '-3': '기준보다 뚜렷하게 묽고 물 같다'
       '0': '기준과 구분되지 않는다'
       '+3': '기준보다 뚜렷하게 묵직하고 꽉 찬다'
-    evaluation_note: '패널 컬럼 이름은 ''mouthfeel'' 입니다. Layer L 이 SA.body_mouthfeel 을 L.tx.body 로 합쳤으므로(_deprecated_aliases.yaml) 판단이 아니라 그대로 이어진 대응입니다.'
+    evaluation_note: '입에 넣었을 때의 묵직함과 꽉 찬 느낌을 봅니다. 크리미함(매끄럽고 지방 같은 질감)과 헷갈리기 쉬우니 바디감을 먼저 판단하세요.'
   active_in: ['SC.emulsion.ow|APP.beverage']
   tier: core
   method: benchmark_difference

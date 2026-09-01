@@ -8,6 +8,7 @@ function_tag_refinements:
   note: high = saturated/high-oleic (stable); low = high-PUFA (oxidation-prone)
 ingredients_ext:
 - id: ING.palm_oil
+  ko: "정제 팜유"
   label: Refined palm oil
   function_tags:
   - FT.fat_source
@@ -22,6 +23,7 @@ ingredients_ext:
   - ING.coconut_oil
   - ING.high_oleic_sunflower_oil
 - id: ING.sunflower_oil
+  ko: "해바라기유"
   label: Sunflower oil (regular, high-linoleic)
   function_tags:
   - FT.fat_source
@@ -45,6 +47,7 @@ ingredients_ext:
   - ING.palm_oil
   - ING.coconut_oil
 - id: ING.high_oleic_sunflower_oil
+  ko: "고올레산 해바라기유"
   label: High-oleic sunflower oil
   function_tags:
   - FT.fat_source

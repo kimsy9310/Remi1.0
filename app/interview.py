@@ -50,6 +50,23 @@ GOAL_HINT = {
 UNSLOTTED = {"(실측에서 자동)", "(미분류)"}
 
 
+def _name(onto, ing_id, table_name):
+    """
+    재료 표시 이름.
+
+    팔레트 표의 '재료' 열은 사람이 고칠 수 있는 칸이라 손으로 적은 이름이
+    있으면 그것을 존중한다. 다만 실측에서 자동으로 만든 행은 영문 ID 가 그대로
+    들어가 있어서, 한글이 한 글자도 없으면 온톨로지의 한글 이름으로 바꾼다.
+    """
+    t = str(table_name or "").strip()
+    if t and any("가" <= c <= "힣" for c in t):
+        return t
+    try:
+        return onto.ing_label(ing_id)
+    except Exception:                                          # noqa: BLE001
+        return t or ing_id.replace("ING.", "")
+
+
 def axis_label(term_id, onto=None):
     """축의 표시 이름. 온톨로지를 주면 Layer L 의 한글 이름을 쓴다."""
     if onto is not None:
@@ -205,7 +222,7 @@ def ingredient_questions(ptab, onto, profile):
             moves = [f"{axis_label(t, onto)}{'↑' if e[t]['sign'] > 0 else '↓'}"
                      for t in core if t in e]
             items.append(dict(
-                id=g, label=r["재료"] or g.replace("ING.", ""),
+                id=g, label=_name(onto, g, r["재료"]),
                 grade=r["등급"], moves=moves,
                 bounds=(r["하한"], r["상한"]),
                 memo=r["메모"], why=r["범위근거"]))
@@ -240,15 +257,17 @@ def check(onto, iv, ptab):
         movers = [g for g in pal if t in (eff.get(g) or {})]
         if not movers:
             msgs.append(
-                f"**{axis_label(t, onto)}** 를 움직일 재료가 고른 것 중에 없습니다. "
-                f"그 축은 목표로 줘도 반응하지 않습니다.")
+                f"**{axis_label(t, onto)}** 를 바꿀 수 있는 재료가 고른 것 중에 "
+                f"없습니다. ③ 으로 돌아가 재료를 더 고르시면 반영됩니다.")
 
+    # 사용 범위가 없는 재료는 이제 나오지 않는다(온톨로지가 기능군 통상 사용량을
+    # 채운다). 그래도 표를 손으로 고쳐 비워 둔 경우가 있어 남겨 둔다.
     if ptab is not None:
         b = ptab.bounds(include_restricted=True)
         nob = [g for g in pal if g not in b and g != filler]
         if nob:
+            names = ", ".join(g.replace("ING.", "") for g in nob[:4])
             msgs.append(
-                f"작업 범위가 없는 재료 {len(nob)}종이 있습니다 — "
-                f"제안이 물리적으로 불가능한 값을 낼 수 있습니다: "
-                f"{[g.replace('ING.', '') for g in nob[:5]]}")
+                f"쓰는 양의 범위가 정해지지 않은 재료가 있습니다({names}). "
+                f"제안에 나온 양이 실제로 쓸 수 있는 양인지 확인해 주세요.")
     return msgs

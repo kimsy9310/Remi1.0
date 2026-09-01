@@ -156,6 +156,15 @@ class V2Ontology:
         ko = str((t or {}).get("ko", "")).strip()
         return ko or term_id.split(".")[-1]
 
+    def ing_label(self, ing_id):
+        """재료의 표시 이름. Layer C 의 ko 가 정본이고 없으면 영문 label."""
+        d = self.stack["ings"].get(ing_id) or {}
+        ko = str(d.get("ko", "")).strip()
+        if ko:
+            return ko
+        lab = str(d.get("label", "")).strip()
+        return lab.split("(")[0].strip() or ing_id.replace("ING.", "")
+
     def card_ko(self, profile, term_id):
         """M 카드의 한글 블록(앵커·평가 주의·함정). 없으면 빈 dict."""
         for c in self._ref.load_cards(profile, self.layers):
@@ -219,6 +228,163 @@ class V2Ontology:
     def candidates(self, profile):
         """이 프로파일에서 하나라도 축을 움직이는 재료들."""
         return [g for g, e in self.effects_for(profile).items() if e]
+
+    # ------------------------------------------------ 선례 없이 팔레트 세우기
+    def core_terms(self, profile):
+        """사용자에게 묻는 축. core 이면서 저장 격리(5.8)가 아닌 것."""
+        return [c["term_id"] for c in self._ref.load_cards(profile, self.layers)
+                if c["tier"] == "core" and c.get("evidence_required") != "sample_aged"]
+
+    def slot_of(self, ing_id, profile=None):
+        """
+        재료가 속한 기능군의 (태그 id, 한글 이름).
+
+        태그를 여럿 단 재료가 많아서 첫 번째를 집으면 엉뚱한 데로 간다 —
+        토마토 페이스트는 [착색료, 향료, 고형분, 감칠맛, 증점제] 인데 첫 태그를
+        쓰면 착색료(0~1%)가 되어 정작 쓰는 양을 담지 못한다. 그래서 **이
+        제형에서 그 재료가 실제로 움직이는 축**을 가장 잘 설명하는 태그를 고른다.
+        설명력이 같으면 사용 폭이 넓은 쪽을 쓴다 — 부재료가 아니라 주재료로
+        다루는 슬롯이라는 뜻이다.
+        """
+        fts = [f for f in (self.stack["ings"][ing_id].get("function_tags") or [])
+               if (self.stack["tags"].get(f) or {}).get("ko")]
+        if not fts:
+            return None, "기타"
+        if profile is None or len(fts) == 1:
+            ft = fts[0]
+            return ft, self.stack["tags"][ft]["ko"]
+
+        core = set(self.core_terms(profile))
+        scopes = set(self.profiles[profile]["scopes"])
+
+        def score(ft):
+            t = self.stack["tags"][ft]
+            hits = {e["to"] for e in (t.get("effects") or [])
+                    if e.get("to") in core
+                    and e.get("scoped_to_structure_class") in ("any", *scopes)}
+            width = float((t.get("typical_use_pct") or [0, 0])[1])
+            return (len(hits), width)
+
+        ft = max(fts, key=score)
+        return ft, self.stack["tags"][ft]["ko"]
+
+    def slot_bounds(self, profile, ft):
+        """
+        기능군의 사용 범위 (하한, 상한, 출처).
+
+        제형이 정하는 것은 제형에서 가져온다. 유지와 고형분은 제형에 따라
+        자릿수가 다르므로(음료 0.01~15%, 소스 5~75%) 기능군 표준값으로
+        뭉갤 수 없고, Layer S 가 정의 파라미터로 이미 가지고 있다.
+        """
+        import re
+        S_PARAM = {"FT.fat_source": ("P.fat_content", "P.oil_phase_fraction"),
+                   "FT.particulate": ("P.solids_volume_fraction",)}
+        for sp in self._s_candidates(profile):
+            for want in S_PARAM.get(ft, ()):
+                for p in (sp.get("parameters") or []):
+                    if p.get("id") != want:
+                        continue
+                    m = re.search(r"(\d*\.?\d+)\s*(?:-|~|to)\s*(\d*\.?\d+)",
+                                  str(p.get("plausible_range") or ""))
+                    if not m:
+                        continue
+                    lo, hi = float(m.group(1)), float(m.group(2))
+                    if hi <= 1.0:               # 분율로 적힌 파라미터는 % 로
+                        lo, hi = lo * 100.0, hi * 100.0
+                    return lo, hi, f"{sp.get('label', profile)} · {want}"
+        t = self.stack["tags"].get(ft) or {}
+        r = t.get("typical_use_pct")
+        if r:
+            return float(r[0]), float(r[1]), f"{t.get('ko', ft)} 기능군 통상 사용량"
+        return 0.0, 5.0, "기본값"
+
+    def default_palette(self, profile):
+        """
+        실측이 없어도 세울 수 있는 재료 후보.
+
+        온톨로지는 어떤 재료가 이 제형에서 어떤 축을 움직이는지 이미 안다.
+        없는 것은 "얼마나 쓰는가" 뿐이고 그것은 slot_bounds 가 채운다. 그래서
+        선례가 없는 제형도 막을 이유가 없다 — 처음 만드는 사람이야말로 이
+        도구가 필요한 사람이다.
+
+        기본 선택은 **사용자가 답한 축마다 대표 재료 하나**다. 그래야 사용자가
+        목표를 준 축을 하나도 빠짐없이 움직일 수 있는 배합에서 출발한다.
+        슬롯마다 앞의 두 개를 집는 방식은 여기서 쓰지 않는다 — 어떤 축은
+        재료가 하나도 없고 어떤 축은 셋씩 붙는다.
+
+        반환: [{온톨로지ID, 재료, 슬롯, 등급, 하한, 상한, 범위근거, 담당축, 메모}]
+        """
+        eff = self.effects_for(profile)
+        core = self.core_terms(profile)
+        filler = self.filler_of(profile)
+
+        # 축마다 대표 재료: 그 축을 가장 세게 움직이고, 겸사겸사 다른 축도
+        # 건드리는 재료를 앞세운다. 재료 수가 적을수록 사용자가 읽기 쉽다.
+        rep = {}
+        for t in core:
+            movers = [(g, e[t]) for g, e in eff.items() if t in e and g != filler]
+            if not movers:
+                continue
+            # 곁가지가 **적은** 재료를 앞세운다. 반대로 두면 고추장처럼 여러
+            # 축을 한꺼번에 건드리는 재료가 모든 축의 대표가 되어 버린다 —
+            # 아이스크림 감미료가 고추장이 되는 식이다. 배합을 처음 잡을 때
+            # 필요한 것은 축 하나에 레버 하나이고, 그래야 사용자가 슬라이더를
+            # 움직였을 때 무엇이 왜 변했는지 읽힌다.
+            movers.sort(key=lambda ge: (-ge[1]["mag"], len(eff[ge[0]]), ge[0]))
+            rep[t] = movers[0][0]
+        chosen = set(rep.values())
+
+        # 축을 덮는 것만으로는 제형이 서지 않는다. 굴소스 하나가 걸쭉함·크리미함·
+        # 코팅성을 다 건드린다고 해서 기름도 유화제도 없는 O/W 소스가 되지는
+        # 않는다. 제형이 요구하는 기능군(Layer S required_functions)에서는
+        # 축 커버리지와 무관하게 대표를 하나씩 넣는다.
+        req = []
+        for sp in self._s_candidates(profile):
+            req = sp.get("required_functions") or []
+            if req:
+                break
+        for ft in req:
+            if any(self.slot_of(g, profile)[0] == ft for g in chosen):
+                continue
+            pool = [g for g in eff
+                    if g != filler and self.slot_of(g, profile)[0] == ft]
+            if not pool:
+                continue
+            # 구조를 맡는 슬롯도 마찬가지로 전용에 가까운 재료가 낫다.
+            # 다만 축을 하나도 안 움직이는 재료를 뽑으면 사용자가 조종할 수 없다.
+            pool.sort(key=lambda g: (not [t for t in core if t in eff[g]],
+                                     len([t for t in core if t in eff[g]]), g))
+            chosen.add(pool[0])
+
+        rows = []
+        for g, e in sorted(eff.items()):
+            if not e and g != filler:
+                continue
+            ft, slot = self.slot_of(g, profile)
+            lo, hi, why = self.slot_bounds(profile, ft)
+            # 이 범위는 **기능군 합계**다. 하한을 재료마다 걸면 같은 슬롯에서
+            # 세 개를 고른 순간 하한이 세 배가 된다 — 아이스크림 지방 하한
+            # 10% 가 재료 3종이면 30% 가 되는 식이다. 그래서 하한은 0 으로
+            # 두고 근거 문구에만 남긴다. 상한은 재료 하나가 넘어설 수 없는
+            # 선이므로 그대로 쓴다(합계로는 여전히 느슨한 근사다).
+            if lo > 0:
+                why = f"{why} (기능군 합계 {lo:g}~{hi:g}%)"
+                lo = 0.0
+            moves = [f"{self.label(t)}{'↑' if e[t]['sign'] > 0 else '↓'}"
+                     for t in core if t in e]
+            if g == filler:
+                grade, lo, hi, why = "필수", 0.0, 100.0, "필러 — 나머지를 채운다"
+                slot = "베이스"
+            elif g in chosen:
+                grade = "권장"
+            else:
+                grade = "옵션"
+            rows.append(dict(
+                온톨로지ID=g,
+                재료=self.ing_label(g),
+                슬롯=slot, 등급=grade, 하한=lo, 상한=hi, 범위근거=why,
+                담당축=" ".join(moves), 메모="", 확인="온톨로지에서 자동"))
+        return rows
 
     # ---------------------------------------------------------------- 감사
     def audit(self):

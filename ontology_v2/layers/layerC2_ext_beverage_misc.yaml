@@ -6,6 +6,7 @@
 # =============================================================================
 ingredients_ext:
   - id: ING.lactic_acid
+    ko: "젖산"
     label: "Lactic acid"
     function_tags: [FT.acidulant]
     origin: plant
@@ -14,6 +15,7 @@ ingredients_ext:
     descriptors: { role: "lowers pH / raises titratable acidity; mild dairy-ish note" }
     substitutes: [ING.citric_acid_anhydrous]
   - id: ING.plant_extract
+    ko: "식물 추출물"
     label: "Plant extract (functionally inert here)"
     function_tags: []
     origin: plant

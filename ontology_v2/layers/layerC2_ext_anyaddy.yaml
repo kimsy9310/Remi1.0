@@ -9,6 +9,7 @@
 # =============================================================================
 ingredients_ext:
   - id: ING.anyaddy_an15
+    ko: "애니애디 AN15 (저점도 HPMC)"
     label: "AnyAddy AN15 (HPMC, low-viscosity cellulose ether)"
     function_tags: [FT.stabilizer, FT.fat_replacer, FT.emulsifier]
     origin: plant

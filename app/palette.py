@@ -148,6 +148,27 @@ class PaletteTable:
 
 
 # ------------------------------------------------------------------ 읽기/쓰기
+def from_ontology(profile, onto, variant=None):
+    """
+    선례가 없을 때 온톨로지만으로 세운 팔레트.
+
+    실측이 없다고 사용자를 막을 이유가 없다. 어떤 재료가 이 제형에서 어떤 축을
+    움직이는지는 온톨로지가 이미 알고, 모르는 것은 "얼마나 쓰는가" 뿐이며
+    그것은 기능군 통상 사용량과 Layer S 의 정의 파라미터가 채운다.
+
+    실측이 들어오면 build_palette 가 실제 사용 범위로 덮어쓴다.
+    """
+    rows = []
+    for r in onto.default_palette(profile):
+        d = {c: None for c in COLS}
+        d.update(r)
+        d["프로파일"] = profile
+        d["목적"] = variant or ""
+        d["메모"] = d.get("메모") or ""
+        rows.append(d)
+    return PaletteTable(profile=profile, rows=rows, path="", variant=variant)
+
+
 def load(profile, path=None, variant=None):
     """
     variant : 목적. None 이면 기본 행(목적이 빈 행)만 쓴다.

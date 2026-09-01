@@ -19,11 +19,17 @@
 # ---- NEW function tags ----
 function_tags_ext:
   - id: FT.flavorant
+    ko: "향료·풍미재"
+    typical_use_pct: [0, 3]
+    typical_use_basis: "선례가 없을 때 쓰는 기능군 통상 사용량. 실측이 들어오면 덮어쓴다. 재료의 limitations 가 자유 서술이라 기계가 읽지 못해 둔 값이다(G5)."
     label: "Flavorant"
     definition: "Ingredient whose main role is to contribute aroma/flavor character (a PROFILE of notes)."
     descriptor_relevance: [volatile_profile, potency, heat_stability]
     note: "Effects are declared per-ingredient as flavor_profile edges (below), not generic, because character is ingredient-specific."
   - id: FT.colorant
+    ko: "착색료"
+    typical_use_pct: [0, 1]
+    typical_use_basis: "선례가 없을 때 쓰는 기능군 통상 사용량. 실측이 들어오면 덮어쓴다. 재료의 limitations 가 자유 서술이라 기계가 읽지 못해 둔 값이다(G5)."
     label: "Colorant"
     definition: "Contributes color (often co-delivered by natural flavorants)."
     descriptor_relevance: [pigment]
@@ -34,6 +40,7 @@ function_tags_ext:
 ingredients_ext:
 
   - id: ING.strawberry_puree
+    ko: "딸기 퓨레"
     label: "Strawberry puree"
     function_tags: [FT.flavorant, FT.colorant, FT.sweetener, FT.acidulant]
     descriptors: { water: high, actives: "esters + furanones (Furaneol) volatiles, sugars, citric/malic acid, pelargonidin pigment" }
@@ -53,6 +60,7 @@ ingredients_ext:
     substitutes: [ING.strawberry_flavor_artificial]
 
   - id: ING.vanilla_extract
+    ko: "바닐라 추출물"
     label: "Vanilla extract"
     function_tags: [FT.flavorant]
     descriptors: { actives: "vanillin + minor aromatics", potency: high }
@@ -63,6 +71,7 @@ ingredients_ext:
     substitutes: []
 
   - id: ING.strawberry_flavor_artificial
+    ko: "딸기 합성향료"
     label: "Artificial strawberry flavor"
     function_tags: [FT.flavorant]
     descriptors: { potency: very_high, contributes_solids: false, contributes_color: false }

@@ -45,6 +45,7 @@ function_tag_refinements:
 ingredients_ext:
 
   - id: ING.coconut_oil
+    ko: "코코넛유"
     label: "Coconut oil"
     function_tags: [FT.fat_source]
     origin: plant
@@ -56,6 +57,7 @@ ingredients_ext:
       - { to: P.fat_content, scoped_to_structure_class: SC.frozen.ice_cream, direction: increase, magnitude: strong, source_type: prior, confidence: high, note: "high solid fat -> structure/body; enables partial coalescence" }
 
   - id: ING.pea_protein_isolate
+    ko: "완두 분리단백"
     label: "Pea protein isolate"
     function_tags: [FT.protein]
     origin: plant
@@ -71,6 +73,7 @@ ingredients_ext:
     substitutes: [ING.rice_protein, ING.soy_protein_isolate]
 
   - id: ING.soy_protein_isolate
+    ko: "대두 분리단백"
     label: "Soy protein isolate"
     function_tags: [FT.protein]
     origin: plant

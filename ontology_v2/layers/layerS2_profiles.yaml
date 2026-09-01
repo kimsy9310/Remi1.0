@@ -29,6 +29,8 @@ structure_profiles:
   application: APP.dessert
   state: ST.frozen
   label: Ice cream (aerated frozen dairy dessert)
+  required_functions: [FT.sweetener, FT.fat_source, FT.emulsifier, FT.stabilizer]
+  required_functions_note: '언 상태의 구조를 만드는 기능군. 당은 빙점강하·바디·단맛을 한꺼번에 지고, 지방구 망과 안정제가 얼음 재결정을 막는다. 하나라도 빠지면 제품이 아니라 얼음이 된다.'
   ko:
     label: '아이스크림 (공기를 넣어 얼린 유제품 디저트)'
     definition: '부분적으로 얼리고 공기를 넣은 수중유(O/W) 계다. 얼음 결정과 기포가 얼면서 농축된 점성 수상(水相)에 분산되어 있고, 지방구가 부분적으로 합쳐져 그물을 이룬다. 이 구조는 녹는 온도 아래에서만 존재한다.'
@@ -212,6 +214,8 @@ structure_profiles:
   application: APP.beverage
   state: null
   label: Oil-in-water emulsion beverage
+  required_functions: [FT.fat_source, FT.emulsifier]
+  required_functions_note: '분산상(기름)과 그것을 붙잡는 계면 활성이 없으면 O/W 에멀전이 아니다.'
   ko:
     label: '수중유 에멀전 음료'
     definition: '마실 수 있는 수상에 기름이 묽게 분산된 O/W 에멀전이다(기름이 ppm~수 % 수준인 경우가 많다). 기름 방울이 향유·백탁·색·지용성 성분을 실어 나른다. 핵심 품질은 눈에 보이는 기름 고리 없이 고르게 뿌연 상태를 유지하는 것이며, 점도가 낮아 액체로 마신다.'
@@ -356,6 +360,8 @@ structure_profiles:
   application: APP.sauce
   state: null
   label: Oil-in-water emulsion sauce
+  required_functions: [FT.fat_source, FT.emulsifier, FT.thickener]
+  required_functions_note: '분산상(기름)·계면 활성·수상 증점의 셋이 이 제형의 안정화 방식이다.'
   ko:
     label: '수중유 에멀전 소스'
     definition: '연속상이 물이고 기름 방울이 분산된 두 상(相) 계다. 계면의 유화제와 수상의 증점으로 속도론적으로 안정화된다. 따라 붓는 드레싱부터 마요네즈 같은 반고체 소스까지 아우른다.'
@@ -556,6 +562,8 @@ structure_profiles:
   application: null
   state: null
   label: Suspension (solid-in-liquid dispersion)
+  required_functions: [FT.particulate, FT.thickener]
+  required_functions_note: '분산될 고체와, 그것이 가라앉지 않게 하는 수상 증점이 이 제형의 뼈대다.'
   ko:
     label: '현탁액 (액체에 고체가 분산된 계)'
     definition: '녹지 않는 고체 입자가 연속된 액상에 분산된 계다. 불투명하고, 뚜렷한 기름층이 없으며, 젤 그물을 필요로 하지 않는다.'

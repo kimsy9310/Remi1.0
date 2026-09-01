@@ -17,6 +17,9 @@
 function_tags_ext:
 
   - id: FT.fat_replacer
+    ko: "지방 대체재"
+    typical_use_pct: [0, 5]
+    typical_use_basis: "선례가 없을 때 쓰는 기능군 통상 사용량. 실측이 들어오면 덮어쓴다. 재료의 limitations 가 자유 서술이라 기계가 읽지 못해 둔 값이다(G5)."
     label: "Fat replacer"
     definition: "Mimics fat's contribution to creaminess/body without fat; forms water-trapping microgel/gel network (~1 cal/g vs 9)."
     descriptor_relevance: [particle_size, water_binding]
@@ -27,6 +30,9 @@ function_tags_ext:
       - { to: P.meltdown_rate,      direction: increase, magnitude: weak,   scoped_to_structure_class: SC.frozen.ice_cream,   source_type: prior, confidence: low, note: "some fat replacers give faster melt" }
 
   - id: FT.bulking_agent
+    ko: "벌킹제 (증량)"
+    typical_use_pct: [0, 15]
+    typical_use_basis: "선례가 없을 때 쓰는 기능군 통상 사용량. 실측이 들어오면 덮어쓴다. 재료의 limitations 가 자유 서술이라 기계가 읽지 못해 둔 값이다(G5)."
     label: "Bulking agent"
     definition: "Adds solids/body/bulk WITHOUT sweetness and with little freezing-point effect (high MW)."
     descriptor_relevance: [MW]
@@ -35,6 +41,9 @@ function_tags_ext:
       - { to: P.apparent_viscosity, direction: increase, magnitude: weak, scoped_to_structure_class: SC.emulsion.ow.beverage, source_type: prior, confidence: medium, note: "restores body lost with sugar reduction" }
 
   - id: FT.fpd_agent
+    ko: "빙점 강하제"
+    typical_use_pct: [0, 10]
+    typical_use_basis: "선례가 없을 때 쓰는 기능군 통상 사용량. 실측이 들어오면 덮어쓴다. 재료의 limitations 가 자유 서술이라 기계가 읽지 못해 둔 값이다(G5)."
     label: "Freezing-point depressant"
     definition: "Colligative freezing-point control DECOUPLED from sweetness (e.g., polyols); lower MW = stronger FPD per weight."
     descriptor_relevance: [MW]
@@ -43,6 +52,9 @@ function_tags_ext:
       - { to: P.hardness, direction: decrease, magnitude: strong, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: high, note: "more FPD -> less ice -> softer/scoopable" }
 
   - id: FT.fat_source
+    ko: "유지 (지방원)"
+    typical_use_pct: [0, 20]
+    typical_use_basis: "선례가 없을 때 쓰는 기능군 통상 사용량. 실측이 들어오면 덮어쓴다. 재료의 limitations 가 자유 서술이라 기계가 읽지 못해 둔 값이다(G5)."
     label: "Fat source"
     definition: "Structuring fat; substrate for the partially-coalesced fat network."
     descriptor_relevance: [gel_melt_temp]
@@ -51,6 +63,9 @@ function_tags_ext:
       - { to: L.tx.body,   direction: increase, magnitude: strong, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: high }
 
   - id: FT.milk_protein
+    ko: "유단백 (무지유고형분)"
+    typical_use_pct: [0, 12]
+    typical_use_basis: "선례가 없을 때 쓰는 기능군 통상 사용량. 실측이 들어오면 덮어쓴다. 재료의 limitations 가 자유 서술이라 기계가 읽지 못해 둔 값이다(G5)."
     label: "Milk protein / MSNF"
     definition: "Milk solids-not-fat: casein/whey (+ lactose). Foam & emulsion stabilization, body."
     specializes: FT.protein            # RECONCILED v0.2: == FT.protein(source: milk); dairy-specific effects (lactose FPD/sandiness) below
@@ -64,6 +79,7 @@ function_tags_ext:
 ingredients_ext:
 
   - id: ING.modified_starch
+    ko: "변성전분"
     label: "Modified food starch"
     function_tags: [FT.thickener, FT.fat_replacer, FT.stabilizer]   # freeze-thaw stabilizer (merged v0.2)
     origin: plant
@@ -77,6 +93,7 @@ ingredients_ext:
       - { to: L.tx.creaminess, direction: increase, scoped_to_structure_class: SC.emulsion.ow.sauce, magnitude: strong, source_type: prior, confidence: high, note: "~4x more effective fat replacer than maltodextrin; enables oil below the creaminess floor" }
 
   - id: ING.maltodextrin
+    ko: "말토덱스트린"
     label: "Maltodextrin"
     function_tags: [FT.bulking_agent, FT.fat_replacer]
     descriptors: { MW: "moderate-high (low DE)", sweetness: low, water_binding: high }
@@ -85,18 +102,21 @@ ingredients_ext:
       - { to: P.freezing_point_depression, direction: increase, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: weak, source_type: prior, confidence: high, note: "little FPD effect -> good pure bulk/solids" }
 
   - id: ING.inulin
+    ko: "이눌린"
     label: "Inulin"
     function_tags: [FT.bulking_agent, FT.fat_replacer]
     descriptors: { MW: moderate, fiber: true }
     substitutes: [ING.maltodextrin, ING.polydextrose]
 
   - id: ING.polydextrose
+    ko: "폴리덱스트로스"
     label: "Polydextrose"
     function_tags: [FT.bulking_agent]
     descriptors: { MW: moderate, fiber: true, sweetness: low }
     substitutes: [ING.maltodextrin, ING.inulin]
 
   - id: ING.sugar_alcohol
+    ko: "당알코올"
     label: "Sugar alcohol / polyol (erythritol, maltitol, xylitol)"
     function_tags: [FT.fpd_agent, FT.sweetener]
     descriptors: { MW: low, sweetness: "partial", cooling_effect: true }
@@ -105,6 +125,7 @@ ingredients_ext:
       - { to: P.freezing_point_depression, direction: increase, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: strong, source_type: prior, confidence: high, note: "stronger FPD than sugar per weight -> lower dose; blends tune the freezing curve" }
 
   - id: ING.dextrose
+    ko: "포도당"
     label: "Dextrose (glucose)"
     function_tags: [FT.sweetener, FT.fpd_agent]
     descriptors: { MW: 180, sweetness: moderate }
@@ -113,6 +134,7 @@ ingredients_ext:
       - { to: P.freezing_point_depression, direction: increase, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: strong, source_type: prior, confidence: high, note: "monosaccharide ~2x FPD of sucrose per mole" }
 
   - id: ING.glucose_syrup
+    ko: "물엿 (포도당 시럽)"
     label: "Glucose syrup / corn syrup solids"
     function_tags: [FT.sweetener, FT.bulking_agent]
     descriptors: { DE: variable, sweetness: "low-moderate" }
@@ -121,6 +143,7 @@ ingredients_ext:
       - { to: P.mix_viscosity, direction: increase, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: medium, source_type: prior, confidence: medium, note: "raises Tg' (storage stability), body; less sweet, moderate FPD" }
 
   - id: ING.high_intensity_sweetener
+    ko: "고감미도 감미료"
     label: "High-intensity sweetener (sucralose, stevia)"
     function_tags: [FT.sweetener]
     descriptors: { potency: "100-600x sucrose", contributes_solids: false }
@@ -129,6 +152,7 @@ ingredients_ext:
       - { to: L.ta.sweet, direction: increase, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: strong, source_type: prior, confidence: high, note: "sweetness ONLY - NO body, NO FPD; must pair with bulking_agent + fpd_agent (see LESSON.sugar_triple_role)" }
 
   - id: ING.carrageenan
+    ko: "카라기난 (카파형)"
     label: "Carrageenan (리파인드 — 카파형 가정)"
     function_tags: [FT.stabilizer, FT.thickener]   # PRIMARY stabilizer (anti-wheying); weak thickener (merged v0.2)
     origin: plant                                  # seaweed-derived
@@ -140,6 +164,7 @@ ingredients_ext:
       - { to: P.creaming_index, scoped_to_structure_class: SC.frozen.ice_cream, direction: decrease, magnitude: medium, source_type: prior, confidence: medium, note: "secondary stabilizer: prevents wheying-off / serum separation" }
 
   - id: ING.cmc
+    ko: "카복시메틸셀룰로스 (CMC)"
     label: "Carboxymethyl cellulose (CMC)"
     function_tags: [FT.thickener, FT.stabilizer]   # dual role (merged v0.2)
     origin: plant                                  # cellulose-derived
@@ -149,6 +174,7 @@ ingredients_ext:
     substitutes: [ING.guar_gum, ING.carrageenan]
 
   - id: ING.cream
+    ko: "생크림 (유지방)"
     label: "Cream / milk fat"
     function_tags: [FT.fat_source]
     descriptors: { source: milk, gel_melt_temp: "milk-fat SFC profile" }   # FT.fat_source source:milk (merged v0.2)
@@ -158,6 +184,7 @@ ingredients_ext:
     substitutes: [ING.coconut_oil]
 
   - id: ING.skim_milk_powder
+    ko: "탈지분유"
     label: "Skim milk powder (MSNF)"
     function_tags: [FT.protein, FT.milk_protein]   # RECONCILED v0.2: milk_protein == FT.protein(source:milk)
     descriptors: { source: milk, charge: "casein/whey", lactose: true }
@@ -167,6 +194,7 @@ ingredients_ext:
     substitutes: [ING.pea_protein_isolate, ING.rice_protein]
 
   - id: ING.lecithin
+    ko: "레시틴"
     label: "Lecithin"
     function_tags: [FT.emulsifier]
     descriptors: { HLB: "4-7", solubility: amphiphilic }

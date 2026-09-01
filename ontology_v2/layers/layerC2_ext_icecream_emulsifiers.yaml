@@ -9,6 +9,7 @@
 # =============================================================================
 ingredients_ext:
   - id: ING.sucrose_ester_s1170
+    ko: "자당지방산에스테르 S-1170 (HLB 11)"
     label: "Sucrose fatty acid ester S-1170 (HLB 11)"
     function_tags: [FT.emulsifier]
     origin: synthetic
@@ -18,6 +19,7 @@ ingredients_ext:
     substitutes: [ING.sucrose_ester_s1670, ING.dmg95]
 
   - id: ING.soyacell
+    ko: "소야셀 (대두 유래 부분 유화제)"
     label: "Soyacell (soy-derived amphiphilic partial emulsifier)"
     function_tags: [FT.emulsifier]
     origin: plant

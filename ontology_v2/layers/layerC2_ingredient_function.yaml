@@ -36,6 +36,9 @@ descriptor_schema:                # starter set for the ingredient feature vecto
 function_tags:
 
   - id: FT.emulsifier
+    ko: "유화제"
+    typical_use_pct: [0, 1.5]
+    typical_use_basis: "선례가 없을 때 쓰는 기능군 통상 사용량. 실측이 들어오면 덮어쓴다. 재료의 limitations 가 자유 서술이라 기계가 읽지 못해 둔 값이다(G5)."
     label: "Emulsifier"
     definition: "Interfacially active; adsorbs at oil-water interface."
     descriptor_relevance: [HLB]
@@ -48,6 +51,9 @@ function_tags:
       - { to: L.tx.creaminess,        direction: increase, magnitude: medium, scoped_to_structure_class: SC.frozen.ice_cream,    source_type: prior, confidence: medium }
 
   - id: FT.thickener
+    ko: "증점제 (하이드로콜로이드)"
+    typical_use_pct: [0, 1]
+    typical_use_basis: "선례가 없을 때 쓰는 기능군 통상 사용량. 실측이 들어오면 덮어쓴다. 재료의 limitations 가 자유 서술이라 기계가 읽지 못해 둔 값이다(G5)."
     label: "Thickener / hydrocolloid"
     definition: "Raises continuous(aqueous)-phase viscosity; non-interfacial. VISCOSITY/thickness ONLY - time-stability effects moved to FT.stabilizer (see layerC_ext_stabilizer.yaml, merged v0.2)."
     descriptor_relevance: [MW, solubility]
@@ -58,6 +64,9 @@ function_tags:
     # ice_recrystallization@ice_cream) retired here and now owned by FT.stabilizer.
 
   - id: FT.sweetener
+    ko: "감미료·당류"
+    typical_use_pct: [0, 25]
+    typical_use_basis: "선례가 없을 때 쓰는 기능군 통상 사용량. 실측이 들어오면 덮어쓴다. 재료의 limitations 가 자유 서술이라 기계가 읽지 못해 둔 값이다(G5)."
     label: "Sweetener / sugar"
     definition: "Delivers sweetness; sugars also add solids/body and depress freezing point."
     descriptor_relevance: [MW, solubility]
@@ -67,6 +76,9 @@ function_tags:
       - { to: P.freezing_point_depression, direction: increase, magnitude: strong, scoped_to_structure_class: SC.frozen.ice_cream, conditions: "depends on molar concentration -> low MW depresses more", source_type: prior, confidence: high, note: "TRIPLE role: FPD + body + sweetness" }
 
   - id: FT.weighting_agent
+    ko: "비중 조절제"
+    typical_use_pct: [0, 0.3]
+    typical_use_basis: "선례가 없을 때 쓰는 기능군 통상 사용량. 실측이 들어오면 덮어쓴다. 재료의 limitations 가 자유 서술이라 기계가 읽지 못해 둔 값이다(G5)."
     label: "Weighting agent"
     definition: "Raises dispersed oil-droplet density to match the aqueous phase."
     descriptor_relevance: [solubility]
@@ -75,6 +87,9 @@ function_tags:
       - { to: P.ring_formation,     direction: decrease, magnitude: strong, scoped_to_structure_class: SC.emulsion.ow.beverage, source_type: prior, confidence: high }
 
   - id: FT.acidulant
+    ko: "산미료"
+    typical_use_pct: [0, 2]
+    typical_use_basis: "선례가 없을 때 쓰는 기능군 통상 사용량. 실측이 들어오면 덮어쓴다. 재료의 limitations 가 자유 서술이라 기계가 읽지 못해 둔 값이다(G5)."
     label: "Acidulant"
     definition: "Lowers pH / raises titratable acidity."
     effects:
@@ -87,6 +102,7 @@ function_tags:
 ingredients:
 
   - id: ING.mono_diglycerides
+    ko: "모노·디글리세라이드"
     label: "Mono- and diglycerides (MDG)"
     external_ref: { foodon: pending_lookup, usda_fdc: "n/a (additive)" }   # URI mapping = verification-pending (do not assert unverified IDs)
     function_tags: [FT.emulsifier]
@@ -100,6 +116,7 @@ ingredients:
       - { to: P.fat_destabilization, direction: increase, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: medium, source_type: prior, confidence: high, note: "weaker fat destabilizer than polysorbate 80" }
 
   - id: ING.polysorbate_80
+    ko: "폴리소르베이트 80"
     label: "Polysorbate 80"
     external_ref: { foodon: pending_lookup, usda_fdc: "n/a (additive)" }
     function_tags: [FT.emulsifier]
@@ -114,6 +131,7 @@ ingredients:
       - { to: P.fat_destabilization, direction: increase, scoped_to_structure_class: SC.frozen.ice_cream, magnitude: strong, source_type: prior, confidence: high, note: "displaces MORE protein -> stronger destabilization; best in blend with MDG" }
 
   - id: ING.egg_yolk
+    ko: "난황"
     label: "Egg yolk"
     external_ref: { foodon: pending_lookup, usda_fdc: pending_lookup }   # legacy SR ~01125 (egg yolk raw) - verify FDC ID before asserting
     function_tags: [FT.emulsifier]
@@ -127,6 +145,7 @@ ingredients:
       - { to: P.droplet_size_d32, direction: decrease, scoped_to_structure_class: SC.emulsion.ow.sauce, magnitude: strong, source_type: prior, confidence: high, note: "classic mayonnaise O/W emulsifier" }
 
   - id: ING.xanthan_gum
+    ko: "잔탄검"
     label: "Xanthan gum"
     external_ref: { foodon: pending_lookup, usda_fdc: "n/a (additive)" }
     function_tags: [FT.thickener, FT.stabilizer]   # dual role (merged v0.2)
@@ -139,6 +158,7 @@ ingredients:
     substitutes: [ING.guar_gum, ING.locust_bean_gum]
 
   - id: ING.guar_gum
+    ko: "구아검"
     label: "Guar gum"
     external_ref: { foodon: pending_lookup, usda_fdc: "n/a (additive)" }
     function_tags: [FT.thickener, FT.stabilizer]   # dual role (merged v0.2)
@@ -149,6 +169,7 @@ ingredients:
     substitutes: [ING.xanthan_gum, ING.locust_bean_gum]
 
   - id: ING.locust_bean_gum
+    ko: "로커스트빈검 (LBG)"
     label: "Locust bean gum (LBG)"
     external_ref: { foodon: "to map", usda_fdc: "n/a (additive)" }
     function_tags: [FT.thickener, FT.stabilizer]   # dual role (merged v0.2)
@@ -159,6 +180,7 @@ ingredients:
     substitutes: [ING.guar_gum]
 
   - id: ING.sucrose
+    ko: "설탕"
     label: "Sucrose"
     external_ref: { foodon: pending_lookup, usda_fdc: pending_lookup }   # legacy SR ~19335 (sugars, granulated) - verify FDC ID before asserting
     function_tags: [FT.sweetener]

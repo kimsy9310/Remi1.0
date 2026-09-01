@@ -2,6 +2,7 @@
 # ING.water did not exist in v1 Layer C; every profile's filler references it.
 ingredients_ext:
   - id: ING.water
+    ko: "물"
     label: "Water (continuous phase / filler)"
     function_tags: []
     origin: mineral

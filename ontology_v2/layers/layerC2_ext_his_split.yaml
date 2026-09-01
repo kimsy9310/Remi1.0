@@ -33,6 +33,7 @@ ingredients_ext:
 
 # ---------------------------------------------------------------- 개별 감미료
 - id: ING.stevia_reb_a
+  ko: "스테비아 (레바우디오사이드 A)"
   label: "Stevia (rebaudioside A)"
   label_ko: "스테비아(레바우디오사이드 A)"
   function_tags: [FT.sweetener]
@@ -52,6 +53,7 @@ ingredients_ext:
   - { type: dose, statement: "설탕 대비 감미도 200-300배. 벌크와 FPD 가 없어 다른 재료로 메워야 한다" }
 
 - id: ING.sucralose
+  ko: "수크랄로스"
   label: "Sucralose"
   label_ko: "수크랄로스"
   function_tags: [FT.sweetener]
@@ -69,6 +71,7 @@ ingredients_ext:
   - { type: label, statement: "합성 감미료 — 클린라벨 지향 제품과 상충" }
 
 - id: ING.acesulfame_k
+  ko: "아세설팜칼륨"
   label: "Acesulfame potassium"
   label_ko: "아세설팜칼륨"
   function_tags: [FT.sweetener]
@@ -84,6 +87,7 @@ ingredients_ext:
       note: "단독 고용량에서 두드러진다. 블렌드로 완화하는 것이 통상." }
 
 - id: ING.aspartame
+  ko: "아스파탐"
   label: "Aspartame"
   label_ko: "아스파탐"
   function_tags: [FT.sweetener]

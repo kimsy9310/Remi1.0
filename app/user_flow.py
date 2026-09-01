@@ -57,12 +57,9 @@ def render(onto, load_palette, build_model, propose_fn):
     # ================================================== ① 무엇을 만드나
     if step == 0:
         st.subheader("무엇을 만드시나요?")
-        choices = iq.product_choices(onto, load_palette)
-        labels = [
-            c["label"]
-            + ("  (제품)" if c["is_product"] else "")
-            + ("" if c["ready"] else "  — 재료 표 없음")
-            for c in choices]
+        choices = iq.product_choices(onto)
+        labels = [c["label"] + ("  (제품)" if c["is_product"] else "")
+                  for c in choices]
         idx = 0
         if iv.profile:
             for i, c in enumerate(choices):
@@ -71,9 +68,11 @@ def render(onto, load_palette, build_model, propose_fn):
         pick = st.radio("제품 종류", range(len(choices)),
                         format_func=lambda i: labels[i], index=idx)
         ch = choices[pick]
-        st.caption(ch["definition"])
-        if ch["boundary"]:
-            st.caption(f"경계: {ch['boundary']}")
+        # 정의만 보여 준다. boundary_note 는 "SC.solution 과의 경계는..." 처럼
+        # 이 제형이 아닌 것을 가려내는 글이라 온톨로지를 다루는 사람에게는
+        # 필요하지만 만들 사람에게는 첫 화면부터 벽이 된다.
+        if ch["definition"]:
+            st.caption(ch["definition"])
 
         vars_ = _variants(onto, ch["profile"])
         variant = None
@@ -89,13 +88,7 @@ def render(onto, load_palette, build_model, propose_fn):
         bm = st.text_input("예: 시중 ○○ 제품, 지난 시제품 3번",
                            value=iv.benchmark, placeholder="이름만 적어두셔도 됩니다")
 
-        if not ch["ready"]:
-            st.warning(
-                "이 제품은 아직 쓸 재료 표가 없습니다. 전문가 화면 ④ 팔레트에서 "
-                "재료와 사용 범위를 정해 두면 여기서 고를 수 있게 됩니다.",
-                icon="🚧")
-
-        if st.button("다음", type="primary", disabled=not ch["ready"]):
+        if st.button("다음", type="primary"):
             if iv.profile != ch["profile"]:
                 iv.goals, iv.chosen, iv.free_axes = {}, {}, []   # 제품이 바뀌면 초기화
             iv.profile, iv.variant, iv.benchmark = ch["profile"], variant, bm
@@ -156,24 +149,21 @@ def render(onto, load_palette, build_model, propose_fn):
     elif step == 2:
         st.subheader("무엇을 쓰시나요?")
         ptab = load_palette(iv.profile, iv.variant)
-        usable = [r for r in ptab.rows if r["등급"] != "제외"] if ptab else []
-        if not usable:
-            st.error("이 제품의 재료 표가 비어 있습니다. 전문가 화면 ④ 팔레트에서 "
-                     "재료와 사용 범위를 정해 주세요.")
+        if ptab is None or not [r for r in ptab.rows if r["등급"] != "제외"]:
+            st.info("재료 후보를 세우는 중입니다. 잠시 후 다시 시도해 주세요.")
             if st.button("← 이전"):
                 _goto(1); st.rerun()
             return
         st.caption("가지고 계신 재료만 고르세요. 고르지 않은 재료는 배합에 쓰이지 않습니다. "
-                   "각 재료 옆의 화살표는 그 재료가 무엇을 움직이는지입니다.")
+                   "각 재료 옆의 화살표는 그 재료가 무엇을 움직이는지입니다. "
+                   "그대로 두셔도 됩니다 — 미리 골라 둔 조합으로 제안이 나갑니다.")
 
         groups = iq.ingredient_questions(ptab, onto, iv.profile)
         for g in groups:
             head = f"**{g['slot']}**" + ("  · 필수" if g["required"] else "")
             with st.expander(head, expanded=g["required"] or bool(iv.chosen.get(g["slot"]))):
                 if g.get("unslotted"):
-                    st.caption(
-                        "이 제품은 재료 역할이 아직 나뉘어 있지 않아 실측에 쓰인 재료를 "
-                        "그대로 보여 드립니다. 전부 켜 둔 상태가 기본입니다.")
+                    st.caption("이전 실험에 쓰인 재료입니다. 전부 켜 둔 상태가 기본입니다.")
                 opts = [i["id"] for i in g["items"]]
                 lab = {i["id"]: i for i in g["items"]}
                 default = iv.chosen.get(g["slot"], g["default"])
@@ -181,19 +171,19 @@ def render(onto, load_palette, build_model, propose_fn):
                     " ", opts,
                     default=[x for x in default if x in opts],
                     format_func=lambda x: (
-                        f"{lab[x]['label']}  [{lab[x]['grade']}]"
-                        + (f"  {' '.join(lab[x]['moves'])}" if lab[x]["moves"] else "  (조종 안 됨)")),
+                        lab[x]["label"]
+                        + (f"  {' '.join(lab[x]['moves'])}" if lab[x]["moves"] else "")),
                     key=f"uf_ing_{g['slot']}", label_visibility="collapsed")
                 iv.chosen[g["slot"]] = sel
                 for x in sel:
                     it = lab[x]
                     bits = []
-                    if it["bounds"][0] is not None:
-                        bits.append(f"범위 {it['bounds'][0]:g}~{it['bounds'][1]:g}%")
+                    if it["bounds"][1] is not None:
+                        bits.append(f"보통 {it['bounds'][1]:g}% 까지 씁니다")
                     if it["grade"] == "제한":
-                        bits.append("⚠️ 제한 등급 — 목표와 상충할 수 있습니다")
+                        bits.append("적게 쓰는 것이 좋은 재료입니다")
                     if not it["moves"]:
-                        bits.append("이 제품에서는 목표축을 움직이지 못합니다")
+                        bits.append("맛을 바꾸기보다 제품의 꼴을 잡는 재료입니다")
                     if bits:
                         st.caption(f"· {it['label']}: " + " · ".join(bits))
 
@@ -228,9 +218,9 @@ def render(onto, load_palette, build_model, propose_fn):
             x0[built.palette.index(g)] = built.zbar[i]
         rest = 100.0 - x0.sum()
         if rest < 0:
-            st.error(
-                f"고른 재료의 기본량 합이 {x0.sum():.1f}% 로 100 을 넘습니다. "
-                f"재료를 줄이거나 범위를 낮춰 주세요.")
+            st.warning(
+                "고른 재료를 모두 넣으면 100% 를 넘습니다. ③ 으로 돌아가 재료를 "
+                "몇 가지 빼 주세요.", icon="⚠️")
             if st.button("← 재료 다시 고르기"):
                 _goto(2); st.rerun()
             return
@@ -246,15 +236,24 @@ def render(onto, load_palette, build_model, propose_fn):
             st.error(f"제안에 실패했습니다: {e}")
             return
 
+        name = {r["온톨로지ID"]: iq._name(onto, r["온톨로지ID"], r["재료"])
+                for r in (ptab.rows if ptab else [])}
+        for g in built.palette:
+            name.setdefault(g, iq._name(onto, g, None))
+
         st.markdown("##### 배합")
         rows = []
-        for g, v in zip(built.palette, x):
-            if v <= 1e-4 and g != built.filler:
+        for g, v, v0 in zip(built.palette, x, x0):
+            if v <= 1e-4 and v0 <= 1e-4:
                 continue
-            rows.append({"재료": g.replace("ING.", ""), "%": round(float(v), 3)})
+            d = float(v) - float(v0)
+            rows.append({"재료": name.get(g, g.replace("ING.", "")),
+                         "%": round(float(v), 3),
+                         "출발점 대비": ("—" if abs(d) < 5e-4 else f"{d:+.3f}")})
         rows.sort(key=lambda r: -r["%"])
         st.dataframe(rows, use_container_width=True, hide_index=True)
-        st.caption(f"합계 {x.sum():.2f}%")
+        st.caption(f"합계 {x.sum():.2f}%  ·  '출발점 대비' 는 목표를 맞추려고 "
+                   f"이 도구가 움직인 양입니다.")
 
         y = built.model.predict(x[None, :])[0]
         st.markdown("##### 기준 대비 예상")
@@ -268,23 +267,61 @@ def render(onto, load_palette, build_model, propose_fn):
             use_container_width=True, hide_index=True)
 
         if np.abs(y).max() > 3.0:
-            st.error(
-                f"예상이 ±3 척도를 벗어났습니다(최대 {np.abs(y).max():.1f}). "
-                f"재료 범위가 너무 넓을 수 있습니다 — 전문가 화면에서 확인하세요.",
-                icon="🚨")
+            st.warning(
+                "목표가 이 재료들로 갈 수 있는 범위를 넘어섭니다. 목표를 조금 "
+                "낮추거나 ③ 에서 재료를 더 고르시면 현실적인 배합이 나옵니다.",
+                icon="⚠️")
 
-        with st.expander("이 배합이 나온 근거"):
-            st.write(built.report())
-            st.caption(
-                "실측 데이터가 없으면 온톨로지의 사전값만으로 낸 제안입니다. "
-                "만들어 평가한 결과를 전문가 화면 ⑤ 실험 입력에 넣으면 "
-                "다음 제안부터 그 데이터가 반영됩니다.")
+        with st.expander("왜 이렇게 나왔나요"):
+            _why(onto, built, iv, tgt, x, x0, name)
 
         c1, c2 = st.columns(2)
         if c1.button("← 재료 다시 고르기"):
             _goto(2); st.rerun()
         if c2.button("목표 다시 정하기"):
             _goto(1); st.rerun()
+
+
+def _why(onto, built, iv, tgt, x, x0, name):
+    """
+    제안의 근거를 사람 말로.
+
+    엔진의 report() 는 Γ₀ 비영 계수와 Λ 확신도를 찍는다 — 모형을 손보는
+    사람에게는 맞는 말이지만, 만들 사람이 알고 싶은 것은 "내가 올려 달라고 한
+    축을 무엇으로 올렸나" 하나다. 같은 사실을 그 질문에 맞춰 다시 쓴다.
+    """
+    eff = onto.effects_for(iv.profile)
+    moved = sorted(
+        ((g, float(v) - float(v0)) for g, v, v0 in zip(built.palette, x, x0)),
+        key=lambda gv: -abs(gv[1]))
+
+    said = [t for t in built.y_terms
+            if t not in iv.free_axes and abs(tgt.get(t, 0.0)) > 1e-9]
+    if said:
+        st.markdown("**바꿔 달라고 하신 것**")
+        for t in said:
+            lv = [(g, d) for g, d in moved
+                  if abs(d) > 5e-4 and t in (eff.get(g) or {})]
+            if not lv:
+                st.write(f"- {onto.label(t)}: 움직일 재료가 없어 그대로입니다.")
+                continue
+            bits = ", ".join(
+                f"{name.get(g, g.replace('ING.', ''))} {d:+.2f}%"
+                for g, d in lv[:3])
+            st.write(f"- {onto.label(t)}: {bits}")
+    else:
+        st.write("바꿔 달라고 하신 축이 없어, 기준과 같게 맞춘 배합입니다.")
+
+    st.markdown("**이 숫자를 얼마나 믿을 수 있나요**")
+    st.write("- 재료가 무엇을 하는지에 대한 일반 지식으로 계산했습니다. "
+             "방향은 믿을 만하지만 크기는 어긋날 수 있습니다.")
+    st.write("- 이 배합을 한 번 만들어 맛을 평가해 넣으시면, 다음 제안부터 "
+             "그 결과가 반영되어 훨씬 정확해집니다.")
+    thin = [onto.label(t) for t in said
+            if len([g for g in built.palette if t in (eff.get(g) or {})]) < 2]
+    if thin:
+        st.write(f"- {', '.join(thin)} 은(는) 손댈 재료가 하나뿐이라 "
+                 f"조절 폭이 좁습니다.")
 
 
 def _variants(onto, profile):

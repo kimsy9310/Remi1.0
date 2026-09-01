@@ -10,6 +10,7 @@
 # =============================================================================
 ingredients_ext:
   - id: ING.vegan_creamer
+    ko: "비건 크리머 분말"
     label: "Vegan creamer powder (fat + emulsifier blend)"
     function_tags: [FT.fat_source, FT.emulsifier]
     origin: plant
@@ -22,6 +23,7 @@ ingredients_ext:
     substitutes: [ING.high_fat_powder, ING.cream]
 
   - id: ING.high_fat_powder
+    ko: "고지방 분말유지"
     label: "High-fat powder (spray-dried coconut fat on dextrin, >80% fat)"
     function_tags: [FT.fat_source]
     origin: plant
@@ -34,6 +36,7 @@ ingredients_ext:
     substitutes: [ING.coconut_oil, ING.vegan_creamer]
 
   - id: ING.emulaid
+    ko: "OSA 전분 유화제 (에멀에이드)"
     label: "OSA-modified starch emulsifier (octenyl succinic anhydride)"
     function_tags: [FT.emulsifier]
     origin: plant
@@ -45,6 +48,7 @@ ingredients_ext:
     substitutes: [ING.sucrose_ester, ING.mono_diglycerides]
 
   - id: ING.arabic_gum
+    ko: "아라비아검"
     label: "Gum arabic (acacia)"
     function_tags: [FT.emulsifier, FT.stabilizer]
     origin: plant
@@ -54,6 +58,7 @@ ingredients_ext:
     substitutes: [ING.cmc, ING.carrageenan]
 
   - id: ING.microcrystalline_cellulose
+    ko: "미결정셀룰로스 (MCC)"
     label: "Microcrystalline cellulose (MCC)"
     function_tags: [FT.fat_replacer, FT.stabilizer]
     origin: plant
@@ -63,6 +68,7 @@ ingredients_ext:
     substitutes: [ING.modified_starch, ING.maltodextrin]
 
   - id: ING.sodium_citrate
+    ko: "구연산나트륨"
     label: "Sodium citrate (buffer / sequestrant)"
     function_tags: [FT.stabilizer]
     origin: synthetic
@@ -71,6 +77,7 @@ ingredients_ext:
     descriptors: { role: "pH buffer + protein/emulsion stabilization (sequestrant)" }
 
   - id: ING.citric_acid
+    ko: "구연산"
     label: "Citric acid"
     function_tags: [FT.acidulant]
     origin: plant
@@ -78,6 +85,7 @@ ingredients_ext:
     vegan_ok: true
 
   - id: ING.salt
+    ko: "소금"
     label: "Salt (sodium chloride)"
     function_tags: []
     origin: mineral
@@ -86,6 +94,7 @@ ingredients_ext:
     descriptors: { role: "flavor enhancer; boosts perceived richness, suppresses bitterness" }
 
   - id: ING.rice_bran_emulsifier
+    ko: "미강 유화제"
     label: "Rice bran emulsifier"
     function_tags: [FT.emulsifier]
     origin: plant

@@ -76,14 +76,25 @@ def variants_of(profile):
 
 
 def load_palette(profile, variant=None):
-    """팔레트 표. 없거나 이 프로파일 행이 없으면 None 을 준다(앱은 계속 돈다)."""
+    """
+    이 프로파일의 재료 표.
+
+    표에 이 프로파일 행이 없으면 온톨로지에서 세운다. 선례가 없다는 이유로
+    사용자를 막지 않는다 — 처음 만드는 사람이야말로 이 도구가 필요한 사람이다.
+    """
+    t = None
     try:
         t = get_palette(profile, os.path.getmtime(pal.DEFAULT_PATH), variant)
-        return t if t.rows else None
     except FileNotFoundError:
-        return None
+        pass
     except Exception as e:                                        # noqa: BLE001
         st.sidebar.error(f"팔레트 표를 읽지 못했습니다: {e}")
+    if t is not None and t.rows:
+        return t
+    try:
+        return pal.from_ontology(profile, onto, variant)
+    except Exception as e:                                        # noqa: BLE001
+        st.sidebar.error(f"재료 후보를 세우지 못했습니다: {e}")
         return None
 
 
@@ -102,7 +113,11 @@ def axis_label(t):
 
 
 def ing_label(g):
-    return g.replace("ING.", "")
+    """재료 이름은 Layer C 의 ko 가 정본이다(V2Ontology.ing_label)."""
+    try:
+        return get_onto().ing_label(g)
+    except Exception:                                             # noqa: BLE001
+        return g.replace("ING.", "")
 
 
 # ---------------------------------------------------------------- 사이드바
