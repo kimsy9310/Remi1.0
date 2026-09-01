@@ -29,6 +29,9 @@ structure_profiles:
   application: APP.dessert
   state: ST.frozen
   label: Ice cream (aerated frozen dairy dessert)
+  ko:
+    label: '아이스크림 (공기를 넣어 얼린 유제품 디저트)'
+    definition: '부분적으로 얼리고 공기를 넣은 수중유(O/W) 계다. 얼음 결정과 기포가 얼면서 농축된 점성 수상(水相)에 분산되어 있고, 지방구가 부분적으로 합쳐져 그물을 이룬다. 이 구조는 녹는 온도 아래에서만 존재한다.'
   definition: 'A partially frozen, aerated O/W system: air cells and ice crystals dispersed in a viscous, freeze-concentrated
     aqueous serum, with a partially-coalesced fat globule network. Structure exists only below its melting range.'
   dominant_axes:
@@ -209,6 +212,9 @@ structure_profiles:
   application: APP.beverage
   state: null
   label: Oil-in-water emulsion beverage
+  ko:
+    label: '수중유 에멀전 음료'
+    definition: '마실 수 있는 수상에 기름이 묽게 분산된 O/W 에멀전이다(기름이 ppm~수 % 수준인 경우가 많다). 기름 방울이 향유·백탁·색·지용성 성분을 실어 나른다. 핵심 품질은 눈에 보이는 기름 고리 없이 고르게 뿌연 상태를 유지하는 것이며, 점도가 낮아 액체로 마신다.'
   definition: A DILUTE O/W emulsion (oil often ppm-to-low-percent) dispersed in a drinkable aqueous phase. Oil droplets
     carry flavor oil, cloud, color or fat-soluble actives. Key quality is a STABLE CLOUD (uniform turbidity) with
     no visible oil ring; the system is low-viscosity and consumed as a liquid.
@@ -350,6 +356,9 @@ structure_profiles:
   application: APP.sauce
   state: null
   label: Oil-in-water emulsion sauce
+  ko:
+    label: '수중유 에멀전 소스'
+    definition: '연속상이 물이고 기름 방울이 분산된 두 상(相) 계다. 계면의 유화제와 수상의 증점으로 속도론적으로 안정화된다. 따라 붓는 드레싱부터 마요네즈 같은 반고체 소스까지 아우른다.'
   definition: A two-phase system with a continuous aqueous phase and dispersed oil droplets, kinetically stabilized
     by interfacial emulsifier and by aqueous-phase thickening. Covers pourable dressings through semi-solid mayonnaise-type
     sauces.
@@ -547,6 +556,10 @@ structure_profiles:
   application: null
   state: null
   label: Suspension (solid-in-liquid dispersion)
+  ko:
+    label: '현탁액 (액체에 고체가 분산된 계)'
+    definition: '녹지 않는 고체 입자가 연속된 액상에 분산된 계다. 불투명하고, 뚜렷한 기름층이 없으며, 젤 그물을 필요로 하지 않는다.'
+    boundary_note: '용액(SC.solution)과의 경계: 용액은 투명하고 분산상이 없다. 수중유 에멀전(SC.emulsion.ow)과의 경계: 분산된 것이 액체가 아니라 고체다 — 합쳐지지 않으며 유화제를 바꿔서 다듬을 수 없다. 젤(SC.gel)과의 경계: 젤은 전체가 스스로 형태를 지탱하지만 현탁액은 흐른다. 고형분이 높아 항복응력이 생긴 현탁액은 그 경계에 놓이는데, 젤이라기보다 ''항복응력이 있는 현탁액'' 으로 부르는 편이 맞다.'
   definition: Insoluble solid particles dispersed in a continuous liquid phase; opaque, no distinct oil layer, no
     gel network required.
   dominant_axes:

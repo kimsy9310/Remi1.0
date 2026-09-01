@@ -50,7 +50,10 @@ GOAL_HINT = {
 UNSLOTTED = {"(실측에서 자동)", "(미분류)"}
 
 
-def axis_label(term_id):
+def axis_label(term_id, onto=None):
+    """축의 표시 이름. 온톨로지를 주면 Layer L 의 한글 이름을 쓴다."""
+    if onto is not None:
+        return onto.label(term_id)
     return term_id.split(".")[-1]
 
 
@@ -103,12 +106,14 @@ def product_choices(onto, load_palette=None):
             import os
             for fn in onto.profiles[prof]["cards"]:
                 d = yaml.safe_load(open(os.path.join(onto.layers, fn), encoding="utf-8"))
-                product = ((d or {}).get("meta") or {}).get("product")
+                meta = (d or {}).get("meta") or {}
+                product = meta.get("product_ko") or meta.get("product")
                 if product:
                     break
             n_core = sum(1 for c in cards if c["tier"] == "core")
         except Exception:                                      # noqa: BLE001
             n_core = 0
+        sko = sp.get("ko") or {}
         n_ing = None
         if load_palette is not None:
             try:
@@ -118,9 +123,10 @@ def product_choices(onto, load_palette=None):
                 n_ing = 0
         out.append(dict(
             profile=prof,
-            label=(product or sp.get("label") or prof).split("(")[0].strip(),
-            definition=(sp.get("definition") or "").strip(),
-            boundary=(sp.get("boundary_note") or "").strip(),
+            label=(product or sko.get("label") or sp.get("label")
+                   or prof).split("(")[0].strip(),
+            definition=(sko.get("definition") or sp.get("definition") or "").strip(),
+            boundary=(sko.get("boundary_note") or sp.get("boundary_note") or "").strip(),
             n_core=n_core,
             n_ing=n_ing,
             ready=(n_ing is None or n_ing > 0),
@@ -141,8 +147,12 @@ def goal_questions(onto, profile):
     for c in cards:
         if c["tier"] != "core" or c.get("evidence_required") == "sample_aged":
             continue
-        # anchors 가 dict 인 카드도 list 인 카드도 있다. 둘 다 받는다.
-        raw = c.get("anchors")
+        # 한글 블록이 있으면 그것을 쓴다. 평가자에게 그대로 읽히는 문장이라
+        # 화면에는 한글이 정본이고, 영문은 온톨로지의 원문으로 남는다.
+        ko = c.get("ko") or {}
+        # anchors 가 dict 인 카드도 list(강도 기준점) 인 카드도 있다. 뜻이 아예
+        # 다르므로 -3/0/+3 형태인 dict 만 앵커로 받는다.
+        raw = ko.get("anchors") or c.get("anchors")
         anch = raw if isinstance(raw, dict) else {}
         opts = []
         for v in STEPS:
@@ -151,11 +161,12 @@ def goal_questions(onto, profile):
             opts.append(dict(value=v, label=STEP_LABEL[v], detail=txt))
         qs.append(dict(
             term=c["term_id"],
-            label=axis_label(c["term_id"]),
+            label=axis_label(c["term_id"], onto),
             goal=c.get("default_goal"),
             hint=GOAL_HINT.get(c.get("default_goal"), ""),
-            note=(c.get("evaluation_note") or "").strip(),
-            pitfalls=c.get("pitfalls") or [],
+            note=(ko.get("evaluation_note") or c.get("evaluation_note") or "").strip(),
+            pitfalls=ko.get("pitfalls") or c.get("pitfalls") or [],
+            target=(ko.get("jar_target") or c.get("jar_target") or "").strip(),
             reliability=c.get("reliability"),
             options=opts))
     return qs
@@ -191,7 +202,7 @@ def ingredient_questions(ptab, onto, profile):
         for r in rows:
             g = r["온톨로지ID"]
             e = eff.get(g) or {}
-            moves = [f"{axis_label(t)}{'↑' if e[t]['sign'] > 0 else '↓'}"
+            moves = [f"{axis_label(t, onto)}{'↑' if e[t]['sign'] > 0 else '↓'}"
                      for t in core if t in e]
             items.append(dict(
                 id=g, label=r["재료"] or g.replace("ING.", ""),
@@ -229,7 +240,7 @@ def check(onto, iv, ptab):
         movers = [g for g in pal if t in (eff.get(g) or {})]
         if not movers:
             msgs.append(
-                f"**{axis_label(t)}** 를 움직일 재료가 고른 것 중에 없습니다. "
+                f"**{axis_label(t, onto)}** 를 움직일 재료가 고른 것 중에 없습니다. "
                 f"그 축은 목표로 줘도 반응하지 않습니다.")
 
     if ptab is not None:

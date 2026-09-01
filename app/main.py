@@ -94,7 +94,11 @@ def core_terms(profile):
 
 
 def axis_label(t):
-    return t.split(".")[-1]
+    """축 이름은 Layer L 의 ko 가 정본이다(V2Ontology.label)."""
+    try:
+        return get_onto().label(t)
+    except Exception:                                             # noqa: BLE001
+        return t.split(".")[-1]
 
 
 def ing_label(g):

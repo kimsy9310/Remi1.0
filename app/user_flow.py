@@ -118,8 +118,11 @@ def render(onto, load_palette, build_model, propose_fn):
                 c1.markdown(f"**{q['label']}**")
                 free = c2.checkbox("상관없음", key=f"uf_free_{q['term']}",
                                    value=q["term"] in iv.free_axes)
-                if q["hint"]:
-                    st.caption(q["hint"])
+                hint = q["hint"]
+                if q.get("target"):
+                    hint = (hint + " · " if hint else "") + f"목표: {q['target']}"
+                if hint:
+                    st.caption(hint)
                 vals = [o["value"] for o in q["options"]]
                 cur = iv.goals.get(q["term"], 0.0)
                 sel = st.select_slider(
@@ -258,7 +261,7 @@ def render(onto, load_palette, build_model, propose_fn):
         st.caption("0 = 기준과 같음. 목표와 예상이 다르면 그 축은 고른 재료로 "
                    "거기까지 못 간다는 뜻입니다.")
         st.dataframe(
-            {"축": [t.split(".")[-1] for t in built.y_terms],
+            {"축": [iq.axis_label(t, onto) for t in built.y_terms],
              "목표": [tgt[t] if t not in iv.free_axes else "상관없음"
                      for t in built.y_terms],
              "예상": [round(float(v), 2) for v in y]},

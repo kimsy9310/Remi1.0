@@ -4,6 +4,7 @@ meta:
   date: '2026-08-25'
   profile: Oil-in-water emulsion beverage
   product: rice milk / plant beverage (product-level activation)
+  product_ko: '쌀 음료 / 식물성 음료'
   spec: remi_ontology_spec_v2.md §2.3, §5.7
   note: >-
     PRODUCT-LEVEL ACTIVATION FILE, same pattern as layerM_cards_beverage_coffee_milk.yaml
@@ -42,6 +43,12 @@ meta:
 measurement_cards:
 
 - term_id: L.ta.sweet
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 덜 달다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 더 달다'
+    evaluation_note: '마시는 온도에서 평가하세요. 차가우면 단맛이 눌리므로(R-2 저온→단맛), 기준보다 차게 마신 시료는 배합 때문이 아닌 이유로 낮게 나옵니다.'
   active_in: ['SC.emulsion.ow|APP.beverage']
   tier: core
   method: benchmark_difference
@@ -60,6 +67,14 @@ measurement_cards:
   legacy_column: sens_sweet
 
 - term_id: L.ar.cooked_rice
+  ko:
+    anchors:
+      '-3': '밥 향이 기준보다 뚜렷하게 약하다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '밥 향이 기준보다 뚜렷하게 강하다'
+    evaluation_note: '이 제품의 정체성 축이지 결함 축이 아닙니다 — 높일수록 좋은 것이 아니라 맞춰야 할 목표입니다. 코 뒤로 올라오는 향이므로 삼킨 뒤에 판단하고, 잔 위의 냄새로 판단하지 마세요.'
+    pitfalls:
+    - '단맛이 올라가면 밥 향이 더 강하게 느껴집니다. 두 축은 따로 나눠서 평가하세요.'
   active_in: ['SC.emulsion.ow|APP.beverage']
   tier: core
   method: benchmark_difference
@@ -80,6 +95,14 @@ measurement_cards:
   legacy_column: sens_rice flavor
 
 - term_id: L.tx.oiliness
+  ko:
+    anchors:
+      '-3': '기름진 느낌이 기준보다 뚜렷하게 적다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기름진 느낌이 기준보다 뚜렷하게 많다'
+    evaluation_note: '산패취(L.ar.rancid_oxidized)와 분리해 둔 ''신선한 기름'' 쪽 읽기입니다. 이 축의 정의대로 향이 아니라 입천장에 남는 코팅을 기준으로 매기세요.'
+    pitfalls:
+    - '유화가 깨지면 자유 기름 때문에 기름짐이 높게 나옵니다 — 넣은 양 때문이 아니라 물리적인 이유입니다. 크리밍·분리를 함께 기록해 둬야 둘을 구분할 수 있습니다.'
   active_in: ['SC.emulsion.ow|APP.beverage']
   # [검토 2026-08-31 · 보류] core -> monitored.
   # 패널의 "oil flavor" 컬럼이 고소함(L.ar.nutty)을 잰 것인지 기름짐(식감)을
@@ -109,6 +132,14 @@ measurement_cards:
   legacy_column: sens_oil flavor
 
 - term_id: L.ar.rancid_oxidized
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 깨끗하다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '쩐내·종이·절은 기름 냄새가 기준보다 뚜렷하다'
+    evaluation_note: '이 트랙에서는 신선 시료에서 매긴 점수입니다(review_items 참조). 훈련되지 않은 패널은 산화를 늦게, 들쭉날쭉하게 감지하므로 신뢰도가 낮습니다 — 작은 차이는 잡음으로 보세요. 이 축이 의사결정을 좌우한다면 블라인드 반복이 필요합니다(스펙 5.4).'
+    pitfalls:
+    - '해바라기유는 산화가 잘 됩니다. 기름 종류를 바꾸면 이 축이 넣은 양과 뒤섞입니다.'
   active_in: ['SC.emulsion.ow|APP.beverage']
   tier: core
   method: benchmark_difference
@@ -130,6 +161,12 @@ measurement_cards:
   legacy_column: sens_oxidated oil
 
 - term_id: L.tx.body
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 묽고 물 같다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 묵직하고 꽉 찬다'
+    evaluation_note: '패널 컬럼 이름은 ''mouthfeel'' 입니다. Layer L 이 SA.body_mouthfeel 을 L.tx.body 로 합쳤으므로(_deprecated_aliases.yaml) 판단이 아니라 그대로 이어진 대응입니다.'
   active_in: ['SC.emulsion.ow|APP.beverage']
   tier: core
   method: benchmark_difference
@@ -148,6 +185,14 @@ measurement_cards:
   legacy_column: sens_mouthfeel
 
 - term_id: L.tx.creaminess
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 덜 크리미하다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 더 크리미하다'
+    evaluation_note: '바디감과 다릅니다 — 바디감은 묵직함이고 크리미함은 매끄럽고 지방 같은 질감입니다. 패널이 둘을 섞어 답하므로 바디감을 먼저, 크리미함을 나중에 묻는 순서를 지키세요.'
+    pitfalls:
+    - '검(gum)으로 만든 걸쭉함은 바디감으로는 읽히지만 크리미함으로는 읽히지 않습니다. 두 축이 같이 움직이면 패널이 한 질문에 두 번 답하고 있을 가능성이 큽니다.'
   active_in: ['SC.emulsion.ow|APP.beverage']
   tier: core
   method: benchmark_difference

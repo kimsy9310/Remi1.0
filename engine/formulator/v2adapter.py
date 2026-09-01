@@ -144,6 +144,25 @@ class V2Ontology:
     def tags(self):
         return self.stack["tags"]
 
+    def label(self, term_id):
+        """
+        축의 한글 이름. Layer L 의 ko 필드가 정본이다.
+
+        이름을 M 카드에 두지 않는 이유: 같은 축이 프로파일 6곳에 카드로 나타나므로
+        카드에 적으면 사본 6개가 따로 놀게 된다. 렉시콘 216개 항목 전부 ko 를
+        가지고 있으니 고칠 곳은 언제나 한 군데다.
+        """
+        t = self.stack["lex"].get(term_id)
+        ko = str((t or {}).get("ko", "")).strip()
+        return ko or term_id.split(".")[-1]
+
+    def card_ko(self, profile, term_id):
+        """M 카드의 한글 블록(앵커·평가 주의·함정). 없으면 빈 dict."""
+        for c in self._ref.load_cards(profile, self.layers):
+            if c["term_id"] == term_id:
+                return c.get("ko") or {}
+        return {}
+
     def filler_of(self, profile):
         """S 프로파일이 선언한 필러. 없으면 모형을 세울 수 없다(스펙 §5.1)."""
         scopes = self.profiles[profile]["scopes"]
