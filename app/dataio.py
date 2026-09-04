@@ -25,6 +25,8 @@ import os
 from dataclasses import dataclass, field
 
 import numpy as np
+
+import process as _process
 import openpyxl
 
 
@@ -40,6 +42,8 @@ class WarmLoopData:
     unmapped_columns: list = field(default_factory=list)
     missing_axes: list = field(default_factory=list)
     notes: list = field(default_factory=list)
+    # 이 데이터가 어느 공정에서 나왔나. 선언이 없으면 빈 카드다(옛 파일).
+    process: object = None
 
     def summary(self):
         L = [f"샘플 {len(self.sample_ids)}건 · 재료 {len(self.names)}종 · 관능축 {len(self.y_terms)}개"]
@@ -50,6 +54,12 @@ class WarmLoopData:
                      f"{self.unmapped_columns[:5]}")
         if self.missing_axes:
             L.append(f"카드는 있으나 데이터에 없는 축: {self.missing_axes}")
+        if self.process is not None and self.process.is_declared():
+            L.append(f"공정: {self.process.block or '(이름 없음)'} "
+                     f"· 지문 {self.process.fingerprint()}")
+        else:
+            L.append("공정이 선언되지 않았습니다 — 다른 공정 데이터와 섞여도 "
+                     "알 수 없습니다(docs/공정_전략.md)")
         L += self.notes
         return "\n".join("  " + s for s in L)
 
@@ -226,7 +236,8 @@ def load_warmloop(path, onto, profile, filler=None):
         names=names, X=np.array(X), Y=np.array(Y), y_terms=y_terms,
         sample_ids=sids, benchmark_ids=benches,
         raw_totals=np.array(totals), unmapped_columns=unmapped,
-        missing_axes=missing, notes=notes)
+        missing_axes=missing, notes=notes,
+        process=_process.read_sheet(wb, onto, profile))
 
 
 def _ing_col(ing_id):
@@ -253,6 +264,11 @@ def write_template(path, onto, profile, palette, sample_ids=None):
     ws3.append(["column_name", "real_ingredient", "ontology_id (ING.*)"])
     for g in palette:
         ws3.append([_ing_col(g), g.replace("ING.", ""), g])
+
+    # 공정 시트. 무엇을 묻는지는 이 제형의 core 축이 어떤 파라미터에 걸려 있는지로
+    # 계산된다 — process.fields() 참조. 배합만 적고 공정을 안 적으면 다음 배치와
+    # 조용히 합쳐진다.
+    _process.write_sheet(wb, onto, profile)
 
     ws4 = wb.create_sheet("README")
     for line in [

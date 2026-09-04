@@ -105,8 +105,19 @@ def effective_directions(Z, tol=0.05):
     return int((s / s[0] > tol).sum())
 
 
-def run(onto, data, profile, bounds=None):
-    """온톨로지 사전 + 실측 → 보정된 모형."""
+def run(onto, data, profile, bounds=None, process_warn=True):
+    """
+    온톨로지 사전 + 실측 → 보정된 모형.
+
+    공정에 대하여
+    -------------
+    이 적합은 **데이터가 전부 같은 공정에서 나왔다** 고 가정한다. y = Γᵀz 에
+    공정이 없기 때문이다 — 다른 공정이 섞이면 그 차이가 재료 계수로 흘러
+    들어간다(조용히 틀린다). 1 단계에서는 그것을 풀지 않고 **드러내기만** 한다.
+    지금은 파일 하나가 블록 하나이므로 여기서 할 수 있는 것은 선언 여부를
+    경고하는 것까지다. 파일 여러 개를 합치게 되면 여기가 지문을 비교해 막는
+    자리가 된다(docs/공정_전략.md 5.2).
+    """
     built = onto.build(profile, palette=list(data.names), bounds=bounds,
                        x0=data.X[0] if len(data.X) else None)
 
@@ -129,6 +140,17 @@ def run(onto, data, profile, bounds=None):
     X = data.X[:, order]
 
     warns = list(built.warnings)
+    # 공정 선언이 없으면 이 적합이 어느 공정의 것인지 아무도 모른다. 다음 배치가
+    # 다른 공정으로 들어와도 합쳐진다 — 그 사실만이라도 눈에 띄게 둔다.
+    pc = getattr(data, "process", None)
+    if process_warn and (pc is None or not pc.is_declared()):
+        warns.append(
+            "공정이 선언되지 않은 데이터입니다. 이 모형은 '전부 같은 공정' 을 "
+            "가정하는데 그것을 확인할 방법이 파일 안에 없습니다 — 다른 공정이 "
+            "섞였다면 그 차이가 재료 계수로 흘러듭니다.")
+    elif pc is not None and pc.is_declared():
+        warns.append(f"공정 블록 {pc.block or '(이름 없음)'} · 지문 "
+                     f"{pc.fingerprint()} 하나로 적합했습니다.")
     if dropped:
         warns.append(
             f"monitored 축 {len(dropped)}개는 학습에서 제외했습니다: "
