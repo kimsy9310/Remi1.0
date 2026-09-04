@@ -14,6 +14,11 @@
     M 카드      ->  "무엇을 바꾸고 싶나요" (core 축 · anchors · default_goal)
     팔레트      ->  "무엇을 쓰시나요"      (슬롯별 재료 · 등급)
 
+무엇을 물을지도 카드가 정한다
+-----------------------------
+카드가 있다고 다 묻지는 않는다. tier 와 default_goal 을 읽어 정체성 축·조절 축·
+결함 축으로 나누고, 셋을 화면에서 다르게 다룬다 — `scope()` 가 그 규칙이다.
+
 카드를 고치면 질문이 따라온다. 새 제품을 붙이면 질문이 저절로 생긴다.
 
 기준 제품이 필요한 이유
@@ -34,6 +39,12 @@ STEPS = [-2.0, -1.0, 0.0, 1.0, 2.0]
 STEP_LABEL = {
     -2.0: "많이 덜하게", -1.0: "조금 덜하게", 0.0: "기준과 같게",
     1.0: "조금 더", 2.0: "많이 더",
+}
+# 정체성 축은 "바꿀까 말까" 가 아니라 "얼마나 강하게" 다. 눈금은 같은 −2…+2 이고
+# 부르는 말만 다르다 — 매운 소스를 만들기로 이미 정했으니 물을 것은 세기뿐이다.
+STRENGTH_LABEL = {
+    -2.0: "많이 약하게", -1.0: "조금 약하게", 0.0: "기준만큼",
+    1.0: "조금 강하게", 2.0: "많이 강하게",
 }
 
 GOAL_HINT = {
@@ -83,6 +94,16 @@ class Interview:
     goals: dict = field(default_factory=dict)     # {L.*: 목표값}
     free_axes: list = field(default_factory=list)  # 신경 쓰지 않는 축
     chosen: dict = field(default_factory=dict)     # {슬롯: [ING.*]}
+    # ① 에서 확인한 "이 제품을 정하는 것". None 이면 아직 확인 전이라는 뜻이고,
+    # 그때는 제형의 기본값(core + default_goal:target)을 쓴다.
+    identity_axes: list = None
+    changed: list = field(default_factory=list)    # ② 에서 바꾸겠다고 고른 축
+    concerns: list = field(default_factory=list)   # ② 에서 신경 쓰인다고 고른 결함 축
+
+    def reset_answers(self):
+        """제품이 바뀌면 축도 재료도 갈린다. 앞서 받은 답을 버린다."""
+        self.goals, self.chosen, self.free_axes = {}, {}, []
+        self.identity_axes, self.changed, self.concerns = None, [], []
 
     def palette(self):
         out = []
@@ -154,39 +175,113 @@ def product_choices(onto, load_palette=None):
 
 
 # ---------------------------------------------------------------- ② 목표
-def goal_questions(onto, profile):
+def _question(onto, card):
     """
-    core 축마다 질문 하나. 보기 문구는 M 카드의 anchors 를 쓴다 —
+    M 카드 한 장 → 질문 하나. 보기 문구는 카드의 anchors 를 쓴다 —
     평가자에게 실제로 전달되는 정의가 거기 있기 때문이다.
     """
-    cards = onto._ref.load_cards(profile, onto.layers)
-    qs = []
-    for c in cards:
-        if c["tier"] != "core" or c.get("evidence_required") == "sample_aged":
+    # 한글 블록이 있으면 그것을 쓴다. 평가자에게 그대로 읽히는 문장이라
+    # 화면에는 한글이 정본이고, 영문은 온톨로지의 원문으로 남는다.
+    ko = card.get("ko") or {}
+    # anchors 가 dict 인 카드도 list(강도 기준점) 인 카드도 있다. 뜻이 아예
+    # 다르므로 -3/0/+3 형태인 dict 만 앵커로 받는다.
+    raw = ko.get("anchors") or card.get("anchors")
+    anch = raw if isinstance(raw, dict) else {}
+    opts = []
+    for v in STEPS:
+        key = {-2.0: "-3", 2.0: "+3", 0.0: "0"}.get(v)
+        txt = str(anch.get(key, "")).strip() if (key and anch) else ""
+        opts.append(dict(value=v, label=STEP_LABEL[v],
+                         strength=STRENGTH_LABEL[v], detail=txt))
+    return dict(
+        term=card["term_id"],
+        label=axis_label(card["term_id"], onto),
+        goal=card.get("default_goal"),
+        hint=GOAL_HINT.get(card.get("default_goal"), ""),
+        note=(ko.get("evaluation_note") or card.get("evaluation_note") or "").strip(),
+        pitfalls=ko.get("pitfalls") or card.get("pitfalls") or [],
+        target=(ko.get("jar_target") or card.get("jar_target") or "").strip(),
+        reliability=card.get("reliability"),
+        options=opts)
+
+
+def scope(onto, profile):
+    """
+    B1 `SCOPE` — 이 제형에서 **무엇을 물을지** 정한다.
+
+    질문 은행은 이미 M 카드 70장이다. 없던 것은 어떤 조합을 물을지 정하는
+    규칙이고, 그게 이 함수다. 판정 근거는 전부 카드 안에 있다.
+
+        tier: monitored            안 묻는다. 사람이 답할 축이 아니다
+        evidence_required:         안 묻는다. 저장 시험이 있어야 답이 나온다
+          sample_aged               (스펙 5.8 격리)
+        default_goal: target       **정체성 축.** 무엇을 만드는지가 이미 정해 준다.
+                                   ① 에서 칩으로 확인하고 ② 에서는 세기만 묻는다
+        default_goal: minimize     **결함 축.** 먼저 묻지 않는다. "신경 쓰이는
+                                   것이 있나요" 로 접어 두고, 고른 것만 묻는다
+        나머지(maintain/increase/  **조절 축.** 칩으로 바꿀 것을 먼저 고르게 하고,
+          decrease)                고른 것에만 슬라이더를 붙인다
+
+    되돌려 주는 것: identity / adjust / defect 세 묶음과, 안 묻기로 한 skipped.
+    합치면 모형의 반응축(y_terms)과 정확히 같다 — 셋 다 core 이고 격리가 아니다.
+
+    왜 이렇게 나누나. 현탁액을 고르면 지금은 슬라이더 10개가 한 번에 뜨고 그중
+    다섯이 매운맛·건고추 향 같은 "이 제품이 무엇인가" 축이다. 이미 매운 소스를
+    만들기로 하고 들어온 사람에게 매운맛을 0 에 둘지 묻는 것은 질문이 아니다.
+    """
+    out = dict(identity=[], adjust=[], defect=[], skipped=[])
+    for c in onto._ref.load_cards(profile, onto.layers):
+        if c["tier"] != "core":
+            out["skipped"].append(dict(term=c["term_id"], why="monitored"))
             continue
-        # 한글 블록이 있으면 그것을 쓴다. 평가자에게 그대로 읽히는 문장이라
-        # 화면에는 한글이 정본이고, 영문은 온톨로지의 원문으로 남는다.
-        ko = c.get("ko") or {}
-        # anchors 가 dict 인 카드도 list(강도 기준점) 인 카드도 있다. 뜻이 아예
-        # 다르므로 -3/0/+3 형태인 dict 만 앵커로 받는다.
-        raw = ko.get("anchors") or c.get("anchors")
-        anch = raw if isinstance(raw, dict) else {}
-        opts = []
-        for v in STEPS:
-            key = {-2.0: "-3", 2.0: "+3", 0.0: "0"}.get(v)
-            txt = str(anch.get(key, "")).strip() if (key and anch) else ""
-            opts.append(dict(value=v, label=STEP_LABEL[v], detail=txt))
-        qs.append(dict(
-            term=c["term_id"],
-            label=axis_label(c["term_id"], onto),
-            goal=c.get("default_goal"),
-            hint=GOAL_HINT.get(c.get("default_goal"), ""),
-            note=(ko.get("evaluation_note") or c.get("evaluation_note") or "").strip(),
-            pitfalls=ko.get("pitfalls") or c.get("pitfalls") or [],
-            target=(ko.get("jar_target") or c.get("jar_target") or "").strip(),
-            reliability=c.get("reliability"),
-            options=opts))
-    return qs
+        if c.get("evidence_required") == "sample_aged":
+            out["skipped"].append(dict(term=c["term_id"], why="sample_aged"))
+            continue
+        q = _question(onto, c)
+        goal = c.get("default_goal")
+        out["identity" if goal == "target"
+            else "defect" if goal == "minimize"
+            else "adjust"].append(q)
+    return out
+
+
+def goal_questions(onto, profile):
+    """물을 수 있는 축 전부. scope() 의 세 묶음을 이어 붙인 것이다."""
+    sc = scope(onto, profile)
+    return sc["identity"] + sc["adjust"] + sc["defect"]
+
+
+def default_identity(onto, profile):
+    """이 제형이 기본으로 내세우는 정체성 축. ① 칩의 초기값."""
+    return [q["term"] for q in scope(onto, profile)["identity"]]
+
+
+def identity_candidates(onto, profile):
+    """
+    ① 의 '이 제품을 정하는 것' 칩에 더할 수 있는 축.
+
+    후보는 렉시콘의 향(`L.ar.*`)과 화학감각(`L.ch.*`) 134개다. 제품의 정체성을
+    지는 것은 대개 이 둘이고, 단맛·걸쭉함 같은 축은 정체성이 아니라 조절 대상이라
+    ② 에 남는다.
+
+    이 제형의 core 카드로 있는 축만 모형이 실제로 움직일 수 있다(`modeled`).
+    나머지는 골라도 기록으로만 남는다 — 그래도 후보에서 빼지 않는다. 현탁액
+    카드에 박혀 있는 "건고추 향·장 발효 향" 은 이 제형이 발효 핫소스여야 한다는
+    뜻이 아니라 기본값일 뿐이고("Swappable"), 토마토 살사를 만들려는 사람은
+    그 자리에 다른 향을 적을 수 있어야 한다.
+    """
+    modeled = set(onto.core_terms(profile))
+    # 이 제형이 이미 정체성으로 세운 축은 접두사와 무관하게 후보다. 커피우유의
+    # 쓴맛(L.ta.*)과 현탁액의 감칠맛이 그렇다 — 빼면 기본값이 후보에 없어
+    # 화면에 그리는 순간 사라진다.
+    seed = set(default_identity(onto, profile))
+    out = []
+    for t in list(onto.stack["lex"]) + sorted(seed - set(onto.stack["lex"])):
+        if not (t.startswith("L.ar.") or t.startswith("L.ch.") or t in seed):
+            continue
+        out.append(dict(term=t, label=axis_label(t, onto), modeled=t in modeled))
+    out.sort(key=lambda d: (not d["modeled"], d["label"]))
+    return out
 
 
 # ---------------------------------------------------------------- ③ 재료

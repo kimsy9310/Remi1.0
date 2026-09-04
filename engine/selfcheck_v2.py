@@ -259,6 +259,59 @@ for _g, _t, _w in _unful[:5]:
 check("어떤 재료로도 못 움직이는 core 축이 없다", not aud["dead_core"],
       str(aud["dead_core"]))
 
+# ---------------------------------------------------------------- 정체성 축
+# 제품을 그 제품이게 하는 축은 보통 2~3개다. 그 이상이면 제품 정의가 흐려졌다는
+# 뜻이다(2026-09-02 결정). 그리고 향·매운맛 같은 제품 고유 축은 **제형** 파일에
+# 있을 것이 아니다 — "액체에 고체가 분산됨"(SC.suspension)은 물성 정의일 뿐
+# 무슨 향이 나는지는 함의하지 않는다. 제품 단위 파일(meta.product 가 있는 것,
+# 이주 소견 F7)이라야 그 축을 가질 자격이 있다.
+#
+# Layer S 는 이것을 이미 알고 있었다 — suspension 의 relevant_attributes 에서
+# 두 향 축이 slot: flavor_user_slot_1/2 를 달고 있다. "사용자가 채울 칸" 이라는
+# 선언인데 기본값이 값처럼 굳었다.
+import yaml as _yaml
+import os as _os
+
+_BASIC = {"L.ta.sweet", "L.ta.salty", "L.ta.sour", "L.ta.umami", "L.ta.bitter",
+          "L.ta.aftertaste_length"}
+IDENTITY_MAX = 3
+
+
+def _is_product_file(prof):
+    """meta.product 가 있으면 제품 단위 파일이다(F7)."""
+    for fn in onto.profiles[prof]["cards"]:
+        d = _yaml.safe_load(open(_os.path.join(onto.layers, fn), encoding="utf-8"))
+        if ((d or {}).get("meta") or {}).get("product"):
+            return True
+    return False
+
+
+_too_many, _leaked = [], []
+for _prof in sorted(onto.profiles):
+    _cs = [c for c in onto._ref.load_cards(_prof, onto.layers)
+           if c["tier"] == "core" and c.get("evidence_required") != "sample_aged"]
+    _tg = [c["term_id"] for c in _cs if c.get("default_goal") == "target"]
+    _is_prod = _is_product_file(_prof)
+
+    if len(_tg) > IDENTITY_MAX:
+        _too_many.append((_prof, len(_tg), [onto.label(t) for t in _tg]))
+    # 제품 고유 축(향·화학감각) 은 제형 파일에 있으면 안 된다
+    if not _is_prod:
+        _own = [c["term_id"] for c in _cs
+                if c["term_id"].startswith(("L.ar.", "L.ch."))]
+        if _own:
+            _leaked.append((_prof, [onto.label(t) for t in _own]))
+
+check(f"정체성 축이 프로파일마다 {IDENTITY_MAX}개 이하", not _too_many,
+      "; ".join(f"{p} {n}개 {ts}" for p, n, ts in _too_many))
+for _p, _n, _ts in _too_many:
+    print(f"        {_p}: {_n}개 — 제품 정의가 흐리다. 2~3개로 줄일 것")
+
+check("제형 파일에 제품 고유 축(향·매운맛)이 없다", not _leaked,
+      "; ".join(f"{p} {ts}" for p, ts in _leaked))
+for _p, _ts in _leaked:
+    print(f"        {_p}: {_ts} — 제품 단위 파일로 옮길 것")
+
 # 스펙 5.9 — 액추에이터 없는 R-1 은 플래그 대상이지 실패는 아니다.
 # 없는 파라미터를 지어내는 것보다 보이게 두는 편이 낫다.
 _n_orphan = sum(len(v) for v in aud["orphan_proxies"].values())

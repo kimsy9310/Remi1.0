@@ -2,10 +2,13 @@
 """
 사용자 화면 — 단계형 인터뷰.
 
-    ① 무엇을 만드시나요      제형/제품 고르기 + 기준 제품 적기
-    ② 어떻게 바꾸고 싶나요    core 축마다 "기준보다 더/덜"
+    ① 무엇을 만드시나요      제형/제품 · **이 제품을 정하는 것**(정체성 축 칩) · 기준 제품
+    ② 어떻게 바꾸고 싶나요    정체성 축은 세기만 · 바꿀 축을 칩으로 고르고 그것만 슬라이더
     ③ 무엇을 쓰시나요        슬롯별 재료 고르기
     ④ 배합 제안             엔진이 낸 배합과 그 근거
+
+② 가 무엇을 묻는지는 B1 `SCOPE` 가 정한다(interview.scope). 카드의 tier 와
+default_goal 만 읽으면 정해지는 일이라 새로 만들 질문이 없다.
 
 전문가 화면(데이터·학습·팔레트)은 따로 둔다. 여기서는 만들 사람이 답할 수 있는
 것만 묻는다.
@@ -31,6 +34,44 @@ def _iv():
 
 def _goto(i):
     st.session_state.step = max(0, min(i, len(STEPS) - 1))
+
+
+def _ask(q, iv, strength=False):
+    """
+    축 하나에 슬라이더 하나. 되돌려 주는 것은 (목표값, '상관없음' 여부).
+
+    strength=True 면 정체성 축이다. 눈금은 같고 부르는 말만 '얼마나 강하게'로
+    바뀐다 — 만들 것을 이미 정한 사람에게 '이 축을 바꿀까요'는 질문이 아니다.
+    """
+    key = "strength" if strength else "label"
+    with st.container(border=True):
+        c1, c2 = st.columns([3, 1])
+        c1.markdown(f"**{q['label']}**")
+        free = c2.checkbox("상관없음", key=f"uf_free_{q['term']}",
+                           value=q["term"] in iv.free_axes)
+        hint = q["hint"]
+        if q.get("target"):
+            hint = (hint + " · " if hint else "") + f"목표: {q['target']}"
+        if hint:
+            st.caption(hint)
+        vals = [o["value"] for o in q["options"]]
+        cur = iv.goals.get(q["term"], 0.0)
+        sel = st.select_slider(
+            " ", options=vals, value=cur if cur in vals else 0.0,
+            format_func=lambda v, q=q: next(
+                o[key] for o in q["options"] if o["value"] == v),
+            key=f"uf_goal_{q['term']}", label_visibility="collapsed",
+            disabled=free)
+        det = next((o["detail"] for o in q["options"]
+                    if o["value"] == sel and o["detail"]), "")
+        if det:
+            st.caption(f"→ {det}")
+        if q["note"]:
+            with st.expander("이 축을 볼 때 주의할 점"):
+                st.write(q["note"])
+                for p in q["pitfalls"]:
+                    st.write(f"- {p}")
+    return (0.0 if free else float(sel)), bool(free)
 
 
 def render(onto, load_palette, build_model, propose_fn):
@@ -81,6 +122,35 @@ def render(onto, load_palette, build_model, propose_fn):
                              help="같은 제형이라도 목적에 따라 재료 범위가 달라집니다.")
             variant = None if v == "(기본)" else v
 
+        # ---- 이 제품을 정하는 것 (A4 의 정체성 축 칩)
+        #
+        # 이 축들이 ② 에서 여기로 올라왔다. 매운맛·건고추 향은 "기준보다 더 매울까"
+        # 를 물을 대상이 아니라 무엇을 만드는지 자체다. 카드에 기본값이 박혀 있고
+        # ("default for fermented hot sauce ... Swappable") 지금까지 UI 가 그걸
+        # 읽지 않아 현탁액을 고른 사람 모두에게 발효 핫소스의 축이 나갔다.
+        st.markdown("##### 이 제품을 정하는 것")
+        st.caption(
+            "이 제품을 이 제품답게 만드는 향·맛입니다. 만들려는 것과 다르면 "
+            "지우고 다른 것을 더하세요. 지운 축은 신경 쓰지 않습니다. "
+            "얼마나 강하게 할지는 다음 단계에서 묻습니다.")
+        cands = iq.identity_candidates(onto, ch["profile"])
+        clab = {c["term"]: c["label"] + ("" if c["modeled"] else "  (기록만)")
+                for c in cands}
+        base = (iv.identity_axes
+                if iv.identity_axes is not None and iv.profile == ch["profile"]
+                else iq.default_identity(onto, ch["profile"]))
+        # 키에 제형을 넣어 둔다 — 제형을 바꾸면 축이 통째로 갈리므로 앞 제형의
+        # 선택이 위젯에 남아 있으면 안 된다.
+        ident = st.multiselect(
+            " ", [c["term"] for c in cands],
+            default=[t for t in base if t in clab],
+            format_func=lambda t: clab[t],
+            key=f"uf_ident_{ch['profile']}", label_visibility="collapsed",
+            placeholder="정하는 향·맛을 고르세요")
+        if any(not c["modeled"] for c in cands if c["term"] in ident):
+            st.caption("'(기록만)' 은 이 제형의 카드에 아직 없는 축입니다. "
+                       "골라 두면 남지만 배합 계산에는 들어가지 않습니다.")
+
         st.markdown("##### 기준으로 삼을 제품")
         st.caption(
             "이 도구는 **기준 대비 얼마나 다른가**로 맛을 다룹니다. 잘 아는 제품을 "
@@ -90,8 +160,9 @@ def render(onto, load_palette, build_model, propose_fn):
 
         if st.button("다음", type="primary"):
             if iv.profile != ch["profile"]:
-                iv.goals, iv.chosen, iv.free_axes = {}, {}, []   # 제품이 바뀌면 초기화
+                iv.reset_answers()                   # 제품이 바뀌면 초기화
             iv.profile, iv.variant, iv.benchmark = ch["profile"], variant, bm
+            iv.identity_axes = list(ident)
             _goto(1)
             st.rerun()
 
@@ -100,44 +171,85 @@ def render(onto, load_palette, build_model, propose_fn):
         st.subheader("기준과 비교해 어떻게 바꾸고 싶으세요?")
         if iv.benchmark:
             st.caption(f"기준: **{iv.benchmark}**")
-        st.caption("바꾸고 싶지 않은 축은 '기준과 같게'로 두시면 됩니다. "
-                   "아예 신경 쓰지 않는 축은 '상관없음'을 켜세요 — "
-                   "붙잡아 두면 정작 바꾸려는 축이 눌립니다.")
 
-        qs = iq.goal_questions(onto, iv.profile)
-        for q in qs:
-            with st.container(border=True):
-                c1, c2 = st.columns([3, 1])
-                c1.markdown(f"**{q['label']}**")
-                free = c2.checkbox("상관없음", key=f"uf_free_{q['term']}",
-                                   value=q["term"] in iv.free_axes)
-                hint = q["hint"]
-                if q.get("target"):
-                    hint = (hint + " · " if hint else "") + f"목표: {q['target']}"
-                if hint:
-                    st.caption(hint)
-                vals = [o["value"] for o in q["options"]]
-                cur = iv.goals.get(q["term"], 0.0)
-                sel = st.select_slider(
-                    " ", options=vals, value=cur if cur in vals else 0.0,
-                    format_func=lambda v, q=q: next(
-                        o["label"] for o in q["options"] if o["value"] == v),
-                    key=f"uf_goal_{q['term']}", label_visibility="collapsed",
-                    disabled=free)
-                det = next((o["detail"] for o in q["options"]
-                            if o["value"] == sel and o["detail"]), "")
-                if det:
-                    st.caption(f"→ {det}")
-                if q["note"]:
-                    with st.expander("이 축을 볼 때 주의할 점"):
-                        st.write(q["note"])
-                        for p in q["pitfalls"]:
-                            st.write(f"- {p}")
-                iv.goals[q["term"]] = 0.0 if free else float(sel)
-                if free and q["term"] not in iv.free_axes:
-                    iv.free_axes.append(q["term"])
-                if not free and q["term"] in iv.free_axes:
-                    iv.free_axes.remove(q["term"])
+        # B1 SCOPE 가 물어볼 축을 나눈다. 화면은 그 셋을 그대로 따른다.
+        sc = iq.scope(onto, iv.profile)
+        by_term = {q["term"]: q
+                   for q in sc["identity"] + sc["adjust"] + sc["defect"]}
+        ident = (iv.identity_axes if iv.identity_axes is not None
+                 else iq.default_identity(onto, iv.profile))
+
+        # 답을 매번 새로 짓는다. 칩에서 뺀 축이 지난번 값을 들고 남는 일을 막는다.
+        goals, free = {}, []
+
+        # ---- 정체성 축: 세기만 묻는다
+        ident_q = [by_term[t] for t in ident if t in by_term]
+        if ident_q:
+            st.markdown("##### 이 제품을 정하는 것")
+            st.caption("① 에서 고른 축입니다. **얼마나 강하게** 만 정하면 됩니다.")
+            for q in ident_q:
+                v, f = _ask(q, iv, strength=True)
+                goals[q["term"]] = v
+                if f:
+                    free.append(q["term"])
+        extra = [t for t in ident if t not in by_term]
+        if extra:
+            st.caption("이 제형의 카드에 아직 없어 적어만 두는 축: "
+                       + ", ".join(iq.axis_label(t, onto) for t in extra))
+        # ① 에서 지운 정체성 축은 붙잡지 않는다. 0(기준과 같게)으로 두면 이 제품이
+        # 그 축을 그대로 가져간다는 뜻이 되어, 지운 뜻과 정반대가 된다.
+        dropped = [q["term"] for q in sc["identity"] if q["term"] not in ident]
+        if dropped:
+            free += dropped
+            st.caption("① 에서 지운 축은 신경 쓰지 않습니다: "
+                       + ", ".join(iq.axis_label(t, onto) for t in dropped))
+
+        # ---- 조절 축: 바꿀 것을 먼저 고르고, 고른 것만 묻는다
+        adj = [q for q in sc["adjust"] if q["term"] not in ident]
+        if adj:
+            st.markdown("##### 바꾸고 싶은 것")
+            st.caption("고르지 않은 축은 기준과 같게 둡니다. "
+                       "바꿀 것만 고르세요 — 열 개를 한꺼번에 붙잡으면 "
+                       "정작 바꾸려는 축이 눌립니다.")
+            lab = {q["term"]: q["label"] for q in adj}
+            picked = st.multiselect(
+                " ", [q["term"] for q in adj],
+                default=[t for t in iv.changed if t in lab],
+                format_func=lambda t: lab[t], key="uf_changed",
+                label_visibility="collapsed", placeholder="바꿀 것을 고르세요")
+            iv.changed = list(picked)
+            for q in adj:
+                if q["term"] in picked:
+                    v, f = _ask(q, iv)
+                    goals[q["term"]] = v
+                    if f:
+                        free.append(q["term"])
+                else:
+                    goals[q["term"]] = 0.0
+
+        # ---- 결함 축: 먼저 묻지 않고 접어 둔다
+        dfc = [q for q in sc["defect"] if q["term"] not in ident]
+        if dfc:
+            lab = {q["term"]: q["label"] for q in dfc}
+            with st.expander("신경 쓰이는 것이 있나요"):
+                st.caption("낮을수록 좋은 축입니다. 기준 제품에서 거슬렸던 것이 "
+                           "있으면 고르세요. 고르지 않으면 기준만큼으로 둡니다.")
+                picked = st.multiselect(
+                    " ", [q["term"] for q in dfc],
+                    default=[t for t in iv.concerns if t in lab],
+                    format_func=lambda t: lab[t], key="uf_concerns",
+                    label_visibility="collapsed", placeholder="거슬리는 것을 고르세요")
+                iv.concerns = list(picked)
+                for q in dfc:
+                    if q["term"] in picked:
+                        v, f = _ask(q, iv)
+                        goals[q["term"]] = v
+                        if f:
+                            free.append(q["term"])
+                    else:
+                        goals[q["term"]] = 0.0
+
+        iv.goals, iv.free_axes = goals, free
 
         c1, c2 = st.columns(2)
         if c1.button("← 이전"):
