@@ -712,13 +712,11 @@ structure_profiles:
     - L.ch.pungent_hot
     note: Calculating from raw-material SHU is only meaningful with a certificated raw material. Whole chillies
       vary severalfold pod to pod, so a calculated SHU from fresh produce is an estimate, not a value.
+  # 칸의 개수는 제형이 정하고, 칸의 내용은 제품이 채운다. 기본값이 값처럼
+  # 굳는 것을 막으려고 2026-09-02 에 향 축 자체를 제품 파일로 옮겼다
+  # (layerM_cards_suspension_hotsauce.yaml). 여기 남는 것은 칸 수뿐이다.
+  flavor_slots: 2
   relevant_attributes:
-  - id: L.ch.pungent_hot
-    tier: core
-    default_goal: target
-  - id: L.ch.heat_linger
-    tier: core
-    default_goal: target
   - id: L.ta.salty
     tier: core
     default_goal: maintain
@@ -730,21 +728,13 @@ structure_profiles:
     default_goal: maintain
   - id: L.ta.umami
     tier: core
-    default_goal: target
+    default_goal: maintain
   - id: L.tx.thickness
     tier: core
     default_goal: maintain
   - id: L.tx.grittiness
     tier: core
     default_goal: minimize
-  - id: L.ar.dried_red_chili
-    tier: core
-    default_goal: target
-    slot: flavor_user_slot_1
-  - id: L.ar.soy_fermented_jang
-    tier: core
-    default_goal: target
-    slot: flavor_user_slot_2
   - id: L.ta.bitter
     tier: monitored
     default_goal: minimize

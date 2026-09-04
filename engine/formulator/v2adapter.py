@@ -72,6 +72,12 @@ EXTRA_PROFILES = {
         cards=["layerM_cards_beverage_rice_milk.yaml"],
         scopes={"any", "SC.emulsion.ow", "SC.emulsion.ow.beverage",
                 "SC.emulsion.ow|APP.beverage"}),
+    # 2026-09-02: 발효 핫소스를 현탁액 제형 파일에서 떼어냈다. 제형은 물성만
+    # 함의하는데 향·매운맛 축 4개가 거기 들어앉아, 토마토 살사를 만들려는
+    # 사람에게도 고추를 묻고 있었다. tools/split_suspension_product.py 참조.
+    "suspension_hotsauce": dict(
+        cards=["layerM_cards_suspension_hotsauce.yaml"],
+        scopes={"any", "SC.suspension"}),
 }
 
 
