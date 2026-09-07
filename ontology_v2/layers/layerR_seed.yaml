@@ -8,8 +8,8 @@ meta:
     never overwritten (Invariant 3). BLACK aging observations (2026-08..12) should be logged as new KN.* records.
     2026-08-18: R-2 effect enum extended with pos_corr; IN.0004/IN.0010 corrected.'
   counts:
-    relations_proxy: 58
-    relations_interaction: 10
+    relations_proxy: 61
+    relations_interaction: 13
     relations_decomposition: 6
     relations_kinetics: 3
   r3_exclusions:
@@ -609,6 +609,24 @@ relations_proxy:
     Free and poorly emulsified oil coats the palate. Reads together with PO.0059:
     raising oil fraction buys creaminess and pays in oiliness, which is the actual
     trade-off the rice-milk DoE is exploring (HANDOFF §3.1, palm oil 15-45).
+- id: PO.0061
+  percept: L.tx.thickness
+  parameter: P.apparent_viscosity
+  functional_form: linear
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.beverage
+  evidence:
+    source: prior
+    date: '2026-09-07'
+  confidence: medium
+  note: >-
+    Beverage counterpart of PO.0011. The C edge FT.thickener -> P.apparent_viscosity
+    already carried scope SC.emulsion.ow.beverage, so an ingredient could raise
+    viscosity in a beverage - but nothing carried that viscosity through to the
+    thickness percept. The axis was unreachable and the app answered "no ingredient
+    can move it", which was false. Added because a THICK BEVERAGE (yogurt smoothie,
+    drinkable yogurt) must be formulable. Whether a product asks about thickness or
+    about body is a PRODUCT decision, not a structure one.
 relations_interaction:
 - id: IN.0001
   from: L.tx.cold_perceived
@@ -701,6 +719,46 @@ relations_interaction:
   confidence: medium
   note: 'Positively correlated (viscosity-driven). [effect fixed inverse_corr->pos_corr 2026-08-18: enum lacked
     a positive-correlation value]'
+- id: IN.0011
+  from: L.tx.creaminess
+  to: L.tx.body
+  effect: pos_corr
+  magnitude: medium
+  scope: any
+  evidence:
+    source: prior
+    date: '2026-09-07'
+  confidence: medium
+  note: >-
+    Both are integrated percepts sharing fat and viscosity, and they are already
+    core together in rice milk and ice cream. That is allowed, but data that moves
+    them in lockstep cannot separate their coefficients. R-3 'richness' folds both.
+- id: IN.0012
+  from: L.tx.smoothness
+  to: L.tx.creaminess
+  effect: pos_corr
+  magnitude: medium
+  scope: any
+  evidence:
+    source: prior
+    date: '2026-09-07'
+  confidence: medium
+  note: >-
+    Smoothness is one of the components creaminess is defined as integrating
+    ("smoothness + viscous flow + fat lubrication + dairy aroma").
+- id: IN.0013
+  from: L.tx.smoothness
+  to: L.tx.body
+  effect: pos_corr
+  magnitude: weak
+  scope: any
+  evidence:
+    source: prior
+    date: '2026-09-07'
+  confidence: low
+  note: >-
+    Weakest leg of the creaminess-smoothness-body triangle. Recorded so the three
+    read as one cluster rather than three independent axes.
 relations_decomposition:
 - idiom: depth of flavor
   idiom_ko: 깊은 맛

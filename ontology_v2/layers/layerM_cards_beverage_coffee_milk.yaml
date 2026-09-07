@@ -10,11 +10,37 @@ meta:
     ST) - there is no product dimension, so this file layers product cards over the profile base. See migration
     log F7.
   counts:
-    cards: 11
+    cards: 12
     core: 7
-    monitored: 4
+    monitored: 5
     sample_aged: 2
 measurement_cards:
+- term_id: L.tx.thickness
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 덜 걸쭉하다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 더 걸쭉하다'
+    jar_target: '기준과 같게'
+    evaluation_note: '바디감과 헷갈리기 쉽습니다. 바디감은 묽은 음료에도 쓰는 말이고, 걸쭉함은 풀바디를 넘어선 구간입니다. 스푼으로 떠서 흐르는 모양을 보면 갈라집니다.'
+  active_in:
+  - SC.emulsion.ow|APP.beverage
+  tier: monitored
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: medium
+  evidence_required: sample
+  jar_target: match benchmark
+  note: >-
+    Monitored by default, not core. Most beverages are asked about BODY; a thick
+    beverage (yogurt smoothie, drinkable yogurt) is asked about THICKNESS instead.
+    Which one is core is a PRODUCT decision - a product-level file (F7) promotes
+    this to core and demotes L.tx.body. Added 2026-09-07 together with PO.0061,
+    which made the axis reachable in beverage scope for the first time.
+    Never core together with L.tx.body (they are the same continuum: body below,
+    thickness above) or with L.tx.pourability (IN.0003 inverse).
 - term_id: L.ta.sweet
   ko:
     anchors:
