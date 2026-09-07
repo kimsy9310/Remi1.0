@@ -2109,14 +2109,25 @@ lexicon_terms:
   term: spreadability
   domain: tx
   subcategory: mechanical
-  definition: Ease of scooping and spreading (yield-stress percept).
+  definition: Ease of spreading a thin even layer onto a surface (yield-stress percept).
   ko: 펴발림성
   example_foods:
+  - butter
   - mayonnaise
+  - cream cheese
   - spreads
   source: Spectrum
   merged_synonyms:
   - scoopability
+  note: >-
+    2026-09-07 correction. The definition read "Ease of scooping and spreading"
+    because v1 SA.scoopability was folded in here. Scooping and spreading are
+    different actions - scooping breaks off a lump, spreading thins it over a
+    surface. Ice cream is scooped but not spread; butter is both. The example
+    foods were already spread-only (mayonnaise, spreads), so the definition was
+    the part that was wrong. merged_synonyms keeps the migration record.
+    Scoopability is not restored as its own term: ice cream already asks
+    "harder to scoop than the benchmark?" through L.tx.hardness.
   legacy_map:
   - SA.scoopability
 - id: L.tx.melting

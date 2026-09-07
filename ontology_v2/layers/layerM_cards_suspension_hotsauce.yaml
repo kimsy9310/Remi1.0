@@ -8,9 +8,9 @@ meta:
   note: 'PRODUCT-LEVEL ACTIVATION FILE (F7), same pattern as layerM_cards_beverage_coffee_milk.yaml. The four product axes (pungent_hot, heat_linger, dried_red_chili, soy_fermented_jang) lived in the suspension PROFILE file until 2026-09-02. A structure class implies rheology and appearance, not aroma - a tomato salsa is the same structure and shares none of them. Identity axes are capped at 3 (pungent_hot, dried_red_chili, soy_fermented_jang); heat_linger and umami are demoted to maintain, not removed.'
   spec: remi_ontology_spec_v2.md §2.3, §5.7, §5.8, §6.2
   counts:
-    cards: 19
+    cards: 20
     core: 10
-    monitored: 9
+    monitored: 10
     sample_aged: 4
   inactive_no_card:
   - SA.pungency_onset (askability fail - knowledge kept in C edges / R-1, not asked)
@@ -351,3 +351,25 @@ measurement_cards:
   jar_target: none detectable
   note: Restored from v1 roster (off_flavor + flavor.rancid_oxidised). First shelf-life failure mode for sesame/perilla-oil
     sauces.
+
+- term_id: L.tx.spreadability
+  ko:
+    anchors:
+      '-3': 기준보다 뚜렷하게 펴 바르기 어렵다
+      '0': 기준과 구분되지 않는다
+      '+3': 기준보다 뚜렷하게 잘 펴진다
+    evaluation_note: 빵이나 접시에 얇고 고르게 펴는 동작으로 봅니다. 떠내는 동작(스쿱)과는 다른 축입니다.
+  active_in:
+  - SC.suspension
+  tier: monitored
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: medium
+  evidence_required: sample
+  note: >-
+    Added 2026-09-07 with PO.0068. Xanthan already raised P.yield_stress in
+    suspension scope, so the parameter was reachable and only the percept link was
+    missing. A gochujang-style sauce is spread on a plate or in a bowl, and that
+    is a real use quality. Promotable to core for spoonable products.

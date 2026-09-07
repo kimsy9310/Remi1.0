@@ -10,10 +10,10 @@ meta:
     ST) - there is no product dimension, so this file layers product cards over the profile base. See migration
     log F7.
   counts:
-    cards: 12
+    cards: 16
     core: 7
-    monitored: 5
-    sample_aged: 2
+    monitored: 9
+    sample_aged: 3
 measurement_cards:
 - term_id: L.tx.thickness
   ko:
@@ -228,3 +228,95 @@ measurement_cards:
   evidence_required: sample
   slot: flavor_user_slot_2
   note: 'User-selected flavor slot for product: coffee milk.'
+
+- term_id: L.tx.pourability
+  ko:
+    anchors:
+      '-3': 기준보다 뚜렷하게 잘 따라지지 않는다
+      '0': 기준과 구분되지 않는다
+      '+3': 기준보다 뚜렷하게 잘 따라진다
+    evaluation_note: 병을 기울여 처음 흘러나오기까지와, 나오는 줄기의 굵기를 보세요.
+  active_in:
+  - SC.emulsion.ow|APP.beverage
+  tier: monitored
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+  note: >-
+    Added 2026-09-07 with PO.0062. A beverage is poured before it is drunk, so
+    this axis is more native here than in a sauce, yet only the sauce profile had
+    it. Never core together with L.tx.thickness (IN.0003 inverse) - asking both is
+    asking one question twice.
+
+- term_id: L.tx.mouthcoating_persistence
+  ko:
+    anchors:
+      '-3': 코팅감이 기준보다 뚜렷하게 빨리 사라진다
+      '0': 기준과 구분되지 않는다
+      '+3': 코팅감이 기준보다 뚜렷하게 오래 남는다
+    jar_target: 기준과 같게
+    evaluation_note: 삼킨 뒤 10초쯤 지나 입안에 남은 막을 봅니다. 시간 축이라 편차가 큽니다 - core 로 올린다면 반복 시료가 필요합니다.
+  active_in:
+  - SC.emulsion.ow|APP.beverage
+  tier: monitored
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: low
+  evidence_required: sample
+  note: >-
+    Added 2026-09-07 with PO.0063 / PO.0064. Fat leaves a film on the palate
+    whether it arrives in a sauce or a milk drink; the lingering coating of a
+    creamer beverage is this axis. Defect watch for plant beverages that use
+    high-melting fats.
+
+- term_id: L.ap.separated
+  ko:
+    anchors:
+      '-3': 기준보다 확실히 안정적이다 (분리 흔적 없음)
+      '0': 기준과 구분되지 않는다
+      '+3': 기준보다 층이 뚜렷하게 갈라졌다
+    jar_target: 눈에 보이는 층 갈라짐이 없을 것
+    evaluation_note: 따로 보관해 둔 병으로 하는 저장 후 합·부 판정입니다(스펙 5.8). 크리밍·웃물·자유 기름을 봅니다.
+  active_in:
+  - SC.emulsion.ow|APP.beverage
+  tier: monitored
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: minimize
+  reliability: high
+  evidence_required: sample_aged
+  jar_target: no visible phase split
+  note: >-
+    Added 2026-09-07 with PO.0065. Visible phase split is the most common storage
+    failure of an emulsion beverage, and the beverage profile carried the oil-ring
+    card without the separation card behind it. Only the creaming leg is wired -
+    P.coalescence_rate has no ingredient actuator in beverage scope yet.
+
+- term_id: L.ap.milky_whiteness
+  ko:
+    anchors:
+      '-3': 흰빛이 기준보다 뚜렷하게 약하다
+      '0': 기준과 구분되지 않는다
+      '+3': 기준보다 뚜렷하게 뽀얗게 희다
+    evaluation_note: 탁함과 다른 축입니다. 탁함은 뿌연 정도, 백탁은 희기입니다 - 간장처럼 탁하지만 희지 않은 것도, 쌀음료처럼 둘 다 높은 것도 있습니다.
+  active_in:
+  - SC.emulsion.ow|APP.beverage
+  tier: monitored
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+  note: >-
+    Added 2026-09-07 with PO.0067 and the beverage-scope droplet edge
+    (FT.emulsifier_droplet_beverage_scope). Finer droplets scatter light more and
+    read whiter - the reason homogenisation whitens a milk drink. Promotable to
+    core for plant beverages, where whiteness is what the drink is judged on
+    before it is tasted.

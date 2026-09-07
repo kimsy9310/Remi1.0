@@ -34,8 +34,13 @@
 #   - 기본 tier 는 monitored 다. 물어볼 수 있지만 목적함수에는 안 들어간다
 #     (스펙 5.7). core 로 올리려면 제형 파일에 카드를 쓴다 — 그것이 "이 제품
 #     에서는 이 축이 결정적이다" 라는 선언이 된다.
-#   - 앵커·평가주의는 여기 두지 않는다. 그것이야말로 맥락에 따라 달라지는 것
-#     이라 제형 카드가 할 일이다. 여기서는 축이 **존재한다**는 것만 말한다.
+#   - 앵커는 기준 대비 문장 하나뿐인 최소본만 둔다. 기본맛은 앵커까지도 맥락을
+#     크게 타지 않는다 — "기준보다 뚜렷하게 덜 짜다" 는 어디서나 같은 뜻이다.
+#     제형 파일에 카드가 있으면 그 앵커가 이긴다. 맥락을 타는 평가주의(온도·
+#     시간·헷갈리는 이웃 축)는 제형 카드가 쓴다.
+#     2026-09-07: 처음에는 앵커를 여기 두지 않았는데, 그러면 제품이 짠맛을
+#     core 로 올리는 순간(소금 캐러멜 — 이 파일의 동기였던 그 예시) 화면의
+#     설명줄이 빈다.
 #
 # 무엇을 여기 넣나
 # ----------------
@@ -72,6 +77,12 @@ meta:
 measurement_cards:
 
 - term_id: L.ta.sweet
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 덜 달다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 더 달다'
+    jar_target: '기준과 같게'
   tier: monitored
   method: JAR
   scale_type: jar_5
@@ -82,6 +93,12 @@ measurement_cards:
   jar_target: match benchmark
 
 - term_id: L.ta.salty
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 덜 짜다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 더 짜다'
+    jar_target: '기준과 같게'
   tier: monitored
   method: JAR
   scale_type: jar_5
@@ -97,6 +114,12 @@ measurement_cards:
     be asked.
 
 - term_id: L.ta.sour
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 덜 시다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 더 시다'
+    jar_target: '기준과 같게'
   tier: monitored
   method: JAR
   scale_type: jar_5
@@ -107,6 +130,13 @@ measurement_cards:
   jar_target: match benchmark
 
 - term_id: L.ta.umami
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 감칠맛이 덜하다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 감칠맛이 더하다'
+    jar_target: '기준과 같게'
+    evaluation_note: '짠맛과 함께 오르내리기 쉽습니다. 소금을 바꾼 시료라면 둘을 따로 보기 어렵습니다.'
   tier: monitored
   method: JAR
   scale_type: jar_5
@@ -117,6 +147,13 @@ measurement_cards:
   jar_target: match benchmark
 
 - term_id: L.ta.bitter
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 쓴맛이 덜하다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 쓴맛이 더하다'
+    jar_target: '느껴지지 않을 것'
+    evaluation_note: '결함 축입니다. 다만 커피·카카오처럼 쓴맛이 제품의 성격인 경우에는 제형 카드가 이 기본값을 덮습니다.'
   tier: monitored
   method: JAR
   scale_type: jar_5
@@ -131,6 +168,13 @@ measurement_cards:
     two-tier arrangement is for.
 
 - term_id: L.ta.aftertaste_length
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 여운이 더 짧다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 여운이 더 길다'
+    jar_target: '기준과 같게'
+    evaluation_note: '삼킨 뒤 15초쯤 지나 판정합니다. 여섯 축 중 편차가 가장 큽니다.'
   tier: monitored
   method: JAR
   scale_type: jar_5

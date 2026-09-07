@@ -58,6 +58,20 @@ function_tags_ext:
   effects:
   - { to: P.overrun, direction: increase, magnitude: medium, scoped_to_structure_class: SC.frozen.ice_cream, source_type: prior, confidence: medium }
 
+- id: FT.emulsifier_droplet_beverage_scope
+  label: "Emulsifier (droplet size, beverage scope extension)"
+  definition: >-
+    Scope extension only: 유화제가 액적을 잘게 만든다는 것은 계면 물리이지
+    제형의 성질이 아니다. 그런데 P.droplet_size_d32 로 가는 재료 엣지가 여덟
+    줄 모두 소스 스코프에만 걸려 있어, 음료에서는 이 파라미터를 움직일 수단이
+    없었다. 그 결과 R-1 이 백탁(L.ap.milky_whiteness)을 음료에 이어도 도달하지
+    못했다. 균질화 압력이 음료에서 액적 크기를 정하는 더 큰 손잡이지만 그것은
+    공정이라 Layer O 의 몫이고, 재료 쪽 손잡이는 유화제다.
+  alias_of: FT.emulsifier
+  effects:
+  - { to: P.droplet_size_d32, direction: decrease, magnitude: medium, scoped_to_structure_class: SC.emulsion.ow.beverage, source_type: prior, confidence: medium,
+      note: "2026-09-07. 소스 스코프 엣지(layerC2_ingredient_function.yaml)와 같은 기작을 음료에서 다시 말한 것. 크기는 소스보다 한 단계 낮게 잡았다 - 음료는 지방상이 적어 유화제 과잉 구간에 더 빨리 닿는다." }
+
 # =============================================================================
 # 미룬 것 — 기름 관능 용어가 정리된 뒤에
 # =============================================================================

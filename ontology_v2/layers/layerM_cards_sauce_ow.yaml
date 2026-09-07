@@ -5,10 +5,10 @@ meta:
   profile: Oil-in-water emulsion sauce
   spec: remi_ontology_spec_v2.md §2.3, §5.7, §5.8, §6.2
   counts:
-    cards: 16
+    cards: 17
     core: 7
-    monitored: 9
-    sample_aged: 1
+    monitored: 10
+    sample_aged: 2
 measurement_cards:
 - term_id: L.ta.salty
   ko:
@@ -190,7 +190,10 @@ measurement_cards:
   default_goal: maintain
   reliability: medium
   evidence_required: sample
-  note: Term spreadability (absorbs v1 scoopability). Promotable for spoonable/semisolid products.
+  note: >-
+    2026-09-07 correction: the note used to say this term absorbed v1 scoopability.
+    It did not - scooping and spreading are different actions, and the lexicon
+    definition was corrected the same day. Promotable for spoonable/semisolid products.
 - term_id: L.tx.mouthcoating_persistence
   ko:
     anchors:
@@ -270,3 +273,27 @@ measurement_cards:
   reliability: high
   evidence_required: sample_aged
   evaluation_note: 'Aged pass/fail check (§5.8): visible creaming / serum / free oil on the set-aside jar.'
+
+- term_id: L.ap.oil_ring
+  ko:
+    anchors:
+      '-3': 기준보다 확실히 깨끗하다 (고리가 보이지 않는다)
+      '0': 기준과 구분되지 않는다
+      '+3': 기준보다 뚜렷한 기름 고리가 목이나 표면에 보인다
+    jar_target: 눈에 보이는 기름 고리가 없을 것
+    evaluation_note: 따로 보관해 둔 병으로 하는 저장 후 합·부 판정입니다(스펙 5.8).
+  active_in:
+  - SC.emulsion.ow|APP.sauce
+  tier: monitored
+  method: JAR
+  scale_type: jar_5
+  benchmark: current_recipe
+  default_goal: minimize
+  reliability: high
+  evidence_required: sample_aged
+  jar_target: no visible ring
+  note: >-
+    Added 2026-09-07 with PO.0066. A dressing that throws an oil ring at the jar
+    neck is the same creaming failure the beverage profile already recorded; the
+    sauce profile simply never had it wired. P.ring_formation stays beverage-only
+    - it is written for the neck of a bottle.

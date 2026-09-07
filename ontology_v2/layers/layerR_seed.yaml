@@ -8,7 +8,7 @@ meta:
     never overwritten (Invariant 3). BLACK aging observations (2026-08..12) should be logged as new KN.* records.
     2026-08-18: R-2 effect enum extended with pos_corr; IN.0004/IN.0010 corrected.'
   counts:
-    relations_proxy: 61
+    relations_proxy: 68
     relations_interaction: 13
     relations_decomposition: 6
     relations_kinetics: 3
@@ -174,7 +174,7 @@ relations_proxy:
   evidence: *id001
   confidence: medium
   params: {}
-  note: Higher yield stress = harder to spread/scoop.
+  note: Higher yield stress = harder to spread a thin even layer.
 - id: PO.0017
   percept: L.tx.creaminess
   parameter: P.oil_phase_fraction
@@ -627,6 +627,109 @@ relations_proxy:
     can move it", which was false. Added because a THICK BEVERAGE (yogurt smoothie,
     drinkable yogurt) must be formulable. Whether a product asks about thickness or
     about body is a PRODUCT decision, not a structure one.
+- id: PO.0062
+  percept: L.tx.pourability
+  parameter: P.apparent_viscosity
+  functional_form: linear
+  monotone: decreasing
+  scope: SC.emulsion.ow|APP.beverage
+  evidence:
+    source: prior
+    date: '2026-09-07'
+  confidence: medium
+  note: >-
+    Beverage counterpart of PO.0015. Pours easily is the inverse of thick
+    (IN.0003), so opening thickness in beverage without pourability would leave
+    the pair lopsided. A beverage is poured before it is drunk, which makes this
+    axis more native here than in a sauce. Monitored, never core together with
+    L.tx.thickness.
+- id: PO.0063
+  percept: L.tx.mouthcoating_persistence
+  parameter: P.oil_phase_fraction
+  functional_form: linear
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.beverage
+  evidence:
+    source: prior
+    date: '2026-09-07'
+  confidence: medium
+  note: >-
+    Beverage counterpart of PO.0023. Fat leaves a film on the palate whether it
+    arrives in a sauce or in a milk drink - the lingering coating of a creamer
+    beverage is this axis. Defect watch, monitored.
+- id: PO.0064
+  percept: L.tx.mouthcoating_persistence
+  parameter: P.apparent_viscosity
+  functional_form: linear
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.beverage
+  evidence:
+    source: prior
+    date: '2026-09-07'
+  confidence: low
+  note: Viscosity leg of the same percept; weaker than the fat leg.
+- id: PO.0065
+  percept: L.ap.separated
+  parameter: P.creaming_index
+  functional_form: linear
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.beverage
+  evidence:
+    source: prior
+    date: '2026-09-07'
+  confidence: high
+  note: >-
+    Beverage counterpart of the sauce record. Visible phase split is the most
+    common failure of an emulsion beverage on storage. Only the creaming leg is
+    added - P.coalescence_rate has no ingredient actuator in beverage scope yet,
+    so wiring it would create an unreachable path.
+- id: PO.0066
+  percept: L.ap.oil_ring
+  parameter: P.creaming_index
+  functional_form: linear
+  monotone: increasing
+  scope: SC.emulsion.ow|APP.sauce
+  evidence:
+    source: prior
+    date: '2026-09-07'
+  confidence: medium
+  note: >-
+    Sauce counterpart of the beverage record. A dressing that throws an oil ring
+    at the jar neck is the same creaming failure; the sauce profile simply never
+    had it wired. P.ring_formation stays beverage-only - it is written for the
+    neck of a bottle.
+- id: PO.0067
+  percept: L.ap.milky_whiteness
+  parameter: P.droplet_size_d32
+  functional_form: linear
+  monotone: decreasing
+  scope: SC.emulsion.ow|APP.beverage
+  evidence:
+    source: prior
+    date: '2026-09-07'
+  confidence: high
+  note: >-
+    Finer droplets scatter light more and read whiter - textbook, and the reason
+    homogenisation whitens a milk drink. Distinct from L.ap.cloudy: cloudy is HOW
+    TURBID, whiteness is HOW WHITE (user ruling 2026-09-07). Both can be core in
+    one beverage.
+- id: PO.0068
+  percept: L.tx.spreadability
+  parameter: P.yield_stress
+  functional_form: linear
+  monotone: decreasing
+  scope: SC.suspension
+  evidence:
+    source: prior
+    date: '2026-09-07'
+  confidence: medium
+  note: >-
+    Suspension counterpart of the sauce record. Xanthan already raises
+    P.yield_stress in suspension scope, so the parameter was reachable and only
+    the percept link was missing. A gochujang-style sauce is scooped from the jar
+    and spread; spreadability is a real use quality there. Found by comparing
+    ACROSS structure families - the audit only compared within a family, so this
+    gap was invisible to it.
 relations_interaction:
 - id: IN.0001
   from: L.tx.cold_perceived
