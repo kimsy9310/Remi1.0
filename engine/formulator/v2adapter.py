@@ -58,6 +58,7 @@ DEFAULT_ROOT = os.path.join(_PROJECT, "ontology_v2")
 # 작업 범위를 모를 때 쓰는 임시 스케일 규칙(폭/4 ≈ 1 SD 로 보는 것)
 RANGE_TO_SD = 4.0
 FALLBACK_SD = 0.5          # 범위도 x0 도 없을 때의 최후 기본값
+UNIVERSAL_AXES_FILE = "layerM_universal_axes.yaml"   # 전 프로파일 기본 카드
 FILLER_HEADROOM = 2.0      # 기준 배합에서 필러에 남겨 두는 최소 몫(총량 대비 %)
 
 # 제품 단위로 얹는 프로파일(스펙 F7). 정체성은 SC×APP×ST 뿐이라 "제품" 차원이
@@ -140,6 +141,7 @@ class V2Ontology:
         # 정본 로더의 PROFILES + 제품 단위 확장(F7). 원본은 그대로 둔다.
         self.profiles = {**self._ref.PROFILES, **EXTRA_PROFILES}
         self._ref.PROFILES = self.profiles      # validate/assemble 도 같은 표를 보게
+        self._install_universal_axes()
 
     # ---------------------------------------------------------------- 조회
     @property
@@ -149,6 +151,53 @@ class V2Ontology:
     @property
     def tags(self):
         return self.stack["tags"]
+
+    # ------------------------------------------------ 보편 축 (2026-09-07)
+    def _install_universal_axes(self):
+        """
+        기본맛을 전 프로파일의 기본 카드로 깐다.
+
+        왜 여기인가. 기본맛은 제형이 함의하지 않는다 — 소금이 짜다는 것은
+        에멀전이든 현탁액이든 언 것이든 같고, Layer C 도 `scoped_to_structure_
+        class: any` 로 그렇게 적고 있다. 그런데 M 카드는 제형 파일마다 손으로
+        쓰였고, 그 결과 아이스크림에는 짠맛 카드가 없어 **물어볼 수조차** 없었다.
+
+        Layer C 의 2-tier 와 같은 방식으로 고친다. layerM_universal_axes.yaml 이
+        모든 프로파일의 기본값이고, 제형 파일에 같은 term_id 카드가 있으면
+        그쪽이 이긴다. 기본 tier 는 monitored 라 목적함수에는 안 들어간다 —
+        core 로 올리는 것은 제형 카드가 하는 선언이다.
+
+        정본 로더(tests/loader_reference.py)는 건드리지 않는다. 대신
+        `_ref.load_cards` 를 감싼다. 앱 코드가 `onto._ref.load_cards(...)` 를
+        직접 부르는 곳이 여럿이라, 여기서 감싸야 전부가 같은 것을 본다.
+        """
+        import yaml as _yaml
+        path = os.path.join(self.layers, UNIVERSAL_AXES_FILE)
+        if not os.path.exists(path):
+            self.universal_axes = []
+            return
+        doc = _yaml.safe_load(open(path, encoding="utf-8")) or {}
+        self.universal_axes = doc.get("measurement_cards") or []
+
+        inner = self._ref.load_cards
+        universal = self.universal_axes
+        profiles = self.profiles
+
+        def load_cards(profile, layers_dir=None):
+            cards = inner(profile, layers_dir) if layers_dir else inner(profile)
+            have = {c["term_id"] for c in cards}
+            scopes = sorted(s for s in profiles[profile]["scopes"] if s != "any")
+            out = list(cards)
+            for u in universal:
+                if u["term_id"] in have:
+                    continue                     # 제형 카드가 이긴다
+                c = dict(u)
+                c["active_in"] = scopes          # 문서용. 프로파일마다 다르다
+                c["universal_default"] = True    # 어디서 왔는지 남긴다
+                out.append(c)
+            return out
+
+        self._ref.load_cards = load_cards
 
     def label(self, term_id):
         """

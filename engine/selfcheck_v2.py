@@ -259,6 +259,36 @@ for _g, _t, _w in _unful[:5]:
 check("어떤 재료로도 못 움직이는 core 축이 없다", not aud["dead_core"],
       str(aud["dead_core"]))
 
+# ---------------------------------------------------------------- 보편 축
+# 기본맛은 제형이 함의하지 않는다. 소금이 짜다는 것은 에멀전이든 현탁액이든
+# 언 것이든 같고 Layer C 도 scoped_to_structure_class: any 로 그렇게 적는다.
+# 그런데 카드가 제형 파일마다 손으로 쓰여서 아이스크림에는 짠맛 카드가 없었고,
+# 엔진은 소금이 짜다는 것을 아는데 물어볼 자리가 없었다(2026-09-07).
+# layerM_universal_axes.yaml 이 기본값을 깔고 제형 카드가 덮어쓴다.
+UNIVERSAL = ["L.ta.sweet", "L.ta.salty", "L.ta.sour",
+             "L.ta.umami", "L.ta.bitter", "L.ta.aftertaste_length"]
+
+_no_basic = []
+for _prof in sorted(onto.profiles):
+    _have = {c["term_id"] for c in onto._ref.load_cards(_prof, onto.layers)}
+    _miss = [t for t in UNIVERSAL if t not in _have]
+    if _miss:
+        _no_basic.append((_prof, [onto.label(t) for t in _miss]))
+
+check("기본맛이 전 프로파일에 있다", not _no_basic,
+      "; ".join(f"{p} {ts}" for p, ts in _no_basic))
+for _p, _ts in _no_basic:
+    print(f"        {_p}: {_ts} — 제형이 함의하는 것이 아니다")
+
+# 보편 축이 목적함수를 부풀리지 않는지. 기본값은 monitored 여야 하고,
+# core 로 올리는 것은 제형 카드가 하는 선언이다(스펙 5.7).
+_promoted = []
+for _prof in sorted(onto.profiles):
+    for c in onto._ref.load_cards(_prof, onto.layers):
+        if c.get("universal_default") and c["tier"] != "monitored":
+            _promoted.append(f"{_prof}:{c['term_id']}={c['tier']}")
+check("보편 축 기본값이 monitored 다", not _promoted, "; ".join(_promoted))
+
 # ---------------------------------------------------------------- 정체성 축
 # 제품을 그 제품이게 하는 축은 보통 2~3개다. 그 이상이면 제품 정의가 흐려졌다는
 # 뜻이다(2026-09-02 결정). 그리고 향·매운맛 같은 제품 고유 축은 **제형** 파일에
