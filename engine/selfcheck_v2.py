@@ -152,7 +152,8 @@ apath = os.path.join(onto.layers, "layerA_parameters.yaml")
 check("layerA_parameters.yaml 이 v2 layers/ 에 있다", os.path.exists(apath))
 A = yaml.safe_load(open(apath, encoding="utf-8"))
 P = {p["id"]: p for p in A["parameters"]}
-check("파라미터 38종(스펙 37 + 신규 1)", len(P) == 38, f"{len(P)}")
+# 스펙 37 + P.shear_thinning_index(2026-08-24) + P.solid_fat_content_37C(2026-09-10)
+check("파라미터 39종(스펙 37 + 신규 2)", len(P) == 39, f"{len(P)}")
 check("unit 누락 없음", all("unit" in p for p in P.values()))
 check("P.shear_thinning_index 정의됨", "P.shear_thinning_index" in P)
 

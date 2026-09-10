@@ -8,7 +8,7 @@ meta:
     never overwritten (Invariant 3). BLACK aging observations (2026-08..12) should be logged as new KN.* records.
     2026-08-18: R-2 effect enum extended with pos_corr; IN.0004/IN.0010 corrected.'
   counts:
-    relations_proxy: 68
+    relations_proxy: 72
     relations_interaction: 13
     relations_decomposition: 6
     relations_kinetics: 3
@@ -247,7 +247,16 @@ relations_proxy:
   parameter: P.gloss_optical
   functional_form: linear
   monotone: increasing
-  scope: SC.emulsion.ow|APP.sauce
+  scope: any
+  rescoped:
+    date: '2026-09-10'
+    was: SC.emulsion.ow|APP.sauce
+    why: >-
+      Gloss is surface optics and has no phase precondition - a glossy
+      gochujang and a glossy glaze are the same reading. The sauce scope was
+      authoring history, not physics: whoever wrote the sauce file wrote it
+      there. Widened rather than copied, which is the point - 10 of 56 R-1
+      pairs are already the same physics written once per profile.
   evidence: *id001
   confidence: high
   params: {}
@@ -256,7 +265,13 @@ relations_proxy:
   parameter: P.oil_phase_fraction
   functional_form: saturating
   monotone: increasing
-  scope: SC.emulsion.ow|APP.sauce
+  scope: any
+  rescoped:
+    date: '2026-09-10'
+    was: SC.emulsion.ow|APP.sauce
+    why: >-
+      Cause 1 of 3 in the user's gloss ruling (2026-09-10): gloss from fat and
+      oil. Free oil at the surface is a mirror wherever it sits.
   evidence: *id001
   confidence: medium
   params: {}
@@ -730,6 +745,74 @@ relations_proxy:
     and spread; spreadability is a real use quality there. Found by comparing
     ACROSS structure families - the audit only compared within a family, so this
     gap was invisible to it.
+- id: PO.0069
+  percept: L.ap.glossy
+  parameter: P.soluble_solids_brix
+  functional_form: saturating
+  monotone: increasing
+  scope: any
+  evidence:
+    source: prior
+    date: '2026-09-10'
+  confidence: medium
+  note: >-
+    Cause 2 of 3 in the user's gloss ruling (2026-09-10): gloss from sugars and
+    water - starch syrup, oligosaccharide, honey, sugar, cooked down. A
+    concentrated sugar solution dries to a continuous smooth film that reflects
+    evenly; the cooking step is what raises the concentration, so Brix is the
+    proxy the recipe side can actually move. Saturating, not linear: past the
+    point where the film is continuous, more sugar adds no more gloss.
+    Scope is any - a syrup film shines on a sauce, a glaze or a frozen surface
+    alike.
+- id: PO.0070
+  percept: L.ap.glossy
+  parameter: P.apparent_viscosity
+  functional_form: saturating
+  monotone: increasing
+  scope: any
+  evidence:
+    source: prior
+    date: '2026-09-10'
+  confidence: medium
+  note: >-
+    Cause 3 of 3 in the user's gloss ruling (2026-09-10): gloss from additives -
+    gelatin, starch and the like. These do not shine by themselves; they hold a
+    continuous even surface film instead of letting it break up, and viscosity is
+    the parameter both of them raise. Distinct from cause 2 (a sugar film is the
+    solute drying) and cause 1 (free oil is a second phase).
+    Note the tension to watch: the same parameter raises L.tx.thickness, so a
+    product cannot chase gloss this way without getting thicker. If measurement
+    ever separates the two, this record is the one to revisit.
+- id: PO.0071
+  percept: L.tx.creaminess
+  parameter: P.solid_fat_content_37C
+  functional_form: linear
+  monotone: decreasing
+  scope: any
+  evidence:
+    source: prior
+    date: '2026-09-10'
+  confidence: low
+  note: >-
+    SEEDED, DIRECTION NEEDS CONFIRMING. Fat still solid at mouth temperature reads
+    waxy rather than creamy - the textbook reason a hydrogenated palm kernel fat
+    is not used where clean melt matters. Truly non-monotone (too little solid fat
+    is thin and watery), seeded linear-decreasing until measured. This is the one
+    creaminess driver that fat TYPE carries and no other parameter held.
+- id: PO.0072
+  percept: L.tx.mouthcoating_persistence
+  parameter: P.solid_fat_content_37C
+  functional_form: linear
+  monotone: increasing
+  scope: any
+  evidence:
+    source: prior
+    date: '2026-09-10'
+  confidence: low
+  note: >-
+    SEEDED, DIRECTION NEEDS CONFIRMING. The other side of PO.0071 - fat that does
+    not melt at mouth temperature stays as a film. Together the two records say
+    what a formulator means by "this fat coats but is not creamy".
 relations_interaction:
 - id: IN.0001
   from: L.tx.cold_perceived

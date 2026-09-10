@@ -1,0 +1,129 @@
+# =============================================================================
+# [layerC2 확장 2026-09-10] 유지가 입안 온도에서 얼마나 굳어 있나 (SFC37)
+# -----------------------------------------------------------------------------
+# 왜 이 파일이 있나
+# -----------------
+# "지방 종류에 따라 크리미함이 다르게 느껴진다" 는 지적을 받고 세어 보니,
+# 유지 재료 16종 가운데 L.tx.creaminess override 를 가진 것이 **0건**이었다.
+# 크리미함 override 9건은 전부 유화제·안정제였다. 즉 모형은
+#
+#     생크림 = 팜핵경화유 = 참기름        (크리미함에 대하여)
+#
+# 로 보고 있었다. 셋 다 FT.fat_source 라 P.fat_content 로만 들어가는데, 그것은
+# **양**이지 종류가 아니다.
+#
+# 그러면 "종류" 를 파라미터로 만들 것인가 — 만들지 않았다. 종류는 재료 정체성
+# 이고, 코코넛유 대신 유지방을 고르는 것은 이미 z 의 다른 성분을 고르는 것이다.
+# 파라미터로 또 적으면 이중계산이고, 38개 파라미터가 전부 단위 있는 연속량인데
+# 종류만 범주형이라 스키마도 혼자 깨진다.
+#
+# 다만 종류가 나르는 것 중 **어디에도 없던 연속량**이 하나 있다. 입안 온도에서
+# 남아 있는 고체지방 비율이다. 팜핵경화유와 참기름을 입안에서 가르는 것이 그것
+# 이고, 재고 싶으면 pNMR 로 잴 수 있다. 그것을 P.solid_fat_content_37C 로
+# 새로 만들고(layerA), 이 파일이 재료를 거기에 잇는다.
+#
+# 무엇을 근거로 방향을 정했나
+# ---------------------------
+# 37 degC 에서 고체로 남아 있느냐는 유지의 융점 곡선에서 바로 나온다.
+#
+#     팜핵경화유    융점이 체온 위. 37 에서도 상당량 고체        올린다 (강)
+#     정제 팜유      37 부근에 고체 분획이 남는다                 올린다 (중)
+#     유지방        37 에서 소량 남는다 (생크림·전지유)          올린다 (약)
+#     코코넛유      24~26 에서 급격히 녹아 37 에서는 거의 0      내린다 (약)
+#     상온 액상유    37 에서 0                                   내린다
+#
+# 마지막 줄이 여섯 종(해바라기·고올레산해바라기·카놀라·올리브·현미·참기름·
+# 들기름)이다. 혼합물 안에서 액상유를 늘리면 배합 전체의 SFC37 이 내려간다.
+#
+# STATUS: DRAFT — 방향은 융점 곡선에서 나오므로 분명하다. 크기는 잠정이고,
+# 관능으로 이어지는 R-1 두 줄(PO.0071 크리미함 감소 · PO.0072 코팅 잔류 증가)은
+# confidence: low 로 심어 두었다. 그 두 줄의 부호는 확인이 필요하다.
+#
+# 관련: layerA_parameters.yaml P.solid_fat_content_37C, layerR_seed PO.0071/0072
+# =============================================================================
+
+ingredients_ext:
+
+# ---- 37 degC 에서 고체가 남는 쪽 --------------------------------------------
+- id: ING.hydrogenated_palm_kernel_oil_sfc_ext
+  label: "Hydrogenated palm kernel oil (SFC37 edge extension)"
+  alias_of: ING.hydrogenated_palm_kernel_oil
+  overrides:
+  - { to: P.solid_fat_content_37C, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high,
+      note: "경화 공정의 목적 자체가 융점을 올리는 것이다. 팔레트에서 SFC37 이 가장 높다." }
+
+- id: ING.palm_oil_sfc_ext
+  label: "Refined palm oil (SFC37 edge extension)"
+  alias_of: ING.palm_oil
+  overrides:
+  - { to: P.solid_fat_content_37C, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }
+
+- id: ING.cream_sfc_ext
+  label: "Dairy cream (SFC37 edge extension)"
+  alias_of: ING.cream
+  overrides:
+  - { to: P.solid_fat_content_37C, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: medium,
+      note: "유지방은 융점이 넓게 퍼져 있어 체온에서 소량이 남는다. 생크림이 팜핵경화유와 다른 지점이 여기다 - 지금까지 모형은 둘을 구별하지 못했다." }
+
+- id: ING.whole_milk_sfc_ext
+  label: "Whole milk (SFC37 edge extension)"
+  alias_of: ING.whole_milk
+  overrides:
+  - { to: P.solid_fat_content_37C, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: medium }
+
+# ---- 37 degC 에서 사실상 0 인 쪽 --------------------------------------------
+# 혼합물 안에서 이것들을 늘리면 배합 전체의 SFC37 이 내려간다.
+- id: ING.coconut_oil_sfc_ext
+  label: "Coconut oil (SFC37 edge extension)"
+  alias_of: ING.coconut_oil
+  overrides:
+  - { to: P.solid_fat_content_37C, direction: decrease, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: medium,
+      note: "상온에서 고체라 굳은 기름으로 분류되기 쉬우나, 24~26 degC 에서 급격히 녹아 체온에서는 거의 0 이다. 그 급격한 융해가 코코넛유의 입안 느낌을 만든다." }
+
+- id: ING.refined_coconut_oil_sfc_ext
+  label: "Refined coconut oil (SFC37 edge extension)"
+  alias_of: ING.refined_coconut_oil
+  overrides:
+  - { to: P.solid_fat_content_37C, direction: decrease, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: medium }
+
+- id: ING.sunflower_oil_sfc_ext
+  label: "Sunflower oil (SFC37 edge extension)"
+  alias_of: ING.sunflower_oil
+  overrides:
+  - { to: P.solid_fat_content_37C, direction: decrease, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }
+
+- id: ING.high_oleic_sunflower_oil_sfc_ext
+  label: "High-oleic sunflower oil (SFC37 edge extension)"
+  alias_of: ING.high_oleic_sunflower_oil
+  overrides:
+  - { to: P.solid_fat_content_37C, direction: decrease, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }
+
+- id: ING.canola_oil_sfc_ext
+  label: "Canola oil (SFC37 edge extension)"
+  alias_of: ING.canola_oil
+  overrides:
+  - { to: P.solid_fat_content_37C, direction: decrease, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }
+
+- id: ING.olive_oil_evoo_sfc_ext
+  label: "Extra virgin olive oil (SFC37 edge extension)"
+  alias_of: ING.olive_oil_evoo
+  overrides:
+  - { to: P.solid_fat_content_37C, direction: decrease, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }
+
+- id: ING.rice_bran_oil_sfc_ext
+  label: "Rice bran oil (SFC37 edge extension)"
+  alias_of: ING.rice_bran_oil
+  overrides:
+  - { to: P.solid_fat_content_37C, direction: decrease, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }
+
+- id: ING.sesame_oil_toasted_sfc_ext
+  label: "Toasted sesame oil (SFC37 edge extension)"
+  alias_of: ING.sesame_oil_toasted
+  overrides:
+  - { to: P.solid_fat_content_37C, direction: decrease, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }
+
+- id: ING.perilla_oil_sfc_ext
+  label: "Perilla oil (SFC37 edge extension)"
+  alias_of: ING.perilla_oil
+  overrides:
+  - { to: P.solid_fat_content_37C, direction: decrease, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }

@@ -429,3 +429,24 @@ parameters:
     prefers to report n, add a separate parameter and give PO.0009 a
     decreasing counterpart instead of reinterpreting this one.
   added_in: v2 (2026-08-24)
+- id: P.solid_fat_content_37C
+  label: Solid fat content at mouth temperature (SFC37)
+  param_type: physicochemical
+  unit: '% solid fat at 37 degC'
+  measurement:
+    method: pNMR (pulsed NMR, ISO 8292) or DSC melting curve
+    cost_tier: expensive
+  note: >-
+    Added 2026-09-10. Fat TYPE is not a parameter - it is ingredient identity, and
+    choosing coconut oil over milk fat already selects a different component of z.
+    But one thing fat type carries had no home anywhere: how much of it is still
+    SOLID at mouth temperature. That is what separates hydrogenated palm kernel
+    from sesame oil in the mouth, it is continuous, and it is measurable.
+    P.meltdown_rate is a different thing (how fast a frozen product drips), and
+    P.fat_content / P.oil_phase_fraction are amounts, not melting behaviour.
+    Direction is not obvious and the seeded R-1 records are deliberately low
+    confidence: a fat that melts just below body heat reads clean and creamy,
+    while one still solid at 37 degC reads waxy and coats. So SFC37 is expected to
+    LOWER creaminess and RAISE mouthcoating past some point - non-monotone in
+    truth, seeded as linear until measured.
+  added_in: v2 (2026-09-10)
