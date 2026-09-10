@@ -9,7 +9,9 @@ Remi 1.0 — 웜루프 앱
 from __future__ import annotations
 
 import os
+import shutil
 import sys
+import tempfile
 
 import numpy as np
 import pandas as pd
@@ -37,6 +39,22 @@ except ImportError:
 st.set_page_config(page_title="Remi 1.0", page_icon="🧪", layout="wide")
 
 DATA_DIR = os.path.join(_ROOT, "data")
+
+# data/ 에는 실측 파일만 있는 것이 아니다. 팔레트 정본과 검토용 대장이 같은
+# 폴더에 산다. 이것들을 실측 목록에 섞으면 사전순 첫 항목(axis_review.xlsx)이
+# 기본 선택이 되어 앱이 열리자마자 "'recipes' 시트가 없습니다" 로 멈춘다.
+# ⑤ 탭이 쓰던 필터를 여기로 올려 두 곳이 같은 것을 본다.
+_NOT_MEASUREMENT = ("palette.xlsx", "draft_review.xlsx",
+                    "palette_review.xlsx", "axis_review.xlsx")
+
+
+def measurement_files():
+    """실측 xlsx 만. 정본·검토 대장과 업로드 임시파일을 뺀다."""
+    return sorted(
+        f for f in os.listdir(DATA_DIR)
+        if f.endswith(".xlsx")
+        and not f.startswith(("~", "$", "_검사중_", "."))
+        and f not in _NOT_MEASUREMENT)
 
 
 # ---------------------------------------------------------------- 캐시
@@ -126,6 +144,13 @@ onto = get_onto()
 st.sidebar.title("Remi 1.0")
 st.sidebar.caption("식품 레시피 포뮬레이터")
 
+# scipy 가 없으면 제안이 경사하강으로 물러난다. 답은 나오는데 덜 정확한, 곧
+# 멈추지 않고 틀리는 종류라 두 화면 모두에서 보이게 둔다.
+if not _HAS_SCIPY:
+    st.sidebar.warning(
+        "scipy 가 없어 제안을 경사하강으로 풉니다 — 목표에 덜 정확하게 닿습니다.\n\n"
+        "`pip install scipy` 로 고칠 수 있습니다.", icon="🐢")
+
 # ---- 화면 선택이 가장 먼저다.
 # 사용자 화면은 프로파일·실측 데이터 선택을 쓰지 않는다. 그것들을 먼저 그리면
 # 단계 ① 과 겹쳐 보이고, data/ 가 비었을 때 사용자 화면까지 막힌다.
@@ -165,12 +190,13 @@ profiles = sorted(onto.profiles)
 default_ix = profiles.index("beverage_rice_milk") if "beverage_rice_milk" in profiles else 0
 profile = st.sidebar.selectbox("프로파일", profiles, index=default_ix)
 
-xlsx = sorted(f for f in os.listdir(DATA_DIR) if f.endswith(".xlsx") and not f.startswith("~"))
-if not xlsx:
-    st.sidebar.error("data/ 에 xlsx 가 없습니다.")
-    st.stop()
-fname = st.sidebar.selectbox("실측 데이터", xlsx)
-fpath = os.path.join(DATA_DIR, fname)
+xlsx = measurement_files()
+fname = fpath = None
+if xlsx:
+    fname = st.sidebar.selectbox("실측 데이터", xlsx)
+    fpath = os.path.join(DATA_DIR, fname)
+else:
+    st.sidebar.warning("data/ 에 실측 xlsx 가 없습니다.")
 
 _vars = variants_of(profile)
 variant = None
@@ -185,22 +211,51 @@ st.sidebar.caption(
     f"필러 `{onto.filler_of(profile)}`")
 
 # ---------------------------------------------------------------- 데이터 로드
-try:
-    data = get_data(fpath, profile, os.path.getmtime(fpath))
-except Exception as e:                                            # noqa: BLE001
-    st.error(f"**데이터를 읽지 못했습니다**\n\n{e}")
+#
+# 실측이 없거나 못 읽어도 **여기서 멈추지 않는다.** 예전에는 st.stop() 이라
+# ④ 팔레트·⑤ 실험 입력까지 같이 사라졌는데, 데이터를 못 읽었을 때 사용자가
+# 가야 할 곳이 바로 그 두 탭이다. data 를 None 으로 두고 데이터에 기대는
+# 탭만 안내로 바꾼다.
+data = None
+data_error = None
+if fpath is not None:
+    try:
+        data = get_data(fpath, profile, os.path.getmtime(fpath))
+    except Exception as e:                                        # noqa: BLE001
+        data_error = e
+
+if data_error is not None:
+    st.error(f"**`{fname}` 을(를) 읽지 못했습니다**\n\n{data_error}")
     st.info(
         "이 프로파일의 M 카드에 `legacy_column` 이 있어야 관능 컬럼이 L.* 축과 이어집니다. "
-        "`ontology_v2/layers/layerM_cards_*.yaml` 을 확인하세요.")
-    st.stop()
+        "`ontology_v2/layers/layerM_cards_*.yaml` 을 확인하세요. "
+        "④ 팔레트·⑤ 실험 입력 탭은 그대로 쓸 수 있습니다.")
 
 # 데이터·학습·팔레트는 전문가가 뒤에서 손보는 부분이다.
 # 사용자에게 필요한 것("무엇을 만들고 싶은가")은 위 user_flow 가 이미 처리했다.
 tab_data, tab_learn, tab_suggest, tab_bounds, tab_entry = st.tabs(
     ["① 데이터", "② 학습", "③ 제안", "④ 팔레트", "⑤ 실험 입력"])
 
+
+def _need_data():
+    """데이터에 기대는 탭의 공통 안내. 데이터가 있으면 False."""
+    if data is not None:
+        return False
+    if not xlsx:
+        st.info("아직 실측 파일이 없습니다. **⑤ 실험 입력** 탭에서 양식을 만들어 "
+                "랩에 넘기고, 채워 온 파일을 올리면 여기가 살아납니다.", icon="📄")
+    else:
+        st.info("사이드바에서 고른 파일을 읽지 못했습니다. 위 메시지를 보세요.", icon="📄")
+    return True
+
+# 탭 본문은 함수로 둔다. st.stop() 은 스크립트 전체를 멈춰 **뒤에 오는 탭까지
+# 지워 버리기** 때문이다. 적합이 실패하면 "④ 팔레트에서 범위를 넣으세요" 라고
+# 안내해 놓고 정작 그 탭을 그리지 않는 일이 그래서 났다. 함수 안에서는 return
+# 이 그 탭만 접는다.
 # ================================================================= ① 데이터
-with tab_data:
+def _tab_data():
+    if _need_data():
+        return
     st.subheader("무엇이 들어왔나")
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("샘플", len(data.sample_ids))
@@ -230,8 +285,15 @@ with tab_data:
                 for i, g in enumerate(data.names)}},
             use_container_width=True, hide_index=True)
 
+
+with tab_data:
+    _tab_data()
+
+
 # ================================================================= ② 학습
-with tab_learn:
+def _tab_learn():
+    if _need_data():
+        return
     st.subheader("사전값을 실측이 얼마나 밀어냈나")
     ptab = load_palette(profile, variant)
     bounds = ptab.bounds() if ptab else {}
@@ -239,7 +301,9 @@ with tab_learn:
         res = wl.run(onto, data, profile, bounds=bounds or None)
     except Exception as e:                                        # noqa: BLE001
         st.error(f"적합에 실패했습니다: {e}")
-        st.stop()
+        st.info("재료 범위가 비어 있거나 뒤집혔을 때 자주 납니다. "
+                "**④ 팔레트** 탭에서 하한·상한을 확인해 주세요.")
+        return
 
     c1, c2, c3 = st.columns(3)
     c1.metric("적합에 쓴 샘플", res.n)
@@ -293,13 +357,20 @@ with tab_learn:
 
     st.session_state["res"] = res
 
+
+with tab_learn:
+    _tab_learn()
+
+
 # ================================================================= ③ 제안
-with tab_suggest:
+def _tab_suggest():
+    if _need_data():
+        return
     st.subheader("다음 실험 제안")
     res = st.session_state.get("res")
     if res is None:
-        st.info("먼저 ② 학습 탭을 여세요.")
-        st.stop()
+        st.info("② 학습이 아직 끝나지 않았습니다. ② 탭의 메시지를 먼저 보세요.")
+        return
 
     ptab = load_palette(profile, variant)
     bounds = ptab.bounds() if ptab else {}
@@ -351,7 +422,7 @@ with tab_suggest:
     if len(free_axes) == len(res.y_terms):
         st.warning("모든 축을 자유로 두면 최적화할 목표가 없습니다. 하나 이상 풀어주세요.",
                    icon="⚠️")
-        st.stop()
+        return
 
     # ---- 슬라이더가 바뀌면 즉시 재계산 (버튼 없음)
     try:
@@ -359,7 +430,7 @@ with tab_suggest:
                        free_axes=free_axes or None)
     except Exception as e:                                        # noqa: BLE001
         st.error(f"제안에 실패했습니다: {e}")
-        st.stop()
+        return
 
     delta = x - x0
     y0 = res.model.predict(x0[None, :])[0]
@@ -542,17 +613,21 @@ with tab_suggest:
                 st.write(f"`{r[1]}` · {r[2]} · 샘플 {r[3]}건 · 목표 {r[4]}")
 
 
+with tab_suggest:
+    _tab_suggest()
+
+
 # ================================================================= ④ 팔레트
-with tab_bounds:
+def _tab_bounds():
     st.subheader("팔레트와 작업 범위")
     ptab = load_palette(profile, variant)
 
     if ptab is None:
         st.error(
             "이 프로파일의 팔레트 행이 없습니다.\n\n"
-            "`python tools/build_palette.py` 로 표를 만들거나, "
+            "`python tools/build_palette.py --write` 로 표를 만들거나, "
             "`data/palette.xlsx` 에 이 프로파일 행을 추가하세요.")
-        st.stop()
+        return
 
     stt = ptab.status()
     c1, c2, c3, c4 = st.columns(4)
@@ -572,7 +647,7 @@ with tab_bounds:
 
     # ---- 목표축 커버리지 (G2)
     core = core_terms(profile)
-    cov = ptab.coverage(core)
+    cov = ptab.coverage(core, label_of=axis_label)
     dead = [t for t, v in cov.items() if not v]
     st.markdown("##### 목표축 커버리지")
     st.dataframe(
@@ -622,7 +697,10 @@ with tab_bounds:
             "온톨로지ID": st.column_config.TextColumn(disabled=True),
             "담당축": st.column_config.TextColumn(disabled=True, help="온톨로지가 계산합니다"),
         },
-        key=f"pal_{profile}")
+        # key 에 목적을 넣어야 한다. 프로파일만 넣으면 목적을 바꿔도 위젯 상태가
+        # 그대로 살아, 행 집합이 다른데 인덱스 기준으로 편집분이 얹힌다 —
+        # 기본 행에서 고친 값이 저당 행에 저장될 수 있다.
+        key=f"pal_{profile}_{variant or '(기본)'}")
 
     if st.button("저장", type="primary"):
         out, bad2 = [], []
@@ -654,8 +732,12 @@ with tab_bounds:
             st.write(f"**{slot}** ({len(gs)}) — {', '.join(ing_label(g) for g in gs)}")
 
 
+with tab_bounds:
+    _tab_bounds()
+
+
 # ================================================================= ⑤ 실험 입력
-with tab_entry:
+def _tab_entry():
     st.subheader("실험 데이터 넣기")
     st.caption(
         "새 배치를 시작하려면 **① 양식 만들기** 로 빈 파일을 받아 랩에 넘기고, "
@@ -713,13 +795,16 @@ with tab_entry:
         st.markdown("##### ② 채운 파일 올리기")
         up = st.file_uploader("xlsx 파일", type=["xlsx"], key="up_data")
         if up is not None:
-            tmp = os.path.join(DATA_DIR, f"_검사중_{up.name}")
+            # 검사용 사본은 data/ 밖에 둔다. 예전에는 data/_검사중_*.xlsx 였는데,
+            # 저장을 안 누르면 그대로 남아 실측 목록을 어지럽혔다.
+            tmpdir = tempfile.mkdtemp(prefix="remi_upload_")
+            tmp = os.path.join(tmpdir, up.name)
             with open(tmp, "wb") as fh:
                 fh.write(up.getbuffer())
             try:
                 chk = dataio.load_warmloop(tmp, onto, profile)
             except Exception as e:                             # noqa: BLE001
-                os.remove(tmp)
+                shutil.rmtree(tmpdir, ignore_errors=True)
                 st.error(f"읽지 못했습니다: {e}")
                 st.info(
                     "컬럼 이름이 양식과 같은지 확인해 주세요. 관능 컬럼은 M 카드의 "
@@ -744,23 +829,21 @@ with tab_entry:
                     st.warning(f"`{up.name}` 이 이미 있습니다. 저장하면 덮어씁니다.",
                                icon="⚠️")
                 if st.button("이 데이터로 저장", type="primary"):
-                    os.replace(tmp, dest)
+                    shutil.copy2(tmp, dest)
+                    shutil.rmtree(tmpdir, ignore_errors=True)
                     st.cache_data.clear()
                     st.success(f"저장했습니다: `{up.name}` — "
                                f"사이드바 '실측 데이터' 에서 고르면 학습에 들어갑니다.")
                     st.rerun()
                 else:
                     st.caption("저장을 누르기 전까지는 반영되지 않습니다.")
+                    shutil.rmtree(tmpdir, ignore_errors=True)
 
     # ---------------------------------------------------------- 현재 데이터
     st.divider()
     st.markdown("##### `data/` 에 있는 실측 파일")
     rows_e = []
-    for f in sorted(os.listdir(DATA_DIR)):
-        if not f.endswith(".xlsx") or f.startswith(("~", "_검사중_")):
-            continue
-        if f in ("palette.xlsx", "draft_review.xlsx", "palette_review.xlsx"):
-            continue
+    for f in measurement_files():
         fp = os.path.join(DATA_DIR, f)
         got = "—"
         for pf in sorted(onto.profiles):
@@ -776,5 +859,9 @@ with tab_entry:
         st.dataframe(rows_e, use_container_width=True, hide_index=True)
     else:
         st.caption("아직 없습니다.")
+
+
+with tab_entry:
+    _tab_entry()
 
 

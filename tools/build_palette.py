@@ -27,6 +27,9 @@ import os
 import re
 import sys
 
+import shutil
+from datetime import datetime
+
 import numpy as np
 import openpyxl
 from openpyxl.styles import Alignment, Font, PatternFill
@@ -153,7 +156,15 @@ def read_shortlist(path):
     return rows
 
 
-def build():
+def build(write=False):
+    """
+    write=False 면 표를 조립만 하고 **파일에 손대지 않는다.**
+
+    이 생성기가 덮는 `data/palette.xlsx` 는 하한·상한을 사람이 손으로 채우는
+    정본이고, 앱 ④ 탭이 저장할 때도 같은 파일에 되쓴다. 아무 확인 없이
+    덮어쓰면 그 큐레이션이 통째로 날아간다 — 규칙(CLAUDE.md)이 "도구는
+    --check 를 갖는다. 두 번 돌려도 덮어쓰지 않아야 한다" 인 이유다.
+    """
     onto = V2Ontology()
     records, unresolved = [], []
 
@@ -299,14 +310,52 @@ def build():
         for i, w in enumerate([28, 40, 30], 1):
             ws3.column_dimensions[get_column_letter(i)].width = w
 
+    if not write:
+        return records, unresolved
+
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
+    if os.path.exists(OUT):
+        # 덮기 전에 옆에 한 부 둔다. 되돌릴 곳이 있어야 한다.
+        stamp = datetime.now().strftime("%y%m%d_%H%M%S")
+        bak = f"{os.path.splitext(OUT)[0]}_백업_{stamp}.xlsx"
+        shutil.copy2(OUT, bak)
+        print(f"  기존 파일을 백업했습니다: {os.path.basename(bak)}")
     wb.save(OUT)
     return records, unresolved
 
 
+def _current_handwork():
+    """지금 표에서 사람이 채운 것 — 덮으면 무엇이 사라지는지 세어 준다."""
+    if not os.path.exists(OUT):
+        return None
+    wb = openpyxl.load_workbook(OUT, data_only=True)
+    if "palette" not in wb.sheetnames:
+        return None
+    ws = wb["palette"]
+    hdr = [None if c.value is None else str(c.value).strip() for c in ws[1]]
+
+    def col(name):
+        return hdr.index(name) if name in hdr else None
+
+    iLo, iHi, iWhy, iVar = col("하한"), col("상한"), col("범위근거"), col("목적")
+    n_rows = n_range = n_why = n_variant = 0
+    for r in ws.iter_rows(min_row=2, values_only=True):
+        if not any(c is not None and str(c).strip() for c in r):
+            continue
+        n_rows += 1
+        if iLo is not None and iHi is not None and r[iLo] is not None and r[iHi] is not None:
+            n_range += 1
+        if iWhy is not None and str(r[iWhy] or "").strip():
+            n_why += 1
+        if iVar is not None and str(r[iVar] or "").strip():
+            n_variant += 1
+    return dict(rows=n_rows, ranges=n_range, why=n_why, variant=n_variant)
+
+
 if __name__ == "__main__":
-    recs, un = build()
-    print(f"작성: {OUT}")
+    write = "--write" in sys.argv
+    recs, un = build(write=write)
+    print(("작성: " if write else "미리보기(파일에 쓰지 않았습니다): ") + OUT)
     print(f"  행 {len(recs)}개")
     byp = {}
     for r in recs:
@@ -319,3 +368,17 @@ if __name__ == "__main__":
         print(f"  확인 필요 {len(un)}건:")
         for n, v, why in un:
             print(f"     {n[:22]:24s} {v[:38]:40s} {why}")
+
+    if not write:
+        cur = _current_handwork()
+        if cur:
+            print()
+            print(f"  지금 있는 표: {cur['rows']}행 "
+                  f"· 범위 채워진 행 {cur['ranges']} "
+                  f"· 범위근거 적힌 행 {cur['why']} "
+                  f"· 목적별 행 {cur['variant']}")
+            print("  --write 를 주면 이 표를 덮어씁니다. 손으로 채운 하한·상한과")
+            print("  목적별 행은 이 생성기가 만들지 않으므로 사라집니다.")
+            print("  (덮기 직전 같은 폴더에 _백업_ 사본을 남깁니다)")
+        print()
+        print("  실제로 반영하려면: python tools/build_palette.py --write")

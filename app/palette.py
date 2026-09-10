@@ -51,6 +51,25 @@ def _f(v):
         return None
 
 
+def _axis_tokens(cell):
+    """
+    담당축 칸("sweet↑ body↓")을 축 짧은이름 집합으로.
+
+    예전에는 `짧은이름 in 담당축` 이라는 부분문자열 검사였다. 그러면 이름이
+    다른 이름에 포함될 때 조용히 오탐이 난다 — 커피밀크에서
+
+        L.ar.milky  ⊂  "milky_whiteness↑"
+
+    가 걸려, README 가 결손으로 적어 둔 `L.ar.milky`(액추에이터 1개) 축이
+    ④ 탭에서는 커버된 것처럼 보였다. 토큰 단위 완전일치로 바꾼다.
+    """
+    out = set()
+    for tok in str(cell or "").replace(",", " ").split():
+        out.add(tok.rstrip("↑↓").strip())
+    out.discard("")
+    return out
+
+
 @dataclass
 class PaletteTable:
     profile: str
@@ -128,13 +147,31 @@ class PaletteTable:
     def flagged(self):
         return [(r["온톨로지ID"], r["확인"]) for r in self.rows if (r["확인"] or "").strip()]
 
-    def coverage(self, core_terms):
-        """목표축마다 그 축을 움직이는 재료가 몇 개인지 (G2)."""
+    def coverage(self, core_terms, label_of=None):
+        """
+        목표축마다 그 축을 움직이는 재료가 몇 개인지 (G2).
+
+        담당축 칸을 쓰는 곳이 둘인데 **형식이 다르다.** 표를 만드는
+        `tools/build_palette.py` 는 축 짧은이름을 적고("sweet↑ body↑"),
+        표에 행이 없을 때 쓰는 `V2Ontology.default_palette` 는 한글 라벨을
+        적는다("단맛↑ 바디감↑"). 짧은이름만 보면 온톨로지 폴백을 쓰는
+        프로파일 5종에서 전 축이 커버 0 으로 나온다 — ④ 탭이 멀쩡한 축마다
+        빨간 경고를 띄우게 된다.
+
+        label_of 를 주면 한글 라벨도 받는다. 라벨 뒤에는 화살표가 반드시
+        붙으므로 "라벨+화살표" 로 맞춰 접두사 충돌을 피한다
+        ("코팅성↑" 은 "코팅성(음식 표면)↑" 에 걸리지 않는다).
+        """
         out = {t: [] for t in core_terms}
         for r in self._usable():
-            ax = (r["담당축"] or "")
+            cell = str(r["담당축"] or "")
+            toks = _axis_tokens(cell)
             for t in core_terms:
-                if t.split(".")[-1] in ax:
+                hit = t.split(".")[-1] in toks
+                if not hit and label_of is not None:
+                    lab = str(label_of(t) or "").strip()
+                    hit = bool(lab) and (lab + "↑" in cell or lab + "↓" in cell)
+                if hit:
                     out[t].append(r["온톨로지ID"])
         return out
 

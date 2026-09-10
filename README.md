@@ -92,11 +92,11 @@ app/            Streamlit 앱
   palette.py      palette.xlsx → 재료 목록·등급·작업 범위
   store.py        SQLite. 실행 이력
 tools/
-  build_palette.py   shortlist xlsx → 기계가독 palette.xlsx (1회성 변환)
+  build_palette.py   shortlist xlsx → 기계가독 palette.xlsx (--write 로만 쓴다)
 engine/         최적화 엔진
   formulator/     mixture.py(혼합물 모형) · v2adapter.py(온톨로지 → 모형) 등
   selfcheck_model.py   v1 수학 회귀 18건
-  selfcheck_v2.py      v2 경로 회귀 40건
+  selfcheck_v2.py      v2 경로 회귀 44건
 ontology_v2/    온톨로지 (L·A·M·C·S·R 6층)
   layers/         YAML 31개
   tests/          loader_reference.py — 스펙이 지정한 정본 로더
@@ -170,7 +170,15 @@ data/           실측 xlsx · remi.db(로컬, git 제외)
 쌀 우유 행은 실측 데이터의 실제 사용 폭에서 씨앗을 넣었다. 전부 "검토 필요" 로
 표시돼 있다 — 실제로 쓴 범위이지 쓸 수 있는 범위가 아니다.
 
-> 생성기를 다시 돌리면 이 파일을 덮어쓴다. 손으로 채운 값이 있으면 먼저 복사할 것.
+> 생성기는 기본이 **미리보기**다. `--write` 를 줘야 이 파일을 덮어쓰고, 덮기
+> 직전에 `palette_백업_<날짜>.xlsx` 를 옆에 남긴다. 미리보기는 지금 표에 사람이
+> 채워 둔 것이 몇 행인지도 같이 세어 준다 — 생성기는 하한·상한과 목적별 행을
+> 만들지 않으므로 그만큼이 사라진다.
+>
+> ```bash
+> python tools/build_palette.py            # 미리보기. 파일에 손대지 않는다
+> python tools/build_palette.py --write    # 실제로 덮어쓴다
+> ```
 
 앱 ④ 탭에서 바로 편집·저장할 수 있고, 저장하면 이 파일에 되쓴다.
 
@@ -193,8 +201,13 @@ data/           실측 xlsx · remi.db(로컬, git 제외)
 
 - 자유변수 15개 중 데이터가 실제로 탐색한 **독립 방향은 11개**
   (샘플 수가 아니라 이 값이 배울 수 있는 양을 정한다)
-- 사전이 비어 있던 칸 **44개**를 데이터가 채웠다
-- 사전과 **부호가 뒤집힌 칸 2개** — 둘 다 Λ 가 낮고 이동이 작아 약한 증거다
+- 사전이 비어 있던 칸 **35개**를 데이터가 채웠다
+- 사전과 **부호가 뒤집힌 칸 1개** — 고감미도 감미료 → 바디감(사전 +1.0, 실측
+  −0.01, Λ=2.0). 사실상 0 으로 눌린 것이지 반대로 뒤집힌 것이 아니다
+
+> 이 숫자는 2026-09-10 에 `fit()` 이 사전과 **같은 눈금**(작업 범위 1 SD)으로
+> 적합하도록 고친 뒤의 값이다. 그 전에는 실측 표본 SD 로 표준화해 사전과 단위가
+> 달랐고, 같은 실행이 44개 / 2개로 나왔다.
 
 목표를 주면 그에 맞는 배합이 나온다. 예: body +1.0 · 산화취 −1.0 →
 잔탄검 ↑, 아라비아검 ↓, 현미호분 유화제 ↑ (예측 body +1.00 · 산화취 −0.99).
@@ -231,9 +244,9 @@ data/           실측 xlsx · remi.db(로컬, git 제외)
 ## 검사
 
 ```bash
-python engine/selfcheck_v2.py                    # v2 경로 40건
+python engine/selfcheck_v2.py                    # v2 경로 44건
 python engine/selfcheck_model.py                 # v1 수학 18건
-python ontology_v2/tests/loader_reference.py     # 프로파일 6개 검증
+python ontology_v2/tests/loader_reference.py     # 프로파일 5개 검증
 ```
 
 온톨로지를 고쳤으면 세 개를 다 돌린다. `loader_reference.py` 는 스펙이 지정한

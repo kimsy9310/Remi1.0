@@ -29,6 +29,9 @@ import numpy as np
 import process as _process
 import openpyxl
 
+# 관능 척도의 끝. 벤치마크 상대 −3…+3 (README·M 카드 앵커와 같은 값).
+SCALE_MAX = 3.0
+
 
 @dataclass
 class WarmLoopData:
@@ -190,10 +193,15 @@ def load_warmloop(path, onto, profile, filler=None):
     # ---- 4) 행 조립 (배합과 관능이 모두 있는 샘플만)
     names = sorted(resolved)
     if filler not in names:
+        # 예전 문구는 "잔량으로 채웁니다" 였는데 그런 코드가 없다. 아래 정규화는
+        # 적힌 재료끼리 100 으로 나눌 뿐이라 필러는 0 으로 남는다. 사실대로 적는다.
         names.append(filler)
-        notes.append(f"필러 {filler} 가 배합 컬럼에 없어 잔량으로 채웁니다.")
+        notes.append(
+            f"필러 {filler} 컬럼이 없습니다. 적힌 재료만으로 100% 를 채우므로 "
+            f"{filler} 는 전 행 0 이 됩니다 — 잔량으로 채우지 않습니다.")
 
     X, Y, sids, benches, totals = [], [], [], [], []
+    out_of_scale = []
     for r in rec_rows:
         sid = r.get("sample_id")
         if not sid:
@@ -217,6 +225,12 @@ def load_warmloop(path, onto, profile, filler=None):
             if not vals:
                 ok = False
                 break
+            # 척도를 벗어난 값은 오타다. 그냥 통과시키면 한 칸의 99 가 그 축의
+            # 계수를 통째로 끌고 가는데, 겉으로는 아무 일도 없어 보인다.
+            bad = [v for v in vals if abs(v) > SCALE_MAX + 1e-9]
+            if bad:
+                out_of_scale.append((sid, term2col[t], bad[0]))
+                vals = [float(np.clip(v, -SCALE_MAX, SCALE_MAX)) for v in vals]
             yv[k] = float(np.mean(vals))
         if not ok:
             notes.append(f"{sid}: 관능 값이 비어 있어 건너뜁니다.")
@@ -231,6 +245,36 @@ def load_warmloop(path, onto, profile, filler=None):
 
     if not X:
         raise ValueError("배합과 관능이 모두 채워진 샘플이 없습니다.")
+
+    if out_of_scale:
+        head = ", ".join(f"{s}·{c}={v:g}" for s, c, v in out_of_scale[:4])
+        notes.append(
+            f"관능 척도(±{SCALE_MAX:g})를 벗어난 값 {len(out_of_scale)}건을 "
+            f"±{SCALE_MAX:g} 로 잘랐습니다: {head}"
+            f"{' 외' if len(out_of_scale) > 4 else ''}. "
+            f"오타인지 확인해 주세요 — 자르지 않으면 그 한 칸이 축 하나의 "
+            f"계수를 통째로 끌고 갑니다.")
+
+    # ---- 5) 필러가 움직였는가
+    #
+    # 이 모형의 계수는 γ_j = β_j − β_filler, 곧 "**필러를 밀어내며** j 를 올릴
+    # 때의 변화" 다(mixture.py 머리말). 필러가 전 행에서 같은 값이면 그 기준이
+    # 데이터 안에 없다. 게다가 자유변수의 합이 상수가 되어 정확한 선형종속이
+    # 생긴다 — v1 이 "[1|X] 열 7 · rank 6" 으로 겪었던 그 문제가 모양만 바꿔
+    # 돌아온 것이고, 지금은 Λ 가 그 방향을 통째로 메우고 있다.
+    #
+    # 여기서 고칠 수 있는 문제가 아니다(첨가수를 안 쓴 배합일 수도 있다).
+    # 다만 조용히 넘어가면 안 되는 것이라 드러낸다.
+    Xa = np.array(X)
+    fcol = Xa[:, names.index(filler)]
+    spread = float(fcol.max() - fcol.min())
+    if spread < 1e-9:
+        notes.append(
+            f"필러 {filler} 가 전 행에서 {fcol[0]:.3g}% 로 고정입니다. 모형의 계수는 "
+            f"'필러를 밀어내며 1 올릴 때' 라는 뜻인데 그 기준이 데이터에 없고, "
+            f"나머지 재료의 합이 상수라 자유변수 {len(names) - 1}개 중 한 방향은 "
+            f"실측이 아니라 사전값(Λ)이 정합니다. 배치에 물을 따로 적으셨다면 그 "
+            f"열을 채워 주세요.")
 
     return WarmLoopData(
         names=names, X=np.array(X), Y=np.array(Y), y_terms=y_terms,

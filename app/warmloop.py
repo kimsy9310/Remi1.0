@@ -161,8 +161,29 @@ def run(onto, data, profile, bounds=None, process_warn=True):
     prior_model.fit_prior_only(prior=G0, prior_precision=lam, sigma=S0,
                                zbar=built.zbar, zsd=built.zsd)
 
+    # 사전과 **같은 눈금**으로 적합한다. Γ₀ 는 작업 범위 1 SD 당 효과인데
+    # fit() 이 실측 표본 SD 로 표준화하면 같은 Λ 무게로 단위가 다른 두 값을
+    # 섞는다(mixture.fit 의 zsd 항목 참조). 그래야 Gamma_prior 와 Gamma_post 를
+    # 나란히 빼는 shifts() 도 뜻이 있다.
     model = MixtureModel(built.palette, filler=built.filler, total=100.0)
-    model.fit(X, Y, prior=G0, prior_precision=lam)
+    model.fit(X, Y, prior=G0, prior_precision=lam, zsd=built.zsd)
+
+    # 실측이 훑은 폭이 작업 범위보다 훨씬 좁으면, 그 재료는 사전이 사실상
+    # 그대로 남는다. 눈금을 맞춘 지금은 그게 조용히 계수로 스미지 않고
+    # "데이터가 이 재료를 거의 안 움직였다" 로 드러난다 — 드러내 준다.
+    Zf = model.to_free(X)
+    sd_data = Zf.std(0)
+    narrow = [(g, float(sd_data[i]), float(built.zsd[i]))
+              for i, g in enumerate(free)
+              if built.zsd[i] > 1e-12 and sd_data[i] < 0.25 * built.zsd[i]]
+    if narrow:
+        head = ", ".join(f"{g.replace('ING.', '')}({s:.3g}↔{b:.3g})"
+                         for g, s, b in narrow[:5])
+        warns.append(
+            f"작업 범위에 비해 실측이 거의 안 움직인 재료 {len(narrow)}종: {head}"
+            f"{' 외' if len(narrow) > 5 else ''}. "
+            f"이 재료의 계수는 사실상 사전값 그대로입니다 — 다음 배치에서 "
+            f"범위 안쪽을 넓게 잡아야 배웁니다.")
 
     eff = effective_directions(model.to_free(X))
     q = len(free)

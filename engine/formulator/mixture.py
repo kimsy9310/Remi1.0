@@ -136,12 +136,36 @@ class MixtureModel:
 
     # ------------------------------------------------------------------ 적합
     def fit(self, X, Y, prior=None, prior_precision=None, ridge=1.0,
-            shrink=None):
+            shrink=None, zsd=None):
         """
         X (n,p) 전체 배합 · Y (n,m) 반응
         prior (q,m)            γ 의 사전 평균. 없으면 0
         prior_precision (q,)   엣지별 정밀도 Λ 대각. 없으면 ridge 로 균일
         shrink                 Σ 수축 계수 δ ∈ [0,1]. None 이면 자동
+        zsd (q,)               사전과 같은 스케일. **prior 를 줄 때는 같이 줄 것**
+
+        zsd 를 왜 밖에서 받나
+        ---------------------
+        온톨로지 사전 Γ₀ 는 "재료의 **작업 범위** 1 SD 당 효과" 로 정의된다
+        (v2adapter: zsd = (hi-lo)/RANGE_TO_SD). 그런데 여기서 표준화를 실측의
+        표본 SD 로 하면, 같은 Λ 무게로 **단위가 다른 두 값을 섞게 된다.**
+
+        쌀 우유 실측에서 잰 비율(표본SD / 범위SD):
+
+            ING.salt              0.49x
+            ING.arabic_gum        1.61x
+            ING.emulaid           1.90x
+            ING.citric / dmg95    2.00x   (한 수준만 써 표본SD 가 0 → 1.0 대체)
+
+        지금 팔레트가 실측 사용 폭에서 씨앗을 받아 2배에 그치지만, 범위를
+        "쓸 수 있는 폭" 으로 제대로 채우면 벌어진다 — 설탕 10~25%(범위SD 3.75)
+        인데 실측이 20~21%(표본SD 0.3)만 훑었으면 12배다.
+
+        fit_prior_only 는 바로 이 오류 때문에 zsd 기본값을 없앴다. 여기도 같다.
+        **중심(zbar)은 그대로 표본평균을 쓴다** — 중심은 절편의 문제이고
+        단위와 무관하다. 바꾸는 것은 눈금뿐이다.
+
+        zsd 를 안 주면 예전대로 표본 SD 를 쓴다(사전 없는 순수 회귀용).
         """
         X = np.atleast_2d(np.asarray(X, float))
         Y = np.atleast_2d(np.asarray(Y, float))
@@ -157,8 +181,20 @@ class MixtureModel:
         # 재료(물 g)와 작은 재료(잔탄검 g)에 사실상 다른 세기의 벌점이 걸린다.
         # 사전도 "1 표준편차당 효과" 로 주어지므로 같은 단위로 맞춘다.
         self.zbar = Z.mean(0)
-        self.zsd = Z.std(0)
-        self.zsd[self.zsd < 1e-9] = 1.0
+        if zsd is None:
+            self.zsd = Z.std(0)
+            self.zsd[self.zsd < 1e-9] = 1.0
+        else:
+            zsd_arr = np.asarray(zsd, float)
+            if zsd_arr.ndim == 0:
+                zsd_arr = np.full(q, float(zsd_arr))
+            if zsd_arr.shape != (q,):
+                raise ValueError(
+                    f"zsd 의 모양이 {zsd_arr.shape} 입니다. ({q},) 여야 합니다 "
+                    f"(재료 {len(self.names)}종에서 필러 '{self.filler}' 제외).")
+            if np.any(zsd_arr <= 0):
+                raise ValueError("zsd 는 모두 양수여야 합니다.")
+            self.zsd = zsd_arr.copy()
         self.ybar = Y.mean(0)
         Zc = (Z - self.zbar) / self.zsd
         Yc = Y - self.ybar
