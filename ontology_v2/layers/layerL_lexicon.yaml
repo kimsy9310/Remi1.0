@@ -2329,7 +2329,21 @@ lexicon_terms:
   term: oiliness
   domain: tx
   subcategory: surface
-  definition: Perception of flowing liquid fat.
+  definition: >-
+    Perception of flowing liquid fat - either because the product contains free
+    oil, or because the emulsion has failed and released it.
+  redefined:
+    date: '2026-09-10'
+    was: Perception of flowing liquid fat.
+    why: >-
+      The wiring was already ahead of the prose. R-1 hangs this percept on
+      P.coalescence_rate and P.droplet_size_d32 - both of which describe an
+      emulsion coming apart - but the definition only mentioned fat being present.
+      A reader checking the definition would not know the axis doubles as an
+      emulsion-failure read. User redefinition, axis judgment ledger 2026-09-10.
+    note: >-
+      Distinct from L.tx.greasiness (flowing vs coating). Greasiness has no R-1
+      record at all and is unreachable everywhere - a separate gap.
   ko: 기름짐(유동)
   example_foods:
   - oily dressing
@@ -2351,7 +2365,26 @@ lexicon_terms:
   term: creaminess
   domain: tx
   subcategory: surface
-  definition: 'Integrated percept: smoothness + viscous flow + fat lubrication + dairy aroma.'
+  definition: >-
+    Integrated TACTILE percept in the mouth: soft, smooth and rich. Driven by
+    viscosity, particle size, and fat (both amount and type). Aroma is NOT part
+    of this term.
+  redefined:
+    date: '2026-09-10'
+    was: 'Integrated percept: smoothness + viscous flow + fat lubrication + dairy aroma.'
+    why: >-
+      Two problems. (1) The old text carried DAIRY AROMA inside a texture term,
+      yet no R-1 record ever wired an aroma parameter to it - the component existed
+      only in prose. Worse, it made plant creaminess impossible by definition while
+      the palette already carries ING.vegan_creamer and ING.prima_creamer.
+      (2) PARTICLE SIZE was missing, although it is one of the three drivers.
+      Redefinition dictated by the user in the axis judgment ledger, 2026-09-10.
+    note: >-
+      Fat TYPE is deliberately not a parameter. It is ingredient identity - choosing
+      coconut oil over milk fat already selects a different component of z. The
+      experiential knowledge that one fat reads creamier than another belongs in
+      ingredient OVERRIDES, which is where all 16 fat ingredients currently have
+      none. See L.tx.smoothness, which this term contains as a sub-percept.
   ko: 크리미함
   example_foods:
   - cream soup
