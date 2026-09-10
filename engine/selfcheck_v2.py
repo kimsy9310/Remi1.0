@@ -14,6 +14,14 @@ import sys
 
 import numpy as np
 
+# 출력이 파이프나 파일로 가면 윈도우 파이썬은 로케일 인코딩(cp949)을 쓴다.
+# 이 파일은 Γ₀ 의 아래첨자를 찍으므로 거기서 UnicodeEncodeError 로 죽었다 —
+# 콘솔에서는 UTF-16 으로 나가 지나가고, `> log.txt` 나 CI 에서만 44건 중
+# 6건째에서 멈춘다. 조용히 반만 도는 검사가 제일 나쁘다.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from formulator.mixture import MixtureModel, _as_lambda        # noqa: E402
@@ -342,10 +350,12 @@ check("제형 파일에 제품 고유 축(향·매운맛)이 없다", not _leake
 for _p, _ts in _leaked:
     print(f"        {_p}: {_ts} — 제품 단위 파일로 옮길 것")
 
-# 스펙 5.9 — 액추에이터 없는 R-1 은 플래그 대상이지 실패는 아니다.
-# 없는 파라미터를 지어내는 것보다 보이게 두는 편이 낫다.
+# 스펙 5.9 — 액추에이터 없는 R-1. 오래 "플래그이지 실패는 아니다" 로 두었는데,
+# 2026-09-10 판정 대장이 이름을 줬다: **공정의존**. 재료 엣지가 0건인 것이
+# 당연하다 — 분쇄·향방출·제공온도는 재료가 아니라 공정이 정한다. 결함이 아니라
+# Layer O 의 빈 소켓이다. 목록은 tools/audit_axis_scope.py ⑥ 절.
 _n_orphan = sum(len(v) for v in aud["orphan_proxies"].values())
-print(f"  참고  액추에이터 없는 R-1 {_n_orphan}건 (스펙 5.9 플래그)")
+print(f"  참고  공정의존 파라미터 {_n_orphan}건 — 재료로는 못 켠다 (스펙 5.9 · Layer O 대기)")
 for _p, _xs in aud["orphan_proxies"].items():
     print(f"        [{_p}] {chr(44).join(_xs)}")
 print("\n" + "=" * 62)

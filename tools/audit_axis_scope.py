@@ -21,12 +21,20 @@
   3. 도달 가능성은 **다중 의존을 공짜로** 처리한다. 경로가 어떤 조합을 거치든
      하나라도 있으면 도달. 나열할 것이 없다.
 
-축이 존재하는 이유는 넷
------------------------
+축이 존재하는 이유는 다섯
+-------------------------
     보편        전제 없음. 짠맛 — 먹을 수 있으면 짤 수 있다
     제형의존    제형이 그 상을 줘야 한다. 얼음 씹힘 <- 얼음. 팔레트로 못 고친다
     재료의존    그 재료가 팔레트에 있어야 한다. 커피 향 <- 커피. 팔레트로 켠다
+    공정의존    공정이 정한다. 꺼끌거림 <- 얼마나 갈았나. 재료로는 못 켠다
     엣지결손    존재하는데 온톨로지에 엣지가 없다. 고쳐야 할 것
+
+**공정의존은 2026-09-10 에 대장에서 나왔다.** 건더기 크기 판정에 사용자가
+적어 주신 칸이고, 재 보니 스펙 5.9 가 "액추에이터 없는 R-1" 이라 플래그를
+달아 두던 파라미터 셋(P.particle_size_d90 · P.flavor_release_dynamics ·
+P.serving_temperature)을 정확히 설명한다. 재료 엣지가 0건인 것이 당연하다 —
+분쇄·향방출·제공온도는 재료가 아니라 공정이 정한다. 결함이 아니라 Layer O
+의 빈 소켓이었고, 이름이 없어서 결함으로 보였다. ⑥ 절이 그 목록이다.
 
 "제품의존" 은 없앴다. 커피 향이 존재하는 것은 "커피우유라는 제품이라서" 가
 아니라 "커피를 넣어서" 다 — 재료의존이다. 제품이 정하는 것은 존재 여부가 아니라
@@ -56,12 +64,72 @@ import collections
 import os
 import sys
 
+# 파이프·리다이렉트로 나갈 때 윈도우 파이썬은 cp949 를 쓴다. 이 보고서는
+# em dash(—)를 쓰므로 거기서 죽었다. 검사가 반만 돌고 멈추는 것을 막는다.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path[:0] = [os.path.join(HERE, "engine")]
 
 from formulator.v2adapter import V2Ontology            # noqa: E402
 
 OUT_XLSX = os.path.join(HERE, "data", "axis_review.xlsx")
+
+# 대장에 적을 수 있는 판정. 한 칸에 여럿 적어도 된다("엣지결손, 제형의존").
+VERDICTS = ("보편", "제형의존", "재료의존", "공정의존", "엣지결손", "보류")
+
+
+def read_ledger(path=OUT_XLSX):
+    """
+    판정 대장을 읽는다. 없으면 빈 dict.
+
+    이 도구는 오래 **쓰기만** 했다. 그래서 사람이 한 번 판정한 항목이 돌릴
+    때마다 다시 "고쳐야 할 목록" 에 떠서, 기각한 것과 아직 안 본 것이 섞였다.
+    판정은 물리에 대한 것이라 배선이 바뀌어도 유효하다 — 읽어서 갈라 놓는다.
+    """
+    if not os.path.exists(path):
+        return {}
+    try:
+        import openpyxl
+    except ImportError:
+        return {}
+    wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
+    if "판정대장" not in wb.sheetnames:
+        return {}
+    out = {}
+    for row in wb["판정대장"].iter_rows(min_row=2, values_only=True):
+        if not row or not row[1]:
+            continue
+        verdict = (row[6] or "").strip() if len(row) > 6 else ""
+        memo = (row[7] or "").strip() if len(row) > 7 else ""
+        if not verdict:
+            continue
+        tags = {v for v in VERDICTS if v in verdict}
+        out[row[1]] = dict(raw=verdict, tags=tags, memo=memo)
+    return out
+
+
+def process_gated(onto):
+    """
+    R-1 이 쓰는데 재료·태그 엣지가 하나도 없는 파라미터. 스펙 5.9 가 플래그를
+    달던 자리이고, 대장이 준 이름은 **공정의존** 이다.
+
+    반환: [(파라미터, [그 파라미터가 무는 축들])]
+    """
+    moved = set()
+    for src in (onto.tags, onto.ingredients):
+        for d in src.values():
+            for e in (d.get("effects") or d.get("overrides") or []):
+                to = e.get("to") or ""
+                if to.startswith("P."):
+                    moved.add(to)
+    gates = collections.defaultdict(set)
+    for r in onto.stack["R"].get("relations_proxy", []) or []:
+        gates[r.get("parameter")].add(r.get("percept"))
+    return [(pa, sorted(ts)) for pa, ts in sorted(gates.items())
+            if pa and pa not in moved]
 
 # 도메인별 예상. 감사가 이것을 뒤집으면 그 자체가 발견이다.
 DOMAIN = {
@@ -94,6 +162,7 @@ def main(want_xlsx=False):
     lex = onto.stack["lex"]
     profiles, movable, carded, tier = collect(onto)
     P = len(profiles)
+    ledger = read_ledger()
 
     # ---------------------------------------------------------- 4분면
     quad = collections.Counter()
@@ -172,7 +241,8 @@ def main(want_xlsx=False):
     print("③ 엣지 결손 — 같은 제형 부류인데 도달이 갈리는 축")
     print("-" * 74)
     print("  같은 structure_class 끼리는 물리가 같다. 한쪽에서만 도달하면")
-    print("  물리가 아니라 **엣지를 안 쓴 것**이다. 고쳐야 할 목록이다.")
+    print("  물리가 아니라 **엣지를 안 쓴 것**이다 — 다만 판정 대장이 아니라고")
+    print("  하면 아니다. 대장에 있는 것은 아래에서 갈라 놓는다.")
     fam = collections.defaultdict(list)
     for p in profiles:
         sc = sorted(x for x in onto.profiles[p]["scopes"] if x != "any")
@@ -187,12 +257,20 @@ def main(want_xlsx=False):
                 have = [q for q in ps if t in movable[q]]
                 leaks.append((sc, t, have, miss))
     print()
-    if not leaks:
-        print("  없음")
-    for sc, t, have, miss in leaks:
+    open_leaks = [x for x in leaks if x[1] not in ledger]
+    done_leaks = [x for x in leaks if x[1] in ledger]
+    if not open_leaks:
+        print("  아직 판정 안 된 것: 없음")
+    for sc, t, have, miss in open_leaks:
         print(f"  [{sc}] {onto.label(t):<18} 있음 {len(have)}/{len(have)+len(miss)}"
               f"  ·  없음 {miss}")
-    print(f"\n  총 {len(leaks)}건")
+    if done_leaks:
+        print(f"\n  판정 끝 {len(done_leaks)}건 — 대장이 이미 답한 것이다")
+        for sc, t, have, miss in done_leaks:
+            v = ledger[t]
+            memo = ("  " + v["memo"][:38]) if v["memo"] else ""
+            print(f"     {onto.label(t):<18} {v['raw']:<26}{memo}")
+    print(f"\n  총 {len(leaks)}건 (미판정 {len(open_leaks)} · 판정 끝 {len(done_leaks)})")
 
     # ------------------------------------- ④ 갈리는 축 (판정 대장 입력)
     split = []
@@ -207,11 +285,19 @@ def main(want_xlsx=False):
     print("  물리(제형의존)인지 누락(엣지결손)인지 계산으로는 못 가른다.")
     print("  대장에서 한 번 정하고, 그 뒤로는 selfcheck 가 지킨다.")
     print()
+    todo = 0
     for n, t, ps in split:
         if t.split(".")[1] == "ar" and n < 3:
             continue                      # 향은 재료의존. 여기서 볼 것이 아니다
         short = [p.replace("beverage_", "b_").replace("suspension_", "s_") for p in ps]
-        print(f"     {onto.label(t):<18} {t:<30} {n}/{P}  {short}")
+        v = ledger.get(t)
+        if v:
+            mark = v["raw"]
+        else:
+            mark = "· 미판정 ·"
+            todo += 1
+        print(f"     {onto.label(t):<18} {n}/{P}  {mark:<28} {short}")
+    print(f"\n  미판정 {todo}건 · 판정 끝 {len(ledger)}건")
 
     # ---------------------------------------------- ④ 전 제형에서 못 움직임
     never = [t for t in lex if not any(t in movable[p] for p in profiles)]
@@ -224,14 +310,33 @@ def main(want_xlsx=False):
         if dn.get(d):
             print(f"     L.{d} {DOMAIN[d][0]:<8} {dn[d]:>3}개")
 
+    # ------------------------------------------- ⑥ 공정 액추에이터 대기
+    gated = process_gated(onto)
+    print("\n" + "-" * 74)
+    print(f"⑥ 공정 액추에이터를 기다리는 파라미터 {len(gated)}개 — 공정의존")
+    print("-" * 74)
+    print("  R-1 이 쓰는데 재료·태그 엣지가 0건인 파라미터다. 스펙 5.9 가")
+    print("  \"액추에이터 없는 R-1\" 이라 플래그를 달던 자리이고, 결함이 아니다 —")
+    print("  분쇄·향방출·제공온도는 재료가 아니라 공정이 정한다. Layer O 의 몫.")
+    print()
+    for pa, ts in gated:
+        names = ", ".join(onto.label(t) for t in ts)
+        print(f"     {pa:<30} -> {names}")
+    if not gated:
+        print("     없음")
+
     if want_xlsx:
-        write_review(onto, profiles, movable, carded, tier, split, leaks)
+        write_review(onto, profiles, movable, carded, tier, split, leaks, ledger)
     return 0
 
 
-def write_review(onto, profiles, movable, carded, tier, split, leaks):
+def write_review(onto, profiles, movable, carded, tier, split, leaks, ledger=None):
     """
     판정 대장. `requires` 필드를 만드는 대신 이 표 한 장을 채운다.
+
+    **이미 적힌 판정·메모는 보존한다.** 2026-09-10 에 22행이 채워졌고,
+    그냥 덮어쓰면 그것이 날아간다. 도달 제형 숫자는 배선이 바뀌면 갱신되어야
+    하지만 판정은 물리에 대한 것이라 그대로 살린다.
 
     런타임 판정은 도달 가능성이 한다(머리말). 이 표는 도달 가능성이 못 하는
     한 가지 — "안 잡히는 것이 물리인가 누락인가" — 를 한 번 정해 기록한다.
@@ -258,10 +363,11 @@ def write_review(onto, profiles, movable, carded, tier, split, leaks):
                    f"물리로는 설명되지 않는다 — 엣지결손일 가능성이 높다")
         else:
             why = "제형마다 도달이 갈린다. 물리인가 누락인가"
+        keep = (ledger or {}).get(t) or {}
         ws.append([onto.label(t), t, t.split(".")[1],
                    f"{n}/{P}: {', '.join(ps)}",
                    ", ".join(p for p in profiles if t in carded[p]) or "없음",
-                   why, "", ""])
+                   why, keep.get("raw", ""), keep.get("memo", "")])
 
     ws2 = wb.create_sheet("읽는 법")
     for line in [
@@ -278,6 +384,11 @@ def write_review(onto, profiles, movable, carded, tier, split, leaks):
         "",
         "  재료의존    그 재료가 팔레트에 있어야 존재한다. 팔레트로 켠다",
         "              예) 커피 향 — 커피를 넣으면 난다. 음료든 아이스크림이든",
+        "",
+        "  공정의존    공정이 정한다. 재료로는 못 켠다",
+        "              예) 꺼끌거림 — 얼마나 갈았느냐가 정한다",
+        "              2026-09-10 대장에서 나온 칸. 스펙 5.9 가 결함으로",
+        "              플래그를 달던 파라미터 3개가 전부 여기였다",
         "",
         "  엣지결손    존재는 하는데 온톨로지에 엣지가 없다. 우리가 고쳐야 한다",
         "              예) 걸쭉함이 소스에만 있고 음료에 없다 — 음료도 흐른다",
@@ -325,7 +436,8 @@ def write_review(onto, profiles, movable, carded, tier, split, leaks):
     wb.save(OUT_XLSX)
     print()
     print(f"판정 대장: {OUT_XLSX}")
-    print(f"  판정대장 {ws.max_row-1}행 · 엣지결손 {ws3.max_row-1}행")
+    kept = sum(1 for r in ws.iter_rows(min_row=2, values_only=True) if r[6])
+    print(f"  판정대장 {ws.max_row-1}행 (판정 {kept}행 보존) · 엣지결손 {ws3.max_row-1}행")
 
 
 if __name__ == "__main__":
