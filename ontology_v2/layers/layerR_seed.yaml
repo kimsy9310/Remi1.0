@@ -8,7 +8,7 @@ meta:
     never overwritten (Invariant 3). BLACK aging observations (2026-08..12) should be logged as new KN.* records.
     2026-08-18: R-2 effect enum extended with pos_corr; IN.0004/IN.0010 corrected.'
   counts:
-    relations_proxy: 72
+    relations_proxy: 74
     relations_interaction: 13
     relations_decomposition: 6
     relations_kinetics: 3
@@ -510,6 +510,11 @@ relations_proxy:
   evidence: *id001
   confidence: medium
   params: {}
+  note: >-
+    2026-09-10. This is the PARTICLE leg in frozen form - an ice crystal is a
+    particle, and a coarse one breaks smoothness the same way a coarse solid
+    does. Correctly frozen-scoped: ice exists only here. The general form of
+    the same physics is PO.0073 (P.particle_size_d90, any).
 - id: PO.0051
   percept: L.tx.smoothness
   parameter: P.fat_destabilization
@@ -517,8 +522,17 @@ relations_proxy:
   monotone: increasing
   scope: SC.emulsion.ow|APP.dessert|ST.frozen
   evidence: *id001
-  confidence: medium
+  confidence: low
   params: {}
+  note: >-
+    2026-09-10, DOWNGRADED medium -> low. The user's ruling on this axis says
+    fat presence is NOT what makes something smooth - viscosity and particle
+    size are. This record survives only as a frozen-specific mechanism (a fat
+    network limits ice crystal growth), which means it probably acts THROUGH
+    PO.0050 rather than directly. Kept, not deleted, because ice cream data
+    may still need it; the candidate for removal once PO.0050 is verified to
+    carry the effect on its own. Do not read this record as evidence that
+    smoothness is a fat percept - it is not.
 - id: PO.0052
   percept: L.tx.creaminess
   parameter: P.fat_destabilization
@@ -813,6 +827,47 @@ relations_proxy:
     SEEDED, DIRECTION NEEDS CONFIRMING. The other side of PO.0071 - fat that does
     not melt at mouth temperature stays as a film. Together the two records say
     what a formulator means by "this fat coats but is not creamy".
+- id: PO.0073
+  percept: L.tx.smoothness
+  parameter: P.particle_size_d90
+  functional_form: linear
+  monotone: decreasing
+  scope: any
+  evidence:
+    source: prior
+    date: '2026-09-10'
+  confidence: high
+  note: >-
+    THE PRIMARY LEG, and it has no actuator yet. User ruling 2026-09-10:
+    smoothness is driven by viscosity and particle size, with PARTICLE SIZE THE
+    MORE IMPORTANT of the two, and fat presence irrelevant. What breaks smoothness
+    is a few coarse particles, not the median - so d90 (coarse tail), not d50.
+    d50 would be reachable today because ingredients move it, but it answers a
+    different question: d50 is what you put in, d90 is how far you ground it.
+    Wiring d50 here would make the axis look healthy while measuring the wrong
+    thing. So this record is written at its true parameter and waits: d90 has zero
+    ingredient edges and is process-gated (see tools/audit_axis_scope.py section 6).
+    Layer O closes this. Until then the viscosity leg (PO.0074) carries the axis
+    alone, which is why that one is marked partial.
+- id: PO.0074
+  percept: L.tx.smoothness
+  parameter: P.apparent_viscosity
+  functional_form: linear
+  monotone: increasing
+  scope: any
+  evidence:
+    source: prior
+    date: '2026-09-10'
+  confidence: low
+  note: >-
+    THE SECONDARY LEG, and on its own it is not enough. A more viscous continuous
+    phase lubricates and masks small particles, so viscosity does raise smoothness -
+    but with PO.0073 unreachable this record is the only path, and a model running
+    on it alone cannot tell a coarsely ground sample from a finely ground one. That
+    is the exact thing the user called more important. Written anyway because the
+    axis must not stay frozen-only (user, 2026-09-10) - a plant beverage with
+    gritty protein is a smoothness problem and the ontology could not say so.
+    Treat any smoothness prediction as partial until Layer O lands.
 relations_interaction:
 - id: IN.0001
   from: L.tx.cold_perceived
