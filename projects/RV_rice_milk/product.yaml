@@ -1,0 +1,85 @@
+# =============================================================================
+# PROJECT — RV rice milk
+# -----------------------------------------------------------------------------
+# 제품은 온톨로지에 등록하지 않는다. 여기 산다.
+#
+# 왜 옮겼나
+#   `beverage_rice_milk` 가 프로파일 등록부에 제형처럼 올라 있었다. STRUCTURE
+#   자체는 깨끗했다 - 항목 넷이 전부 제형(SC x APP x ST)이다. 오염된 곳은
+#   등록부(loader_reference.PROFILES)와 제품 M 카드 파일 셋이었고, 커피우유
+#   파일 헤더가 그 사실을 이미 적고 있었다:
+#
+#       Spec 2.3 defines activation context as profile identity only
+#       (SC x APP x ST) - there is no product dimension
+#
+#   제형은 칸의 개수를 정하고 제품이 칸의 내용을 채운다는 것이 원래 설계였다
+#   (docs/상호작용_알고리즘.md 4.6). 구현이 거꾸로 가서 제품이 칸과 내용을
+#   함께 들고 프로파일 행세를 했다.
+#
+# 형식은 잠정이다
+#   제품 폴더의 모양은 아직 정하지 않았다(2026-09-10 기준 사용자 검토 중).
+#   지금은 옮기는 데 필요한 최소한만 적는다 - 어느 제형 위에 서는가, 무엇이
+#   이 제품을 이 제품이게 하는가, 실측 컬럼이 어느 축에 붙는가.
+#
+# 무엇이 여기 남고 무엇이 공유로 가나
+#   좌표는 격리하고 기울기는 공유한다. 배합 %, 목표 점수, 샘플 ID, 벤치마크
+#   제품명은 여기 남는다. "이 재료가 이 축을 이만큼 움직인다" 는 갱신분만
+#   공유 온톨로지로 환류하며, 그것도 **서로 다른 제품 둘 이상**이 같은 재료를
+#   써본 뒤에야 나간다(사용자 결정 2026-09-10). 지금은 실측 제품이 이것
+#   하나뿐이라 나가는 것이 없다.
+# =============================================================================
+
+meta:
+  id: RV_rice_milk
+  ko: 쌀 음료
+  kind: product
+  structure: beverage          # STRUCTURE 의 O/W 에멀전 음료. 사용자 확인 2026-09-10
+  moved_from: ontology_v2/layers/layerM_cards_beverage_rice_milk.yaml
+  moved_on: '2026-09-10'
+  format_status: provisional
+
+# 이 제품을 이 제품이게 하는 축. 제형은 이것을 함의하지 않는다.
+# 상한 2~3개 (사용자 규칙: "그 이상은 제품 정의가 흐려진 거야")
+identity_axes:
+- id: L.ar.cooked_rice
+  ko: 밥 향
+  note: 쌀 원료가 나른다. 제형이 아니라 재료가 켜는 축이다.
+- id: L.tx.creaminess
+  ko: 크리미함
+  note: >-
+    지방·점도·입자 크기가 정한다. 식물성 음료에서 유제품 같은 입안 느낌을
+    내는 것이 이 제품의 과제이므로 정체성으로 둔다.
+
+# 실측 xlsx 의 관능 컬럼이 어느 축에 붙는가.
+# 카드에 legacy_column 으로 들어 있던 것을 여기에도 모아 둔다 - 카드가
+# 프로파일 파일이 아니라 이 폴더에 있으므로, 매핑의 제자리는 여기다.
+measurement_columns:
+  sens_sweet: L.ta.sweet
+  sens_rice flavor: L.ar.cooked_rice
+  sens_oxidated oil: L.ar.rancid_oxidized
+  sens_mouthfeel: L.tx.body
+  sens_creaminess: L.tx.creaminess
+
+data:
+  file: data/beverage_warmloop_260720.xlsx
+  samples: 18
+  process_block: RM-P1
+  note: >-
+    필러 ING.water 가 전 행 0% 로 고정이다. 계수의 뜻이 "필러를 밀어내며 1
+    올릴 때" 인데 그 기준이 데이터에 없어, 자유변수 15개 중 한 방향은 실측이
+    아니라 사전값이 정한다. 다음 배치에서 물 열을 채우면 풀린다.
+
+learned:
+  as_of: '2026-09-10'
+  filled_from_silence: 35
+  sign_flipped: 1
+  effective_directions: 11        # 자유변수 15개 중
+  flipped_detail: >-
+    ING.high_intensity_sweetener -> L.tx.body. 사전 +1.00, 실측 -0.01, Λ=2.0.
+    반대로 뒤집힌 것이 아니라 사실상 0 으로 눌린 것이다.
+  shared_out: 0
+  shared_out_note: >-
+    환류 문턱이 "서로 다른 제품 둘 이상" 이라 지금은 하나도 나가지 않는다.
+    손실은 아니다 - 이 제품 안에서는 처음부터 쓰인다. 문턱을 정하기 전에
+    이미 배운 35개를 소급 적용할지는 아직 정하지 않았다
+    (docs/layer_boundaries.md 5.3 의 세 갈래).

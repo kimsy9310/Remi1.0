@@ -187,7 +187,7 @@ if mode == "사용자":
 
 # ---- 여기부터 전문가 화면
 profiles = sorted(onto.profiles)
-default_ix = profiles.index("beverage_rice_milk") if "beverage_rice_milk" in profiles else 0
+default_ix = profiles.index("RV_rice_milk") if "RV_rice_milk" in profiles else 0
 profile = st.sidebar.selectbox("프로파일", profiles, index=default_ix)
 
 xlsx = measurement_files()

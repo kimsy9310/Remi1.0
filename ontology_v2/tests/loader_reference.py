@@ -35,9 +35,11 @@ PROFILES = {
     'beverage': dict(
         cards=['layerM_cards_beverage.yaml'],
         scopes={'any', 'SC.emulsion.ow', 'SC.emulsion.ow.beverage', 'SC.emulsion.ow|APP.beverage'}),
-    'beverage_coffee_milk': dict(   # product-level activation layered over beverage (F7)
-        cards=['layerM_cards_beverage_coffee_milk.yaml'],
-        scopes={'any', 'SC.emulsion.ow', 'SC.emulsion.ow.beverage', 'SC.emulsion.ow|APP.beverage'}),
+    # 2026-09-10: 'beverage_coffee_milk' 를 뺐다. 제품이 프로파일 등록부에
+    # 제형처럼 올라 있었다. 스펙 2.3 이 활성 맥락을 SC x APP x ST 로만 정의해
+    # 제품 차원이 없다는 것을 그 파일 헤더가 이미 적고 있었다. 실측이 없어
+    # 잃는 것도 없다 - 제형 기본에 없던 카드는 커피 향·우유 향 둘뿐이고
+    # 둘 다 재료만 넣으면 도달한다.
     # 2026-09-10: 'SC.emulsion.ow' 를 더했다. 아이스크림도 O/W 에멀전인데 그것이
     # 빠져 있어, 음료·소스와 형제로 인식되지 않았다. 두 가지가 걸려 있었다 —
     # (1) 제형 공통 물리를 위로 올리기 시작하면 아이스크림만 못 받는다.

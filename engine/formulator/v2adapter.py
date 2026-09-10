@@ -46,6 +46,7 @@ import sys
 from dataclasses import dataclass, field
 
 import numpy as np
+import yaml
 
 from .mixture import MixtureModel, propose
 
@@ -61,18 +62,19 @@ FALLBACK_SD = 0.5          # 범위도 x0 도 없을 때의 최후 기본값
 UNIVERSAL_AXES_FILE = "layerM_universal_axes.yaml"   # 전 프로파일 기본 카드
 FILLER_HEADROOM = 2.0      # 기준 배합에서 필러에 남겨 두는 최소 몫(총량 대비 %)
 
-# 제품 단위로 얹는 프로파일(스펙 F7). 정체성은 SC×APP×ST 뿐이라 "제품" 차원이
-# 없으므로, 제품별 M 카드를 상위 프로파일 위에 레이어링한다. coffee_milk 가
-# 선례이고 rice_milk 가 같은 방식이다.
+# 제품은 더 이상 여기 없다. projects/<이름>/ 폴더에 산다(2026-09-10).
 #
-# 정본 로더(tests/loader_reference.py)의 PROFILES 를 **편집하지 않는다** —
-# 그 파일은 스펙이 지정한 참조 구현이라 그대로 둬야 갱신본을 받을 수 있다.
-# 대신 여기서 병합한다.
+# 왜 옮겼나 — 스펙 2.3 이 활성 맥락을 SC x APP x ST 로만 정의한다. 제품
+# 차원이 없다. 그런데 등록부에 제품이 제형처럼 올라 있었고, 그래서 제품의
+# 정체성 축·실측 컬럼 매핑이 온톨로지 안에 들어앉아 있었다. 제형은 칸의
+# 개수를 정하고 제품이 칸의 내용을 채우는 것이 원래 설계다.
+#
+# 정본 로더(tests/loader_reference.py)의 PROFILES 를 함부로 편집하지 않는다.
+# 제품 제거처럼 등록부 자체가 틀린 경우만 거기서 고치고, 나머지는 여기서
+# 병합한다.
+PROJECTS_DIR = "projects"
+
 EXTRA_PROFILES = {
-    "beverage_rice_milk": dict(
-        cards=["layerM_cards_beverage_rice_milk.yaml"],
-        scopes={"any", "SC.emulsion.ow", "SC.emulsion.ow.beverage",
-                "SC.emulsion.ow|APP.beverage"}),
     # 2026-09-02: 발효 핫소스를 현탁액 제형 파일에서 떼어냈다. 제형은 물성만
     # 함의하는데 향·매운맛 축 4개가 거기 들어앉아, 토마토 살사를 만들려는
     # 사람에게도 고추를 묻고 있었다. tools/split_suspension_product.py 참조.
@@ -138,10 +140,54 @@ class V2Ontology:
         self._ref = _load_reference_loader(self.root)
         self.layers = os.path.join(self.root, "layers")
         self.stack = self._ref.load_stack(self.layers)
-        # 정본 로더의 PROFILES + 제품 단위 확장(F7). 원본은 그대로 둔다.
-        self.profiles = {**self._ref.PROFILES, **EXTRA_PROFILES}
+        # 정본 로더의 PROFILES + 제형 확장. 원본은 그대로 둔다.
+        self.projects = self._load_projects()
+        self.profiles = {**self._ref.PROFILES, **EXTRA_PROFILES,
+                         **{k: v["profile"] for k, v in self.projects.items()}}
         self._ref.PROFILES = self.profiles      # validate/assemble 도 같은 표를 보게
         self._install_universal_axes()
+
+    # ------------------------------------------------ 제품 (2026-09-10)
+    def _load_projects(self):
+        """
+        projects/<이름>/product.yaml 을 읽어 세션 프로파일로 올린다.
+
+        **온톨로지가 아니다.** 제품은 스펙 2.3 의 활성 맥락(SC x APP x ST)에
+        자리가 없다. 그래서 layers/ 밖에 두고, 여는 세션에서만 프로파일처럼
+        보이게 한다. 카드도 그 폴더에 있고 스코프는 `structure` 가 가리키는
+        제형에서 그대로 물려받는다 - 제품이 제 스코프를 지어내지 못하게.
+
+        폴더 형식은 잠정이다(2026-09-10 기준 사용자 검토 중). 지금 읽는 것은
+        meta.id · meta.structure · cards.yaml 셋뿐이다.
+        """
+        root = os.path.join(os.path.dirname(self.root), PROJECTS_DIR)
+        out = {}
+        if not os.path.isdir(root):
+            return out
+        for name in sorted(os.listdir(root)):
+            man = os.path.join(root, name, "product.yaml")
+            cards = os.path.join(root, name, "cards.yaml")
+            if not (os.path.exists(man) and os.path.exists(cards)):
+                continue
+            with open(man, encoding="utf-8") as fh:
+                doc = yaml.safe_load(fh) or {}
+            meta = doc.get("meta") or {}
+            base = meta.get("structure")
+            if base not in self._ref.PROFILES:
+                raise ValueError(
+                    f"프로젝트 {name} 의 structure '{base}' 가 STRUCTURE 에 없습니다. "
+                    f"가능: {sorted(self._ref.PROFILES)}")
+            out[meta.get("id") or name] = dict(
+                dir=os.path.join(root, name),
+                manifest=doc,
+                profile=dict(cards=[cards],          # 절대 경로. layers/ 밖이다
+                             scopes=set(self._ref.PROFILES[base]["scopes"])))
+        return out
+
+    def project_columns(self, profile):
+        """제품의 실측 컬럼 -> 축 매핑. 제품이 아니면 빈 dict."""
+        pj = self.projects.get(profile)
+        return dict((pj["manifest"].get("measurement_columns") or {})) if pj else {}
 
     # ---------------------------------------------------------------- 조회
     @property
@@ -184,7 +230,16 @@ class V2Ontology:
         profiles = self.profiles
 
         def load_cards(profile, layers_dir=None):
-            cards = inner(profile, layers_dir) if layers_dir else inner(profile)
+            # 제품 카드는 layers/ 밖에 있다. 정본 로더가 layers_dir 과 파일명을
+            # 이어 붙이는 구조라 절대 경로를 못 받는다. 여기서 가로챈다.
+            pj = self.projects.get(profile)
+            if pj:
+                cards = []
+                for fn in pj["profile"]["cards"]:
+                    with open(fn, encoding="utf-8") as fh:
+                        cards += (yaml.safe_load(fh) or {})["measurement_cards"]
+            else:
+                cards = inner(profile, layers_dir) if layers_dir else inner(profile)
             have = {c["term_id"] for c in cards}
             scopes = sorted(s for s in profiles[profile]["scopes"] if s != "any")
             out = list(cards)
@@ -245,7 +300,7 @@ class V2Ontology:
         """
         프로파일 키에 맞는 S 항목들. 스펙 §5.10 대로 두 표기를 모두 맞춘다 —
         S 는 정체성 형태(SC.x|APP.y|ST.z), C 엣지는 점 경로(SC.x.y)를 쓴다.
-        beverage_coffee_milk 처럼 제품 단위로 얹은 프로파일은 자기 S 항목이
+        projects/ 의 제품 프로파일은 자기 S 항목이
         없고 상위(beverage)의 것을 쓴다(F7).
         """
         scopes = self.profiles[profile]["scopes"]
