@@ -86,7 +86,7 @@ ingredients_ext:
 
 # ING.calcium_lactate 는 일부러 비워 둔다. HANDOFF 가 중성염(완충 파트너,
 # 산성화 아님)으로 결론지었고, 실제 역할은 칼슘 공급(이오타 카라기난 겔화)인데
-# 그에 대응하는 P 파라미터가 Layer A 에 없다. 없는 것을 지어내지 않는다.
+# 그에 대응하는 P 파라미터가 PARAMETER 에 없다. 없는 것을 지어내지 않는다.
 #
 # ING.plant_extract 도 비워 둔다. 팔레트 shortlist 가 관능/물성 효과 없음으로
 # 제외 등급을 매긴 재료다. 빈 것이 맞다.

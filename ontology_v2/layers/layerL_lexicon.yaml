@@ -4,7 +4,7 @@ meta:
   date: '2026-08-18'
   source_of_record: Food_Sensory_Lexicon_v1_1.xlsx (sheets 10-50, 60)
   spec: remi_ontology_spec_v2.md §2.1, §6.1
-  note: Sole definition point for Layer L. Definitions are context-free, percept-only, one term per entry
+  note: Sole definition point for LEXICON. Definitions are context-free, percept-only, one term per entry
     (Invariants 1,7; lexicon rules). The 'status' field is derived at load time, not authored here.
   counts:
     terms: 216

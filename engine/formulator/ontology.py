@@ -95,7 +95,11 @@ class Ontology:
         return o
 
     def _ingest(self, name: str, d: dict):
-        # Layer A structure classes
+        # STRUCTURE — structure classes.
+        # NOTE 2026-09-10: this is the v1 loader and v1 letters do NOT match v2.
+        # v1 A = structure classes (v2 STRUCTURE) · v1 B = sensory attributes
+        # (v2 LEXICON) · v1 C = tags + ingredients (v2 EFFECT, same). Layer names
+        # were renamed letter -> word on 2026-09-10; see CLAUDE.md glossary.
         if "structure_class" in d:
             sc = d["structure_class"]
             scid = sc["id"]
@@ -111,7 +115,7 @@ class Ontology:
                                          plausible_range=p.get("plausible_range"))
             self.structure_classes[scid] = obj
 
-        # Layer B sensory attributes (base + ext + flavor)
+        # LEXICON — sensory attributes (base + ext + flavor). v1 called this Layer B.
         for key in ("sensory_attributes", "sensory_attributes_ext", "flavor_attributes", "flavor_vocabulary"):
             for a in _as_list(d.get(key)):
                 if not isinstance(a, dict) or "id" not in a:
@@ -123,7 +127,7 @@ class Ontology:
                     applies_to=_as_list(a.get("applies_to")),
                     driver_layer=a.get("driver_layer"), data=a)
 
-        # Layer C function tags (base + ext) - UNION by id, merge effects
+        # EFFECT — function tags (base + ext), UNION by id, merge effects
         for key in ("function_tags", "function_tags_ext"):
             for t in _as_list(d.get(key)):
                 if not isinstance(t, dict) or "id" not in t:
@@ -137,7 +141,7 @@ class Ontology:
                 ft.data = {**ft.data, **t}
                 self.tags[tid] = ft
 
-        # Layer C ingredients (base + ext) - UNION by id
+        # EFFECT — ingredients (base + ext), UNION by id
         for key in ("ingredients", "ingredients_ext"):
             for ing in _as_list(d.get(key)):
                 if not isinstance(ing, dict) or "id" not in ing:

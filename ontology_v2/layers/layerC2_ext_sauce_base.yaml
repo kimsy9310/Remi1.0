@@ -1,13 +1,13 @@
   # [2026-08-26] direction 보강: 이 필드가 없으면 로더가 엣지를 조용히 건너뛴다
 # [layerC2 - spec v2 migration 2026-08-18] SA.* targets rewritten to L.* per
 # remi_ontology_spec_v2.md §6.3; v1 lesson ids renamed L.<x> -> LESSON.<x>
-# (namespace collision with Layer L). Source file frozen per Invariant 3.
+# (namespace collision with LEXICON). Source file frozen per Invariant 3.
 # =============================================================================
 # LAYER C - EXTENSION: SAUCE INGREDIENT PACK (Korean + Latin base)
 # v0.1 seed  |  2026-08-11
 # -----------------------------------------------------------------------------
 # WHY THIS FILE EXISTS
-#   Layer C grew from beverage and ice-cream work: 64 ingredients weighted toward
+#   EFFECT grew from beverage and ice-cream work: 64 ingredients weighted toward
 #   emulsifiers, stabilisers and sweeteners. A sauce business cannot be built on
 #   it - gochugaru, ganjang, doenjang, sesame oil, garlic and tomato paste were
 #   all absent. The alias layer had been listing them as KNOWN_GAPS, which turned
@@ -675,7 +675,7 @@ ingredients_ext:
     substitutes: [ING.high_oleic_sunflower_oil, ING.sunflower_oil]
 
 provenance:
-  method: "extend Layer C for Korean and Latin sauce development; 2-tier scoped schema"
+  method: "extend EFFECT for Korean and Latin sauce development; 2-tier scoped schema"
   status: "seed v0.1 - prior edges. Compositional ranges (salt %, pH, brix) are typical published values and MUST be replaced with measured lot values before they drive a safety decision."
   safety_note: >
     Every limitation typed safety_bound with non_negotiable: true is a hazard, not a

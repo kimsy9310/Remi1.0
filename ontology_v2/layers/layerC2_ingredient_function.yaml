@@ -1,12 +1,12 @@
   # [2026-08-26] direction 보강: 이 필드가 없으면 로더가 엣지를 조용히 건너뛴다
 # [layerC2 - spec v2 migration 2026-08-18] SA.* targets rewritten to L.* per
 # remi_ontology_spec_v2.md §6.3; v1 lesson ids renamed L.<x> -> LESSON.<x>
-# (namespace collision with Layer L). Source file frozen per Invariant 3.
+# (namespace collision with LEXICON). Source file frozen per Invariant 3.
 # =============================================================================
 # LAYER C - INGREDIENT FUNCTION ONTOLOGY   |  v0.1 seed
 # -----------------------------------------------------------------------------
-# JOB: the EDGES that connect ingredients to Layer A physical params and
-#   Layer B sensory attributes. An effect is CONDITIONAL, never scalar.
+# JOB: the EDGES that connect ingredients to PARAMETER physical params and
+#   LEXICON sensory attributes. An effect is CONDITIONAL, never scalar.
 #
 # LOCKED DECISIONS:
 #   - 2-TIER: generic effects live on FUNCTION TAGS (prior backbone + enables

@@ -33,7 +33,7 @@
 적어 주신 칸이고, 재 보니 스펙 5.9 가 "액추에이터 없는 R-1" 이라 플래그를
 달아 두던 파라미터 셋(P.particle_size_d90 · P.flavor_release_dynamics ·
 P.serving_temperature)을 정확히 설명한다. 재료 엣지가 0건인 것이 당연하다 —
-분쇄·향방출·제공온도는 재료가 아니라 공정이 정한다. 결함이 아니라 Layer O
+분쇄·향방출·제공온도는 재료가 아니라 공정이 정한다. 결함이 아니라 PROCESS
 의 빈 소켓이었고, 이름이 없어서 결함으로 보였다. ⑥ 절이 그 목록이다.
 
 "제품의존" 은 없앴다. 커피 향이 존재하는 것은 "커피우유라는 제품이라서" 가
@@ -317,7 +317,7 @@ def main(want_xlsx=False):
     print("-" * 74)
     print("  R-1 이 쓰는데 재료·태그 엣지가 0건인 파라미터다. 스펙 5.9 가")
     print("  \"액추에이터 없는 R-1\" 이라 플래그를 달던 자리이고, 결함이 아니다 —")
-    print("  분쇄·향방출·제공온도는 재료가 아니라 공정이 정한다. Layer O 의 몫.")
+    print("  분쇄·향방출·제공온도는 재료가 아니라 공정이 정한다. PROCESS 의 몫.")
     print()
     for pa, ts in gated:
         names = ", ".join(onto.label(t) for t in ts)

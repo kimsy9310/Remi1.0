@@ -7,7 +7,7 @@ by a PriorResponseModel built FROM the projection's scoped effect edges + intera
 so nothing about a specific formulation is hardcoded.
 
 Pure numpy: GP (RBF + Cholesky), constrained Expected-Improvement (feasibility =
-maintain responses within tolerance of the benchmark, per Layer B benchmark-relative
+maintain responses within tolerance of the benchmark, per LEXICON benchmark-relative
 model). scipy/sklearn/BoTorch-free; production target swaps in BoTorch/Ax.
 """
 from __future__ import annotations

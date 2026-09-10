@@ -1,7 +1,7 @@
   # [2026-08-26] direction 보강: 이 필드가 없으면 로더가 엣지를 조용히 건너뛴다
 # [layerC2 - spec v2 migration 2026-08-18] SA.* targets rewritten to L.* per
 # remi_ontology_spec_v2.md §6.3; v1 lesson ids renamed L.<x> -> LESSON.<x>
-# (namespace collision with Layer L). Source file frozen per Invariant 3.
+# (namespace collision with LEXICON). Source file frozen per Invariant 3.
 # =============================================================================
 # LAYER C - EXTENSION: REFORMULATION INGREDIENT PACK   |  v0.1 seed
 # -----------------------------------------------------------------------------
@@ -217,7 +217,7 @@ reformulation_patterns:
     rationale: "sucrose's TRIPLE role split across 3 agents: bulking (body/solids) + fpd_agent/polyol (freezing curve) + high-intensity sweetener (sweetness). Matches ontology LESSON.sugar_triple_role."
 
 provenance:
-  method: "extension of Layer C 2-tier schema; gaps from BO dry-run + ice-cream labeling"
+  method: "extension of EFFECT 2-tier schema; gaps from BO dry-run + ice-cream labeling"
   supporting_evidence:
     - "Fat replacers (modified starch, maltodextrin, inulin) form water-trapping microgels -> fat-like mouthfeel (1 vs 9 cal/g); modified starch ~4x maltodextrin efficacy"
     - "Low-sugar ice cream: bulking (polydextrose/maltodextrin, little FPD/sweetness) + polyol FPD control (erythritol/maltitol, stronger FPD/weight) + high-intensity sweetener"

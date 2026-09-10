@@ -1,7 +1,7 @@
   # [2026-08-26] direction 보강: 이 필드가 없으면 로더가 엣지를 조용히 건너뛴다
 # [layerC2 - spec v2 migration 2026-08-18] SA.* targets rewritten to L.* per
 # remi_ontology_spec_v2.md §6.3; v1 lesson ids renamed L.<x> -> LESSON.<x>
-# (namespace collision with Layer L). Source file frozen per Invariant 3.
+# (namespace collision with LEXICON). Source file frozen per Invariant 3.
 # =============================================================================
 # LAYER C - EXTENSION: USER INGREDIENT PACK #1   |  v0.1 seed
 # -----------------------------------------------------------------------------
@@ -109,7 +109,7 @@ ingredients_ext:
       - { type: process, statement: "strong FPD -> product too soft at high dose; browns (Maillard)" }
     substitutes: [ING.sucrose, ING.erythritol]
 
-# ---- New flavor notes referenced (-> Layer B manifest) ----
+# ---- New flavor notes referenced (-> LEXICON manifest) ----
 flavor_notes_introduced:
   - { id: L.ar.cooked_rice,   modality: flavor, category: cereal_grain, default_goal: context }
   - { id: L.ar.nutty, modality: flavor, category: roasted_nutty, default_goal: target }

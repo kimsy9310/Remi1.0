@@ -14,7 +14,7 @@ meta 에는 이렇게 적혀 있었다:
 제품이 들어앉았다. 그 결과 사용자가 "현탁액" 을 고르면 매운맛·건고추 향·장 발효
 향을 묻는다 — 토마토 살사를 만들려는 사람에게도.
 
-Layer S 는 이미 알고 있었다
+STRUCTURE 는 이미 알고 있었다
 ---------------------------
 suspension 의 relevant_attributes 에서 두 향 축이 slot: flavor_user_slot_1/2 를
 달고 있다. meta 에도 "flavor_slots: 2 user-selectable at onboarding" 이라고 적혀

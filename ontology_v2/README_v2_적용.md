@@ -23,7 +23,7 @@ recovered_food_recipe_app/
 바탕이 된 파일들은 `Desktop/yaml/`(L·M·C·S·R)과 `Desktop/files/`(스펙·로더)에서
 가져왔다. 원본은 건드리지 않았으므로 그대로 보관하거나 정리해도 된다.
 
-### 1.2 Layer A 결손이 해소됐다
+### 1.2 PARAMETER 결손이 해소됐다
 
 v2 스펙과 README 는 `layerA_parameters.yaml` 이 "인계되지 않았다"고 적고 있었다.
 그 파일은 v1 작업본(`recovered_food_recipe_app/layerA_parameters.yaml`)에 있었고,
@@ -136,7 +136,7 @@ python -m formulator.v2adapter         비건·저당 아이스크림 데모
 이 표가 생기면 스케일(zsd)과 제안 경계가 동시에 해결된다. 지금 파이프라인에서
 가장 값이 큰 한 가지다.
 
-**Layer A 단위 6건 확인.** 위 1.2 표 참조. 랩 관례와 다르면 고쳐야 한다.
+**PARAMETER 단위 6건 확인.** 위 1.2 표 참조. 랩 관례와 다르면 고쳐야 한다.
 
 **정본 온톨로지 확정.** v1 YAML(엔진용) · v1 JSON(앱용) · v2 YAML 세 세대가
 아직 공존한다. 이번 작업은 v2 를 쓸 수 있게 만들었을 뿐, 나머지를 정리하지는
@@ -210,7 +210,7 @@ python -m formulator.v2adapter         비건·저당 아이스크림 데모
 `calcium_lactate`(중성염, 대응 P 없음), `potassium_sorbate`(보존제).
 `selfcheck_v2.py` 의 `ALLOWED_INERT` 에 이유와 함께 적혀 있다.
 
-**남은 렉시콘 결손 하나**: Layer L 에 '신선한 홍고추' 향 용어가 없다.
+**남은 렉시콘 결손 하나**: LEXICON 에 '신선한 홍고추' 향 용어가 없다.
 `ING.chili_fresh_red` 를 `L.ar.fresh_chili_green` 에 약하게 걸어 두었으나,
 용어를 추가하는 편이 옳다.
 
@@ -271,7 +271,7 @@ python -m formulator.v2adapter         비건·저당 아이스크림 데모
 | 참조 무결성 (엣지 219개가 가리키는 L/P ID) | 깨진 대상 **0** |
 | 재료 ID 중복 (불변식 2) | **0** |
 | 엣지 스키마 (direction/magnitude/confidence 허용값) | 위반 **0** |
-| Layer L 216종 — 정의·한글표기·ID 형식·도메인 일치 | 결손 **0** |
+| LEXICON 216종 — 정의·한글표기·ID 형식·도메인 일치 | 결손 **0** |
 | M 카드·S 프로파일이 가리키는 ID | 깨진 것 **0** |
 
 **렉시콘은 사실상 완결돼 있다.** 세 제품 테스트에서도 새 용어가 필요 없었고,
@@ -326,7 +326,7 @@ ID 가 아니라 문장을 받는다. 산문은 `note` 로 남기고 `kind`/`tar
 결손이 아니다 — `L.ap.darkened` 가 그 경우다(KN.0003).
 
 지금 남은 미도달 활성 용어는 `L.tx.cold_perceived` 하나뿐이고, 제공 온도라
-탄산과 같은 Layer O 영역이다.
+탄산과 같은 PROCESS 영역이다.
 
 ### 6.6 부수 효과 — 실측과의 불일치가 사라졌다
 
@@ -415,10 +415,10 @@ DMG95 에 "건조·크리미·용해지연" 이라 적은 그 건조다. 고HLB 
   **작업 범위**에 반영할 값이다. 알룰로스는 설탕보다 많이 넣어야 같은 단맛이니
   팔레트 표의 하한·상한이 담당한다. 엣지로 넣으면 배합량과 이중계산이 된다.
 - **ph (17종)** — P.pH 를 움직이는 것은 산도제이지 'pH 를 가진 재료' 가 아니다.
-  완충 용량과 함께 봐야 의미가 있는데 대응 파라미터가 Layer A 에 없다.
+  완충 용량과 함께 봐야 의미가 있는데 대응 파라미터가 PARAMETER 에 없다.
 - **MW/charge 일반** — 잔탄처럼 기작이 또렷한 것만 올렸다. 나머지는 'MW high'
   정도로만 적혀 있어 어떤 축을 얼마나 움직이는지 유도할 수 없다.
-- **solubility · form · heat_treated · source** — 공정·취급 정보. Layer O 영역이다.
+- **solubility · form · heat_treated · source** — 공정·취급 정보. PROCESS 영역이다.
 
 ### 7.6 남은 중복
 

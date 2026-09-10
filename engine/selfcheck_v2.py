@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-v2 경로 자체 검사 — Layer A 편입 · mixture.py 세 수정 · 어댑터.
+v2 경로 자체 검사 — PARAMETER 편입 · mixture.py 세 수정 · 어댑터.
 
 selfcheck_model.py 가 v1 수학을 지킨다면, 이 파일은 v2 온톨로지에서
 모형까지 오는 길을 지킨다. 각 검사는 실제로 났던 오류 하나에 대응한다.
@@ -142,8 +142,8 @@ mu, var = mB.predict(X[:3], with_var=True)
 check("예측 분산이 반응마다 따로 나온다", var.shape == (3, 2)
       and not np.allclose(var[:, 0], var[:, 1]))
 
-# ---------------------------------------------------------------- Layer A
-print("\n[Layer A] 정본 편입")
+# ---------------------------------------------------------------- PARAMETER
+print("\n[PARAMETER] 정본 편입")
 
 import yaml                                                   # noqa: E402
 
@@ -270,7 +270,7 @@ check("어떤 재료로도 못 움직이는 core 축이 없다", not aud["dead_c
 
 # ---------------------------------------------------------------- 보편 축
 # 기본맛은 제형이 함의하지 않는다. 소금이 짜다는 것은 에멀전이든 현탁액이든
-# 언 것이든 같고 Layer C 도 scoped_to_structure_class: any 로 그렇게 적는다.
+# 언 것이든 같고 EFFECT 도 scoped_to_structure_class: any 로 그렇게 적는다.
 # 그런데 카드가 제형 파일마다 손으로 쓰여서 아이스크림에는 짠맛 카드가 없었고,
 # 엔진은 소금이 짜다는 것을 아는데 물어볼 자리가 없었다(2026-09-07).
 # layerM_universal_axes.yaml 이 기본값을 깔고 제형 카드가 덮어쓴다.
@@ -305,7 +305,7 @@ check("보편 축 기본값이 monitored 다", not _promoted, "; ".join(_promote
 # 무슨 향이 나는지는 함의하지 않는다. 제품 단위 파일(meta.product 가 있는 것,
 # 이주 소견 F7)이라야 그 축을 가질 자격이 있다.
 #
-# Layer S 는 이것을 이미 알고 있었다 — suspension 의 relevant_attributes 에서
+# STRUCTURE 는 이것을 이미 알고 있었다 — suspension 의 relevant_attributes 에서
 # 두 향 축이 slot: flavor_user_slot_1/2 를 달고 있다. "사용자가 채울 칸" 이라는
 # 선언인데 기본값이 값처럼 굳었다.
 import yaml as _yaml
@@ -354,9 +354,9 @@ for _p, _ts in _leaked:
 # 스펙 5.9 — 액추에이터 없는 R-1. 오래 "플래그이지 실패는 아니다" 로 두었는데,
 # 2026-09-10 판정 대장이 이름을 줬다: **공정의존**. 재료 엣지가 0건인 것이
 # 당연하다 — 분쇄·향방출·제공온도는 재료가 아니라 공정이 정한다. 결함이 아니라
-# Layer O 의 빈 소켓이다. 목록은 tools/audit_axis_scope.py ⑥ 절.
+# PROCESS 의 빈 소켓이다. 목록은 tools/audit_axis_scope.py ⑥ 절.
 _n_orphan = sum(len(v) for v in aud["orphan_proxies"].values())
-print(f"  참고  공정의존 파라미터 {_n_orphan}건 — 재료로는 못 켠다 (스펙 5.9 · Layer O 대기)")
+print(f"  참고  공정의존 파라미터 {_n_orphan}건 — 재료로는 못 켠다 (스펙 5.9 · PROCESS 대기)")
 for _p, _xs in aud["orphan_proxies"].items():
     print(f"        [{_p}] {chr(44).join(_xs)}")
 print("\n" + "=" * 62)

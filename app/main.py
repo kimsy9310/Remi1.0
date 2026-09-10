@@ -123,7 +123,7 @@ def core_terms(profile):
 
 
 def axis_label(t):
-    """축 이름은 Layer L 의 ko 가 정본이다(V2Ontology.label)."""
+    """축 이름은 LEXICON 의 ko 가 정본이다(V2Ontology.label)."""
     try:
         return get_onto().label(t)
     except Exception:                                             # noqa: BLE001
@@ -131,7 +131,7 @@ def axis_label(t):
 
 
 def ing_label(g):
-    """재료 이름은 Layer C 의 ko 가 정본이다(V2Ontology.ing_label)."""
+    """재료 이름은 EFFECT 의 ko 가 정본이다(V2Ontology.ing_label)."""
     try:
         return get_onto().ing_label(g)
     except Exception:                                             # noqa: BLE001

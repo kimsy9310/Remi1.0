@@ -79,7 +79,7 @@ def _name(onto, ing_id, table_name):
 
 
 def axis_label(term_id, onto=None):
-    """축의 표시 이름. 온톨로지를 주면 Layer L 의 한글 이름을 쓴다."""
+    """축의 표시 이름. 온톨로지를 주면 LEXICON 의 한글 이름을 쓴다."""
     if onto is not None:
         return onto.label(term_id)
     return term_id.split(".")[-1]

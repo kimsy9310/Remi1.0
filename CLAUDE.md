@@ -48,6 +48,42 @@
 
 ---
 
+## 레이어 이름 — 용어집
+
+2026-09-10 에 글자를 낱말로 바꿨다. **파일명과 ID 는 그대로**라 다리가 필요하다.
+
+| 이름 | 파일 | 무엇을 담나 | 담긴 ID |
+|---|---|---|---|
+| `LEXICON` | `layerL_lexicon.yaml` | 감각 용어 216개. 맥락 없는 정의 | `L.*` |
+| `PARAMETER` | `layerA_parameters.yaml` | 물성 39개. 이름·단위·측정법 | `P.*` |
+| `EFFECT` | `layerC2_*.yaml` | 재료·기능군 -> 물성 엣지 | `ING.*` `FT.*` |
+| `RELATION` | `layerR_seed.yaml` | 물성 -> 감각(R-1), 감각 <-> 감각(R-2) 등 | `PO.*` `IN.*` |
+| `STRUCTURE` | `layerS2_profiles.yaml` | 제형 4개. 정의 파라미터·범위·필러 | `SC.*` |
+| `MEASUREMENT` | `layerM_cards_*.yaml` | 이 제형에서 이 축을 어떻게 재나 | (카드) |
+| `PROCESS` | *(아직 없음)* | 공정. 파라미터 위의 두 번째 액추에이터 | |
+
+**왜 바꿨나.** 일곱 중 넷은 글자가 이미 뜻이었다(L·R·S·M). 나머지 셋이 어긋나
+있었다 — `A` 는 담긴 ID 가 `P.*` 인데 글자가 A 라 파일을 열지 않으면 알 수
+없었고, `C` 는 무엇의 약자인지 어디에도 없었고, `O` 는 만들지도 않은 층인데
+글자만 박혀 있었다. 실제로 내가 온톨로지 지도에서 `Layer A` 를 "재료와 관능
+사이의 배선" 이라고 잘못 적었다. 사전인데.
+
+**`Layer B` 를 만나면.** v1 이 지금의 `LEXICON` 을 그렇게 불렀다. 렉시콘 안의
+v1.1 감사 이력 4건은 그때 실제로 그 이름이었으므로 남겼다.
+
+**v1 로더는 글자가 다른 뜻이다.** `engine/formulator/ontology.py` 계열 —
+
+    v1 A = structure classes    v2 STRUCTURE
+    v1 B = sensory attributes   v2 LEXICON
+    v1 C = tags + ingredients   v2 EFFECT (같다)
+
+그래서 `tools/rename_layers.py` 가 이 파일들을 건너뛰고 손으로 고쳤다.
+
+**세 질문을 이 이름으로 다시 쓰면** — 존재는 `EFFECT`+`RELATION` 도달 가능성이,
+재는 법은 `MEASUREMENT` 가, 최적화 대상인지는 tier 가 정한다.
+
+---
+
 ## 온톨로지를 고칠 때
 
 **정본 로더(`ontology_v2/tests/loader_reference.py`)는 건드리지 않는다.**
@@ -118,7 +154,7 @@
 | 2 | 제품 사전 초안 30 | |
 | 3 | 재료 검색 · 잠정 등록 · 빈 곳 제안 | |
 | 4 | 서술형 파싱 | API 필요 |
-| 5 | Layer O (공정 2단계) | |
+| 5 | PROCESS (공정 2단계) | |
 
 **승인 대기 중인 것** — `docs/척도정의_전략.md` 의 결론(1 단계 ≈ 1 JND,
 `RANGE_TO_SD` 4.0→2.0 등)은 사용자 승인 전까지 구현하지 않는다.

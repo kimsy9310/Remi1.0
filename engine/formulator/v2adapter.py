@@ -158,11 +158,11 @@ class V2Ontology:
         기본맛을 전 프로파일의 기본 카드로 깐다.
 
         왜 여기인가. 기본맛은 제형이 함의하지 않는다 — 소금이 짜다는 것은
-        에멀전이든 현탁액이든 언 것이든 같고, Layer C 도 `scoped_to_structure_
+        에멀전이든 현탁액이든 언 것이든 같고, EFFECT 도 `scoped_to_structure_
         class: any` 로 그렇게 적고 있다. 그런데 M 카드는 제형 파일마다 손으로
         쓰였고, 그 결과 아이스크림에는 짠맛 카드가 없어 **물어볼 수조차** 없었다.
 
-        Layer C 의 2-tier 와 같은 방식으로 고친다. layerM_universal_axes.yaml 이
+        EFFECT 의 2-tier 와 같은 방식으로 고친다. layerM_universal_axes.yaml 이
         모든 프로파일의 기본값이고, 제형 파일에 같은 term_id 카드가 있으면
         그쪽이 이긴다. 기본 tier 는 monitored 라 목적함수에는 안 들어간다 —
         core 로 올리는 것은 제형 카드가 하는 선언이다.
@@ -201,7 +201,7 @@ class V2Ontology:
 
     def label(self, term_id):
         """
-        축의 한글 이름. Layer L 의 ko 필드가 정본이다.
+        축의 한글 이름. LEXICON 의 ko 필드가 정본이다.
 
         이름을 M 카드에 두지 않는 이유: 같은 축이 프로파일 6곳에 카드로 나타나므로
         카드에 적으면 사본 6개가 따로 놀게 된다. 렉시콘 216개 항목 전부 ko 를
@@ -212,7 +212,7 @@ class V2Ontology:
         return ko or term_id.split(".")[-1]
 
     def ing_label(self, ing_id):
-        """재료의 표시 이름. Layer C 의 ko 가 정본이고 없으면 영문 label."""
+        """재료의 표시 이름. EFFECT 의 ko 가 정본이고 없으면 영문 label."""
         d = self.stack["ings"].get(ing_id) or {}
         ko = str(d.get("ko", "")).strip()
         if ko:
@@ -329,7 +329,7 @@ class V2Ontology:
 
         제형이 정하는 것은 제형에서 가져온다. 유지와 고형분은 제형에 따라
         자릿수가 다르므로(음료 0.01~15%, 소스 5~75%) 기능군 표준값으로
-        뭉갤 수 없고, Layer S 가 정의 파라미터로 이미 가지고 있다.
+        뭉갤 수 없고, STRUCTURE 가 정의 파라미터로 이미 가지고 있다.
         """
         import re
         S_PARAM = {"FT.fat_source": ("P.fat_content", "P.oil_phase_fraction"),
@@ -391,7 +391,7 @@ class V2Ontology:
 
         # 축을 덮는 것만으로는 제형이 서지 않는다. 굴소스 하나가 걸쭉함·크리미함·
         # 코팅성을 다 건드린다고 해서 기름도 유화제도 없는 O/W 소스가 되지는
-        # 않는다. 제형이 요구하는 기능군(Layer S required_functions)에서는
+        # 않는다. 제형이 요구하는 기능군(STRUCTURE required_functions)에서는
         # 축 커버리지와 무관하게 대표를 하나씩 넣는다.
         req = []
         for sp in self._s_candidates(profile):

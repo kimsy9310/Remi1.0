@@ -137,7 +137,7 @@ function_tags_ext:
 #
 # P.serving_temperature (icecream, L.tx.cold_perceived)
 #     제공 조건이지 배합이 아니다. 탄산(L.ch.carbonation_bite)과 같은 성격 —
-#     공정/사용 변수라 Layer O 영역이다. 스펙 §7 이 의도적으로 비워 둔 곳.
+#     공정/사용 변수라 PROCESS 영역이다. 스펙 §7 이 의도적으로 비워 둔 곳.
 #
 # P.particle_size_d90 (suspension, L.tx.grittiness)
 #     스펙 §5.9 가 명시한다 — "O 층이 생기기 전에는 입자 크기류 파라미터가
@@ -152,7 +152,7 @@ function_tags_ext:
 #     방출이 빠르면 여운은 짧아야 하는데 R-1 은 increasing -> 여운 증가로
 #     적혀 있다. 즉 이 파라미터는 사실상 '보유/결합'을 뜻하는 듯하다.
 #     방향을 추측해 엣지를 걸면 부호가 반대일 위험이 있어 손대지 않았다.
-#     -> Layer A 에서 이름과 단위를 정리한 뒤 엣지를 걸 것.
+#     -> PARAMETER 에서 이름과 단위를 정리한 뒤 엣지를 걸 것.
 #
 # FT.firming_agent
 #     소속 재료가 0종인 죽은 태그다. P.yield_stress 엣지를 갖고 있으나 아무

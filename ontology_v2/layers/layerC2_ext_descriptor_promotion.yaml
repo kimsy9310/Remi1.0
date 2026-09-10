@@ -274,11 +274,11 @@ ingredients_ext:
 #
 # ph (17종)
 #     P.pH 를 움직이는 것은 산도제이지 'pH 를 가진 재료' 가 아니다. 재료의 pH 는
-#     완충 용량과 함께 봐야 의미가 있는데 P.buffering_capacity 가 Layer A 에 없다.
+#     완충 용량과 함께 봐야 의미가 있는데 P.buffering_capacity 가 PARAMETER 에 없다.
 #
 # MW / charge (검류 일반)
 #     잔탄처럼 기작이 또렷한 것만 올렸다. 나머지는 'MW high' 정도로만 적혀 있어
 #     어떤 축을 얼마나 움직이는지 유도할 수 없다.
 #
 # solubility · form · heat_treated · source
-#     공정·취급 정보다. Layer O 영역이거나 관능 축에 직접 대응하지 않는다.
+#     공정·취급 정보다. PROCESS 영역이거나 관능 축에 직접 대응하지 않는다.

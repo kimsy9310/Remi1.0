@@ -1,6 +1,6 @@
 # [layerC2 - spec v2 migration 2026-08-18] SA.* targets rewritten to L.* per
 # remi_ontology_spec_v2.md §6.3; v1 lesson ids renamed L.<x> -> LESSON.<x>
-# (namespace collision with Layer L). Source file frozen per Invariant 3.
+# (namespace collision with LEXICON). Source file frozen per Invariant 3.
 # =============================================================================
 # LAYER C - EXTENSION: AnyAddy AN15 (HPMC)   |  v0.1
 # LOTTE Fine Chemical HPMC (E464), AN type, low viscosity (15 mPa·s @2%).

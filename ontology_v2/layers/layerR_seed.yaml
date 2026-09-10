@@ -16,7 +16,7 @@ meta:
   - 'balanced/rounded and complex/layered: derived quantities over relations among responses, not component decompositions;
     excluded from R-3 (kept in Held Terms sheet).'
   pending:
-  - P.shear_thinning_index referenced by PO record but absent from layerA_parameters.yaml - add on next Layer A
+  - P.shear_thinning_index referenced by PO record but absent from layerA_parameters.yaml - add on next PARAMETER
     edit
   - P.* existence not machine-verified (layerA file not in migration set)
 relations_proxy:
@@ -110,7 +110,7 @@ relations_proxy:
   confidence: low
   params: {}
   note: 'User-identified second driver (2026-08-18): shear-thinning products pour despite high rest viscosity. Parameter
-    to be added to Layer A.'
+    to be added to PARAMETER.'
 - id: PO.0010
   percept: L.tx.cling
   parameter: P.yield_stress
@@ -847,7 +847,7 @@ relations_proxy:
     Wiring d50 here would make the axis look healthy while measuring the wrong
     thing. So this record is written at its true parameter and waits: d90 has zero
     ingredient edges and is process-gated (see tools/audit_axis_scope.py section 6).
-    Layer O closes this. Until then the viscosity leg (PO.0074) carries the axis
+    PROCESS closes this. Until then the viscosity leg (PO.0074) carries the axis
     alone, which is why that one is marked partial.
 - id: PO.0074
   percept: L.tx.smoothness
@@ -867,7 +867,7 @@ relations_proxy:
     is the exact thing the user called more important. Written anyway because the
     axis must not stay frozen-only (user, 2026-09-10) - a plant beverage with
     gritty protein is a smoothness problem and the ontology could not say so.
-    Treat any smoothness prediction as partial until Layer O lands.
+    Treat any smoothness prediction as partial until PROCESS lands.
 relations_interaction:
 - id: IN.0001
   from: L.tx.cold_perceived

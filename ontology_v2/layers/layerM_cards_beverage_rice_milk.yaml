@@ -17,13 +17,13 @@ meta:
   status: DRAFT - authored 2026-08-25 from existing panel data, needs domain review
   review_items:
     - >-
-      L.tx.oiliness is the mapping chosen for the panel axis "oil flavor". Layer L has no
+      L.tx.oiliness is the mapping chosen for the panel axis "oil flavor". LEXICON has no
       generic vegetable-oil AROMA term (nearest neighbours: L.ta.oleogustus - fatty-acid
       taste, too technical; L.ar.rancid_oxidized - already used by the separate oxidation
       axis). Oiliness is a texture percept, and the panel axis is named "flavor". For an
       untrained benchmark-relative score the two are hard to separate, so this is defensible,
       but confirm before treating the coefficient as an aroma effect. The alternative is to
-      append a new L.ar term, which is a deliberate Layer L change.
+      append a new L.ar term, which is a deliberate LEXICON change.
     - >-
       L.ar.rancid_oxidized is set evidence_required=sample, not sample_aged. The base profile
       quarantines it as sample_aged per spec §5.8, but the recorded panel scored it on FRESH
@@ -206,7 +206,7 @@ measurement_cards:
     '0': indistinguishable from the benchmark
     '+3': much fuller-bodied than the benchmark
   evaluation_note: >-
-    The panel column is "mouthfeel"; Layer L folds SA.body_mouthfeel into L.tx.body
+    The panel column is "mouthfeel"; LEXICON folds SA.body_mouthfeel into L.tx.body
     (see _deprecated_aliases.yaml), so this is a direct legacy mapping, not a judgement call.
   legacy_column: sens_mouthfeel
 
