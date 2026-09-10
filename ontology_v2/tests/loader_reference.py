@@ -38,9 +38,19 @@ PROFILES = {
     'beverage_coffee_milk': dict(   # product-level activation layered over beverage (F7)
         cards=['layerM_cards_beverage_coffee_milk.yaml'],
         scopes={'any', 'SC.emulsion.ow', 'SC.emulsion.ow.beverage', 'SC.emulsion.ow|APP.beverage'}),
+    # 2026-09-10: 'SC.emulsion.ow' 를 더했다. 아이스크림도 O/W 에멀전인데 그것이
+    # 빠져 있어, 음료·소스와 형제로 인식되지 않았다. 두 가지가 걸려 있었다 —
+    # (1) 제형 공통 물리를 위로 올리기 시작하면 아이스크림만 못 받는다.
+    # (2) tools/audit_axis_scope.py 의 엣지 결손 비교가 structure_class 가족
+    #     끼리 하는데, 아이스크림은 혼자라 가족이 만들어지지 않아 **비교 대상이
+    #     된 적이 한 번도 없었다.**
+    # 도달 자체는 거의 안 변한다(plain 'SC.emulsion.ow' 로만 걸린 엣지가 태그
+    # 1건뿐). 바뀌는 것은 감사가 아이스크림을 형제로 보기 시작한다는 것이다.
+    # 냉동 고유 스코프 둘은 그대로 둔다 — 얼음·오버런은 진짜 냉동 전용이다.
     'icecream': dict(
         cards=['layerM_cards_icecream.yaml'],
-        scopes={'any', 'SC.frozen.ice_cream', 'SC.emulsion.ow|APP.dessert|ST.frozen'}),
+        scopes={'any', 'SC.emulsion.ow', 'SC.frozen.ice_cream',
+                'SC.emulsion.ow|APP.dessert|ST.frozen'}),
 }
 
 
