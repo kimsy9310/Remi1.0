@@ -35,6 +35,24 @@
 # 마지막 줄이 여섯 종(해바라기·고올레산해바라기·카놀라·올리브·현미·참기름·
 # 들기름)이다. 혼합물 안에서 액상유를 늘리면 배합 전체의 SFC37 이 내려간다.
 #
+# 2026-09-11 정정 — SFC37 은 독립 기작이 아니라 조절자다
+# -------------------------------------------------
+# 어제는 SFC37 -> 크리미함(감소) · 코팅 잔류(증가) R-1 두 줄을 심어 유상분율 경로와
+# 나란히 세웠다. 사용자 지적으로 틀렸음이 드러났다 - 잔탄 건과 같은 구조다.
+#   "잔탄을 넣는 것은 흐름성을 낮춰. 그럼에도 전체 점도가 낮으면 흐르는 거지."
+# 고체지방이 많은 유지는 **덜** 크리미한 것이지, 크리미함을 **깎는** 별개의 힘이 아니다.
+# 덧셈 모형은 조절자를 못 담는다 - 더하면 팜핵경화유가 크리미함 0 이 되는데 그건
+# 틀렸다(생크림보다 덜할 뿐 0 은 아니다). 그래서 R-1 두 줄을 빼고, 조절을 **재료
+# override 의 크기**로 접어 넣는다. P.solid_fat_content_37C 와 재료->SFC 엣지는
+# 물리 기록으로 남긴다.
+#
+# 크기 규칙 (3단계 눈금에서 조절자 세기만큼 한 단계씩 내림, weak 아래로는 안 감)
+#     태그 기본 strong(+1.0)  조절자 strong  ->  weak   +0.3     팜핵경화유 -> 크리미함
+#     태그 기본 strong(+1.0)  조절자 medium  ->  medium +0.6     정제 팜유 -> 크리미함
+#     태그 기본 strong(+1.0)  조절자 weak    ->  strong +1.0     생크림 -> 크리미함 (override 불필요)
+# 같은 규칙을 코팅 잔류에도 건다 - 액상유(SFC37 medium 감소)는 유상분율이 말하는
+# 것보다 덜 코팅한다 -> medium. 코코넛유(weak)는 그대로.
+#
 # STATUS: DRAFT — 방향은 융점 곡선에서 나오므로 분명하다. 크기는 잠정이고,
 # 관능으로 이어지는 R-1 두 줄(PO.0071 크리미함 감소 · PO.0072 코팅 잔류 증가)은
 # confidence: low 로 심어 두었다. 그 두 줄의 부호는 확인이 필요하다.
@@ -49,6 +67,8 @@ ingredients_ext:
   label: "Hydrogenated palm kernel oil (SFC37 edge extension)"
   alias_of: ING.hydrogenated_palm_kernel_oil
   overrides:
+  - { to: L.tx.creaminess, direction: increase, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: high,
+      note: "조절자. 유상분율은 strong 이라 하나 37 degC 에서 굳어 있어 왁스처럼 읽힌다. strong - strong = weak." }
   - { to: P.solid_fat_content_37C, direction: increase, magnitude: strong, scoped_to_structure_class: any, source_type: prior, confidence: high,
       note: "경화 공정의 목적 자체가 융점을 올리는 것이다. 팔레트에서 SFC37 이 가장 높다." }
 
@@ -56,6 +76,8 @@ ingredients_ext:
   label: "Refined palm oil (SFC37 edge extension)"
   alias_of: ING.palm_oil
   overrides:
+  - { to: L.tx.creaminess, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: medium,
+      note: "조절자. strong - medium = medium." }
   - { to: P.solid_fat_content_37C, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }
 
 - id: ING.cream_sfc_ext
@@ -90,40 +112,54 @@ ingredients_ext:
   label: "Sunflower oil (SFC37 edge extension)"
   alias_of: ING.sunflower_oil
   overrides:
+  - { to: L.tx.mouthcoating_persistence, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: medium,
+      note: "조절자. 37 degC 에서 전부 액체라 유상분율이 말하는 것보다 덜 남는다. strong - medium = medium." }
   - { to: P.solid_fat_content_37C, direction: decrease, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }
 
 - id: ING.high_oleic_sunflower_oil_sfc_ext
   label: "High-oleic sunflower oil (SFC37 edge extension)"
   alias_of: ING.high_oleic_sunflower_oil
   overrides:
+  - { to: L.tx.mouthcoating_persistence, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: medium,
+      note: "조절자. 37 degC 에서 전부 액체라 유상분율이 말하는 것보다 덜 남는다. strong - medium = medium." }
   - { to: P.solid_fat_content_37C, direction: decrease, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }
 
 - id: ING.canola_oil_sfc_ext
   label: "Canola oil (SFC37 edge extension)"
   alias_of: ING.canola_oil
   overrides:
+  - { to: L.tx.mouthcoating_persistence, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: medium,
+      note: "조절자. 37 degC 에서 전부 액체라 유상분율이 말하는 것보다 덜 남는다. strong - medium = medium." }
   - { to: P.solid_fat_content_37C, direction: decrease, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }
 
 - id: ING.olive_oil_evoo_sfc_ext
   label: "Extra virgin olive oil (SFC37 edge extension)"
   alias_of: ING.olive_oil_evoo
   overrides:
+  - { to: L.tx.mouthcoating_persistence, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: medium,
+      note: "조절자. 37 degC 에서 전부 액체라 유상분율이 말하는 것보다 덜 남는다. strong - medium = medium." }
   - { to: P.solid_fat_content_37C, direction: decrease, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }
 
 - id: ING.rice_bran_oil_sfc_ext
   label: "Rice bran oil (SFC37 edge extension)"
   alias_of: ING.rice_bran_oil
   overrides:
+  - { to: L.tx.mouthcoating_persistence, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: medium,
+      note: "조절자. 37 degC 에서 전부 액체라 유상분율이 말하는 것보다 덜 남는다. strong - medium = medium." }
   - { to: P.solid_fat_content_37C, direction: decrease, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }
 
 - id: ING.sesame_oil_toasted_sfc_ext
   label: "Toasted sesame oil (SFC37 edge extension)"
   alias_of: ING.sesame_oil_toasted
   overrides:
+  - { to: L.tx.mouthcoating_persistence, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: medium,
+      note: "조절자. 37 degC 에서 전부 액체라 유상분율이 말하는 것보다 덜 남는다. strong - medium = medium." }
   - { to: P.solid_fat_content_37C, direction: decrease, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }
 
 - id: ING.perilla_oil_sfc_ext
   label: "Perilla oil (SFC37 edge extension)"
   alias_of: ING.perilla_oil
   overrides:
+  - { to: L.tx.mouthcoating_persistence, direction: increase, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: medium,
+      note: "조절자. 37 degC 에서 전부 액체라 유상분율이 말하는 것보다 덜 남는다. strong - medium = medium." }
   - { to: P.solid_fat_content_37C, direction: decrease, magnitude: medium, scoped_to_structure_class: any, source_type: prior, confidence: high }

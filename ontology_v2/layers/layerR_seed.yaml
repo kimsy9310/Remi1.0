@@ -8,7 +8,7 @@ meta:
     never overwritten (Invariant 3). BLACK aging observations (2026-08..12) should be logged as new KN.* records.
     2026-08-18: R-2 effect enum extended with pos_corr; IN.0004/IN.0010 corrected.'
   counts:
-    relations_proxy: 74
+    relations_proxy: 72
     relations_interaction: 13
     relations_decomposition: 6
     relations_kinetics: 3
@@ -797,36 +797,6 @@ relations_proxy:
     Note the tension to watch: the same parameter raises L.tx.thickness, so a
     product cannot chase gloss this way without getting thicker. If measurement
     ever separates the two, this record is the one to revisit.
-- id: PO.0071
-  percept: L.tx.creaminess
-  parameter: P.solid_fat_content_37C
-  functional_form: linear
-  monotone: decreasing
-  scope: any
-  evidence:
-    source: prior
-    date: '2026-09-10'
-  confidence: low
-  note: >-
-    SEEDED, DIRECTION NEEDS CONFIRMING. Fat still solid at mouth temperature reads
-    waxy rather than creamy - the textbook reason a hydrogenated palm kernel fat
-    is not used where clean melt matters. Truly non-monotone (too little solid fat
-    is thin and watery), seeded linear-decreasing until measured. This is the one
-    creaminess driver that fat TYPE carries and no other parameter held.
-- id: PO.0072
-  percept: L.tx.mouthcoating_persistence
-  parameter: P.solid_fat_content_37C
-  functional_form: linear
-  monotone: increasing
-  scope: any
-  evidence:
-    source: prior
-    date: '2026-09-10'
-  confidence: low
-  note: >-
-    SEEDED, DIRECTION NEEDS CONFIRMING. The other side of PO.0071 - fat that does
-    not melt at mouth temperature stays as a film. Together the two records say
-    what a formulator means by "this fat coats but is not creamy".
 - id: PO.0073
   percept: L.tx.smoothness
   parameter: P.particle_size_d90

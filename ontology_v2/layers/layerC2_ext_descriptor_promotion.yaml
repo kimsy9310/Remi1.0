@@ -253,6 +253,13 @@ ingredients_ext:
   - { to: P.shear_thinning_index, direction: increase, magnitude: strong, scoped_to_structure_class: SC.suspension, source_type: prior, confidence: high,
       note: "MW 2-50 MDa. 정지 시 점도가 높고 전단 시 급격히 묽어진다 — 서스펜션이 흐르면서도 입자를 붙잡는 이유." }
   - { to: P.yield_stress, direction: increase, magnitude: strong, scoped_to_structure_class: SC.suspension, source_type: prior, confidence: high }
+  # 2026-09-11 조절자. 잔탄도 흐름성을 낮춘다 - 다만 전단박화 덕에 다른 증점제보다
+  # **덜** 낮춘다. 위의 shear_thinning_index 를 R-1 로 합성하면 흐름성 +1.0 이
+  # 나오는데 그건 틀렸다(사용자: "잔탄을 넣는다고 흐르는 건 아니지"). 덧셈 모형은
+  # 조절자를 못 담으니 재료 직접 override 로 크기를 접는다: 태그 기본 medium(-0.6)
+  # 에서 조절자 strong 만큼 내려 weak(-0.3). 이 직접 엣지가 합성 경로를 덮는다.
+  - { to: L.tx.pourability, direction: decrease, magnitude: weak, scoped_to_structure_class: any, source_type: prior, confidence: high,
+      note: "조절자. 증점제 기본(-0.6)보다 덜 나쁘다 - 전단박화. 흐름성을 올리는 것이 아니다." }
 
 - id: ING.locust_bean_gum_mg_ext
   label: "Locust bean gum (M/G 3.5)"
