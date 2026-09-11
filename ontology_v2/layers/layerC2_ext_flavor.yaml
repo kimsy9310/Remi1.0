@@ -7,7 +7,7 @@
 # App main purpose = FLAVOR REALIZATION formulator (low-sugar/low-fat = one mode).
 # So flavor is first-class. Design (consistent with the rest of the ontology):
 #   - PERCEPTION of flavor  = LEXICON nodes  (L.ar.* attributes)
-#   - CONTRIBUTION of flavor = EFFECT EDGES (this file): an ingredient's
+#   - CONTRIBUTION of flavor = INGREDIENT EDGES (this file): an ingredient's
 #     flavor_profile is a set of edges pointing at those LEXICON nodes.
 #   - MATRIX MODULATION already exists: PARAMETER P.flavor_release_dynamics
 #     (fat/thickener modulate release) -> perceived note in LEXICON.
@@ -117,7 +117,7 @@ flavor_notes_introduced:
   - { id: L.ar.berry,          modality: flavor, category: fruity,            note: "parent category node" }
 
 provenance:
-  method: "flavor as node(LEXICON)/edge(EFFECT) split; hierarchical extensible vocabulary; WCR-style references"
+  method: "flavor as node(LEXICON)/edge(INGREDIENT) split; hierarchical extensible vocabulary; WCR-style references"
   supporting_evidence:
     - "Flavor wheels: modality(aroma/flavor/mouthfeel) > category > note hierarchy; similar notes adjacent"
     - "WCR Sensory Lexicon: 110 attributes each tied to a repeatable reference food (e.g., frozen strawberries = 'strawberry')"

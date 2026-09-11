@@ -72,11 +72,12 @@ data:
 learned:
   as_of: '2026-09-10'
   filled_from_silence: 35
-  sign_flipped: 1
+  sign_flipped: 0          # 2026-09-11 RANGE_TO_SD 2.0 이후. 09-10 에는 1 이었다
   effective_directions: 11        # 자유변수 15개 중
   flipped_detail: >-
-    ING.high_intensity_sweetener -> L.tx.body. 사전 +1.00, 실측 -0.01, Λ=2.0.
-    반대로 뒤집힌 것이 아니라 사실상 0 으로 눌린 것이다.
+    (09-10) ING.high_intensity_sweetener -> L.tx.body 가 사전 +1.00 · 실측 -0.01
+    로 뒤집혀 있었다. RANGE_TO_SD 4.0 -> 2.0 뒤에는 실측 +0.22 로 같은 부호다.
+    원래 0 으로 눌린 칸이라 눈금이 바뀌며 0 의 반대편에서 제자리로 온 것이다.
   shared_out: 0
   shared_out_note: >-
     환류 문턱이 "서로 다른 제품 둘 이상" 이라 지금은 하나도 나가지 않는다.

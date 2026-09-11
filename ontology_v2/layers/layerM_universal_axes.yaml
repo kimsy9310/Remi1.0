@@ -4,7 +4,7 @@
 # 왜 이 파일이 있나
 # -----------------
 # 기본맛은 제형이 함의하지 않는다. 소금이 짜다는 것은 그것이 에멀전이든
-# 현탁액이든 언 것이든 같다 — EFFECT 도 그렇게 적고 있다:
+# 현탁액이든 언 것이든 같다 — INGREDIENT 도 그렇게 적고 있다:
 #
 #     ING.salt -> L.ta.salty   scoped_to_structure_class: any
 #
@@ -21,9 +21,9 @@
 #
 # 첫 줄의 답을 **카드 유무로** 하고 있었던 것이 결함이다.
 #
-# 어떻게 고치나 — EFFECT 와 같은 2-tier
+# 어떻게 고치나 — INGREDIENT 와 같은 2-tier
 # --------------------------------------
-# EFFECT 헤더가 이미 이 패턴을 쓴다:
+# INGREDIENT 헤더가 이미 이 패턴을 쓴다:
 #
 #     "generic effects live on FUNCTION TAGS ... specific ingredients add
 #      OVERRIDES only where they deviate."

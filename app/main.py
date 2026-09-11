@@ -131,7 +131,7 @@ def axis_label(t):
 
 
 def ing_label(g):
-    """재료 이름은 EFFECT 의 ko 가 정본이다(V2Ontology.ing_label)."""
+    """재료 이름은 INGREDIENT 의 ko 가 정본이다(V2Ontology.ing_label)."""
     try:
         return get_onto().ing_label(g)
     except Exception:                                             # noqa: BLE001

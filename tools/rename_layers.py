@@ -53,18 +53,31 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 NAMES = {
     "L": "LEXICON",
     "A": "PARAMETER",
-    "C": "EFFECT",
+    "C": "INGREDIENT",       # 2026-09-10 EFFECT -> 2026-09-11 INGREDIENT
     "R": "RELATION",
     "S": "STRUCTURE",
-    "M": "MEASUREMENT",
+    "M": "PRODUCT_CARD",     # 2026-09-10 MEASUREMENT -> 2026-09-11 PRODUCT_CARD
     "O": "PROCESS",
 }
 
 # v1 이름. 현재 구조를 설명하는 자리에서만 고친다.
 DEAD = {"B": "LEXICON"}
 
+# 2단계 (2026-09-11): 낱말 -> 낱말. 첫 개명이 틀린 이름을 둘 박았다.
+#   MEASUREMENT  "실험 데이터 같다" (사용자). 카드에 실측값은 한 줄도 없다 -
+#                한 축을 이 맥락에서 어떻게 읽고 점수 매길지의 정의다.
+#                제품의 성질을 기록하는 카드라 PRODUCT_CARD.
+#   EFFECT       "이름이 왜 EFFECT 인지" (사용자). 그 층은 재료 데이터베이스인데
+#                이름이 그 안의 엣지를 가리켰다. INGREDIENT.
+# 대문자 통째 낱말만 잡는다. `effects:` 같은 YAML 키는 소문자라 안 걸린다.
+WORDS = {"MEASUREMENT": "PRODUCT_CARD", "EFFECT": "INGREDIENT"}
+
 # 이 파일의 Layer B 는 전부 v1.1 감사 이력이다. 건드리지 않는다.
 DEAD_SKIP = {"layerL_lexicon.yaml"}
+
+# 사용자 말을 그대로 인용한 자리. "Layer S 의 경계를 다시 긋자" 같은 문장은
+# 그분이 그렇게 말씀하신 기록이라 낱말로 바꾸면 인용이 아니게 된다.
+QUOTE_SKIP = {"layer_boundaries.md", "CLAUDE.md"}
 
 # v1 로더 계열. **글자가 v2 와 다른 층을 가리킨다** -
 #
@@ -93,17 +106,22 @@ def targets():
 def convert(text, fname):
     """치환하고 (새 텍스트, 건수) 를 낸다."""
     n = 0
-    for letter, word in NAMES.items():
-        # `Layer A` 만 잡는다. `layerA_parameters.yaml` 은 파일명이라 안 걸린다
-        # (앞이 소문자 + 뒤에 밑줄). 단어 경계로 A 뒤에 글자가 오는 것도 막는다.
-        pat = re.compile(r"\bLayer " + letter + r"\b")
-        text, k = pat.subn(word, text)
-        n += k
-    if fname not in DEAD_SKIP:
-        for letter, word in DEAD.items():
+    if fname not in QUOTE_SKIP:
+        for letter, word in NAMES.items():
+            # `Layer A` 만 잡는다. `layerA_parameters.yaml` 은 파일명이라 안 걸린다
+            # (앞이 소문자 + 뒤에 밑줄). 단어 경계로 A 뒤에 글자가 오는 것도 막는다.
             pat = re.compile(r"\bLayer " + letter + r"\b")
             text, k = pat.subn(word, text)
             n += k
+        if fname not in DEAD_SKIP:
+            for letter, word in DEAD.items():
+                pat = re.compile(r"\bLayer " + letter + r"\b")
+                text, k = pat.subn(word, text)
+                n += k
+    for old_w, new_w in WORDS.items():
+        pat = re.compile(r"\b" + old_w + r"\b")
+        text, k = pat.subn(new_w, text)
+        n += k
     return text, n
 
 
@@ -129,6 +147,8 @@ def main(write=False):
     for word, letter in sorted((v, k) for k, v in NAMES.items()):
         print(f"  Layer {letter}  ->  {word}")
     print(f"  Layer B  ->  LEXICON   (v1 이름. 감사 이력 4건은 그대로 둔다)")
+    for a, b in WORDS.items():
+        print(f"  {a:<11}  ->  {b}   (2단계 2026-09-11)")
     print()
     for rel, n in sorted(touched, key=lambda x: -x[1]):
         print(f"  {n:>3}건  {rel}")

@@ -1,5 +1,5 @@
 # [layerC2 - spec v2 migration 2026-08-18] New file: filler ingredient for §5.1.
-# ING.water did not exist in v1 EFFECT; every profile's filler references it.
+# ING.water did not exist in v1 INGREDIENT; every profile's filler references it.
 ingredients_ext:
   - id: ING.water
     ko: "물"

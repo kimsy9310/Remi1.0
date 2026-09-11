@@ -217,7 +217,7 @@ reformulation_patterns:
     rationale: "sucrose's TRIPLE role split across 3 agents: bulking (body/solids) + fpd_agent/polyol (freezing curve) + high-intensity sweetener (sweetness). Matches ontology LESSON.sugar_triple_role."
 
 provenance:
-  method: "extension of EFFECT 2-tier schema; gaps from BO dry-run + ice-cream labeling"
+  method: "extension of INGREDIENT 2-tier schema; gaps from BO dry-run + ice-cream labeling"
   supporting_evidence:
     - "Fat replacers (modified starch, maltodextrin, inulin) form water-trapping microgels -> fat-like mouthfeel (1 vs 9 cal/g); modified starch ~4x maltodextrin efficacy"
     - "Low-sugar ice cream: bulking (polydextrose/maltodextrin, little FPD/sweetness) + polyol FPD control (erythritol/maltitol, stronger FPD/weight) + high-intensity sweetener"

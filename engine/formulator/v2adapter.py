@@ -56,8 +56,17 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 _PROJECT = os.path.abspath(os.path.join(_HERE, "..", ".."))
 DEFAULT_ROOT = os.path.join(_PROJECT, "ontology_v2")
 
-# 작업 범위를 모를 때 쓰는 임시 스케일 규칙(폭/4 ≈ 1 SD 로 보는 것)
-RANGE_TO_SD = 4.0
+# 작업 범위의 폭을 몇 SD 로 볼 것인가. zsd = (상한 - 하한) / RANGE_TO_SD.
+#
+# 2026-09-11: 4.0 -> 2.0 (docs/척도정의_전략.md 5절, 사용자 승인).
+#   4.0 은 "범위를 ±2 SD 로 본다" 는 정규 근사였고 근거가 없었다. 2.0 은
+#   "하한이 -1, 상한이 +1" - DoE 의 코드 단위이고, 온톨로지 사전이 실험계획의
+#   코드 단위로 쓰인 지식이라 이쪽이 자연스러운 읽기다.
+#   실측 18건에서 전 구간 이동량이 1~2 단위였는데 4.0 은 강한 효과에 4 단위를
+#   배정해 사전이 2~4배 과대했다. JND 로 환산하면 2.0 에서 1 단계 ≈ 1.3 JND 로
+#   "1 단계 ≈ 1 JND" 정의와 맞아떨어진다.
+#   효과: 재료 1%p 당 관능 효과가 절반 -> 제안 이동 폭이 약 2배, 예측이 덜 부풀려짐.
+RANGE_TO_SD = 2.0
 FALLBACK_SD = 0.5          # 범위도 x0 도 없을 때의 최후 기본값
 UNIVERSAL_AXES_FILE = "layerM_universal_axes.yaml"   # 전 프로파일 기본 카드
 FILLER_HEADROOM = 2.0      # 기준 배합에서 필러에 남겨 두는 최소 몫(총량 대비 %)
@@ -204,11 +213,11 @@ class V2Ontology:
         기본맛을 전 프로파일의 기본 카드로 깐다.
 
         왜 여기인가. 기본맛은 제형이 함의하지 않는다 — 소금이 짜다는 것은
-        에멀전이든 현탁액이든 언 것이든 같고, EFFECT 도 `scoped_to_structure_
+        에멀전이든 현탁액이든 언 것이든 같고, INGREDIENT 도 `scoped_to_structure_
         class: any` 로 그렇게 적고 있다. 그런데 M 카드는 제형 파일마다 손으로
         쓰였고, 그 결과 아이스크림에는 짠맛 카드가 없어 **물어볼 수조차** 없었다.
 
-        EFFECT 의 2-tier 와 같은 방식으로 고친다. layerM_universal_axes.yaml 이
+        INGREDIENT 의 2-tier 와 같은 방식으로 고친다. layerM_universal_axes.yaml 이
         모든 프로파일의 기본값이고, 제형 파일에 같은 term_id 카드가 있으면
         그쪽이 이긴다. 기본 tier 는 monitored 라 목적함수에는 안 들어간다 —
         core 로 올리는 것은 제형 카드가 하는 선언이다.
@@ -267,7 +276,7 @@ class V2Ontology:
         return ko or term_id.split(".")[-1]
 
     def ing_label(self, ing_id):
-        """재료의 표시 이름. EFFECT 의 ko 가 정본이고 없으면 영문 label."""
+        """재료의 표시 이름. INGREDIENT 의 ko 가 정본이고 없으면 영문 label."""
         d = self.stack["ings"].get(ing_id) or {}
         ko = str(d.get("ko", "")).strip()
         if ko:
