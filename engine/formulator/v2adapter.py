@@ -84,12 +84,11 @@ FILLER_HEADROOM = 2.0      # 기준 배합에서 필러에 남겨 두는 최소 
 PROJECTS_DIR = "projects"
 
 EXTRA_PROFILES = {
-    # 2026-09-02: 발효 핫소스를 현탁액 제형 파일에서 떼어냈다. 제형은 물성만
-    # 함의하는데 향·매운맛 축 4개가 거기 들어앉아, 토마토 살사를 만들려는
-    # 사람에게도 고추를 묻고 있었다. tools/split_suspension_product.py 참조.
-    "suspension_hotsauce": dict(
-        cards=["layerM_cards_suspension_hotsauce.yaml"],
-        scopes={"any", "SC.suspension"}),
+    # 2026-09-11: 비었다. suspension_hotsauce 를 지웠다 - 제품은 온톨로지에 없다.
+    # 사용자 근거 셋: 보안(한 사용자의 제품을 다른 사용자가 보면 안 된다) ·
+    # 학습과 제품의 구분 · ID 무한 증식. 제형이 향 칸 둘을 갖는다는 사실은
+    # STRUCTURE 의 flavor_slots 가 이미 들고 있어 잃는 것이 없다.
+    # 제형 확장이 필요해지면 여기 쓴다. 제품은 projects/ 다.
 }
 
 

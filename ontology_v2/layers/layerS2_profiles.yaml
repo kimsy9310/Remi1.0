@@ -712,9 +712,9 @@ structure_profiles:
     - L.ch.pungent_hot
     note: Calculating from raw-material SHU is only meaningful with a certificated raw material. Whole chillies
       vary severalfold pod to pod, so a calculated SHU from fresh produce is an estimate, not a value.
-  # 칸의 개수는 제형이 정하고, 칸의 내용은 제품이 채운다. 기본값이 값처럼
-  # 굳는 것을 막으려고 2026-09-02 에 향 축 자체를 제품 파일로 옮겼다
-  # (layerM_cards_suspension_hotsauce.yaml). 여기 남는 것은 칸 수뿐이다.
+  # 칸의 개수는 제형이 정하고, 칸의 내용은 제품이 채운다. 2026-09-02 에 향 축을
+  # 제품 파일로 옮겼고, 2026-09-11 에 그 제품 파일마저 온톨로지에서 지웠다 -
+  # 제품은 projects/ 에 산다. 여기 남는 것은 칸 수뿐이고, 그것이 원래 설계다.
   flavor_slots: 2
   relevant_attributes:
   - id: L.ta.salty
