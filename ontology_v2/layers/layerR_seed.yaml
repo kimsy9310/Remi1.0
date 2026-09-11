@@ -8,7 +8,7 @@ meta:
     never overwritten (Invariant 3). BLACK aging observations (2026-08..12) should be logged as new KN.* records.
     2026-08-18: R-2 effect enum extended with pos_corr; IN.0004/IN.0010 corrected.'
   counts:
-    relations_proxy: 72
+    relations_proxy: 70
     relations_interaction: 13
     relations_decomposition: 6
     relations_kinetics: 3
@@ -125,7 +125,16 @@ relations_proxy:
   parameter: P.apparent_viscosity
   functional_form: linear
   monotone: increasing
-  scope: SC.emulsion.ow|APP.sauce
+  scope: SC.emulsion.ow
+  rescoped:
+    date: '2026-09-11'
+    was: SC.emulsion.ow|APP.sauce
+    why: >-
+      Viscosity/yield stress -> thickness/cling/pourability is rheology, not a
+      property of sauces. It was written at the sauce leaf, so dressing and dip
+      (new 2026-09-11) could not reach these axes and beverage needed copies
+      (PO.0061/0062, now removed). Raised to the structure class. Dose lives in
+      the INGREDIENT edges and the palette range, not here.
   evidence: *id001
   confidence: high
   params: {}
@@ -134,7 +143,16 @@ relations_proxy:
   parameter: P.yield_stress
   functional_form: linear
   monotone: increasing
-  scope: SC.emulsion.ow|APP.sauce
+  scope: SC.emulsion.ow
+  rescoped:
+    date: '2026-09-11'
+    was: SC.emulsion.ow|APP.sauce
+    why: >-
+      Viscosity/yield stress -> thickness/cling/pourability is rheology, not a
+      property of sauces. It was written at the sauce leaf, so dressing and dip
+      (new 2026-09-11) could not reach these axes and beverage needed copies
+      (PO.0061/0062, now removed). Raised to the structure class. Dose lives in
+      the INGREDIENT edges and the palette range, not here.
   evidence: *id001
   confidence: medium
   params: {}
@@ -143,7 +161,16 @@ relations_proxy:
   parameter: P.apparent_viscosity
   functional_form: saturating
   monotone: increasing
-  scope: SC.emulsion.ow|APP.sauce
+  scope: SC.emulsion.ow
+  rescoped:
+    date: '2026-09-11'
+    was: SC.emulsion.ow|APP.sauce
+    why: >-
+      Viscosity/yield stress -> thickness/cling/pourability is rheology, not a
+      property of sauces. It was written at the sauce leaf, so dressing and dip
+      (new 2026-09-11) could not reach these axes and beverage needed copies
+      (PO.0061/0062, now removed). Raised to the structure class. Dose lives in
+      the INGREDIENT edges and the palette range, not here.
   evidence: *id001
   confidence: medium
   params: {}
@@ -152,7 +179,16 @@ relations_proxy:
   parameter: P.yield_stress
   functional_form: saturating
   monotone: increasing
-  scope: SC.emulsion.ow|APP.sauce
+  scope: SC.emulsion.ow
+  rescoped:
+    date: '2026-09-11'
+    was: SC.emulsion.ow|APP.sauce
+    why: >-
+      Viscosity/yield stress -> thickness/cling/pourability is rheology, not a
+      property of sauces. It was written at the sauce leaf, so dressing and dip
+      (new 2026-09-11) could not reach these axes and beverage needed copies
+      (PO.0061/0062, now removed). Raised to the structure class. Dose lives in
+      the INGREDIENT edges and the palette range, not here.
   evidence: *id001
   confidence: medium
   params: {}
@@ -161,7 +197,16 @@ relations_proxy:
   parameter: P.apparent_viscosity
   functional_form: linear
   monotone: decreasing
-  scope: SC.emulsion.ow|APP.sauce
+  scope: SC.emulsion.ow
+  rescoped:
+    date: '2026-09-11'
+    was: SC.emulsion.ow|APP.sauce
+    why: >-
+      Viscosity/yield stress -> thickness/cling/pourability is rheology, not a
+      property of sauces. It was written at the sauce leaf, so dressing and dip
+      (new 2026-09-11) could not reach these axes and beverage needed copies
+      (PO.0061/0062, now removed). Raised to the structure class. Dose lives in
+      the INGREDIENT edges and the palette range, not here.
   evidence: *id001
   confidence: high
   params: {}
@@ -638,40 +683,6 @@ relations_proxy:
     Free and poorly emulsified oil coats the palate. Reads together with PO.0059:
     raising oil fraction buys creaminess and pays in oiliness, which is the actual
     trade-off the rice-milk DoE is exploring (HANDOFF §3.1, palm oil 15-45).
-- id: PO.0061
-  percept: L.tx.thickness
-  parameter: P.apparent_viscosity
-  functional_form: linear
-  monotone: increasing
-  scope: SC.emulsion.ow|APP.beverage
-  evidence:
-    source: prior
-    date: '2026-09-07'
-  confidence: medium
-  note: >-
-    Beverage counterpart of PO.0011. The C edge FT.thickener -> P.apparent_viscosity
-    already carried scope SC.emulsion.ow.beverage, so an ingredient could raise
-    viscosity in a beverage - but nothing carried that viscosity through to the
-    thickness percept. The axis was unreachable and the app answered "no ingredient
-    can move it", which was false. Added because a THICK BEVERAGE (yogurt smoothie,
-    drinkable yogurt) must be formulable. Whether a product asks about thickness or
-    about body is a PRODUCT decision, not a structure one.
-- id: PO.0062
-  percept: L.tx.pourability
-  parameter: P.apparent_viscosity
-  functional_form: linear
-  monotone: decreasing
-  scope: SC.emulsion.ow|APP.beverage
-  evidence:
-    source: prior
-    date: '2026-09-07'
-  confidence: medium
-  note: >-
-    Beverage counterpart of PO.0015. Pours easily is the inverse of thick
-    (IN.0003), so opening thickness in beverage without pourability would leave
-    the pair lopsided. A beverage is poured before it is drunk, which makes this
-    axis more native here than in a sauce. Monitored, never core together with
-    L.tx.thickness.
 - id: PO.0063
   percept: L.tx.mouthcoating_persistence
   parameter: P.oil_phase_fraction

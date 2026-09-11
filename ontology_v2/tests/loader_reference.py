@@ -51,10 +51,18 @@ PROFILES = {
     # 냉동 고유 스코프 둘은 그대로 둔다 — 얼음·오버런은 진짜 냉동 전용이다.
     'dressing': dict(   # 2026-09-11 tools/add_application.py 로 sauce_ow 에서 파생
         cards=['layerM_cards_dressing.yaml'],
-        scopes={'any', 'SC.emulsion.ow', 'SC.emulsion.ow.dressing', 'SC.emulsion.ow|APP.dressing'}),
+        # 'SC.emulsion.ow.sauce' 를 넣는다 - 용량 면에서 소스의 하위 용도라 소스의
+        # INGREDIENT 엣지(재료->물성, 용량이 든 것)를 물려받는다. R-1(물리)은 부모
+        # SC.emulsion.ow 에서 온다. 베끼지도, 크기를 고르지도 않는다 (2026-09-11).
+        scopes={'any', 'SC.emulsion.ow', 'SC.emulsion.ow.sauce',
+                'SC.emulsion.ow.dressing', 'SC.emulsion.ow|APP.dressing'}),
     'dip': dict(   # 2026-09-11 tools/add_application.py 로 sauce_ow 에서 파생
         cards=['layerM_cards_dip.yaml'],
-        scopes={'any', 'SC.emulsion.ow', 'SC.emulsion.ow.dip', 'SC.emulsion.ow|APP.dip'}),
+        # 'SC.emulsion.ow.sauce' 를 넣는다 - 용량 면에서 소스의 하위 용도라 소스의
+        # INGREDIENT 엣지(재료->물성, 용량이 든 것)를 물려받는다. R-1(물리)은 부모
+        # SC.emulsion.ow 에서 온다. 베끼지도, 크기를 고르지도 않는다 (2026-09-11).
+        scopes={'any', 'SC.emulsion.ow', 'SC.emulsion.ow.sauce',
+                'SC.emulsion.ow.dip', 'SC.emulsion.ow|APP.dip'}),
     'condiment': dict(   # 2026-09-11 tools/add_application.py 로 suspension 에서 파생
         cards=['layerM_cards_condiment.yaml'],
         scopes={'any', 'SC.suspension', 'SC.suspension.condiment', 'SC.suspension|APP.condiment'}),

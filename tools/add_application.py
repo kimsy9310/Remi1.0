@@ -50,10 +50,15 @@ sys.path[:0] = [os.path.join(ROOT, "engine")]
 # 늘릴 용도. 형제(sibling)는 같은 SC 안에서 가장 가까운 기존 제형이다.
 # spread 는 여기 없다 - 버터는 W/O, 크림치즈·잼은 겔이라 한 구조가 아니다.
 # APP 이 아니라 SC 를 새로 세워야 하는 문제라 따로 여쭙는다.
+#
+# dose_parent (2026-09-11): INGREDIENT 엣지에는 용량이 들어 있어 (FT.thickener ->
+# 점도가 소스 strong · 음료 medium) 부모 SC 로 올릴 수 없다. 새 용도가 용량 면에서
+# 어느 기존 용도의 하위인지 적으면 그 잎 스코프를 물려받는다. R-1(물리)은 부모
+# SC 에서 온다. 베끼지도, 크기를 고르지도 않는다.
 # ---------------------------------------------------------------------------
 NEW = [
     dict(key="dressing", app="APP.dressing", sibling="sauce_ow",
-         sc="SC.emulsion.ow", dot="SC.emulsion.ow.dressing",
+         sc="SC.emulsion.ow", dot="SC.emulsion.ow.dressing", dose_parent="SC.emulsion.ow.sauce",
          label="Oil-in-water emulsion dressing",
          ko_label="수중유 에멀전 드레싱",
          ko_def="연속상이 물이고 기름 방울이 분산된 두 상(相) 계. 소스와 같은 구조이나 "
@@ -62,7 +67,7 @@ NEW = [
                     "pourability leads and acidity is often the identity.",
          required=["FT.fat_source", "FT.emulsifier", "FT.acidulant"]),
     dict(key="dip", app="APP.dip", sibling="sauce_ow",
-         sc="SC.emulsion.ow", dot="SC.emulsion.ow.dip",
+         sc="SC.emulsion.ow", dot="SC.emulsion.ow.dip", dose_parent="SC.emulsion.ow.sauce",
          label="Oil-in-water emulsion dip",
          ko_label="수중유 에멀전 딥",
          ko_def="연속상이 물이고 기름 방울이 분산된 두 상 계. 찍어 먹는 용도라 항복응력이 "
@@ -175,6 +180,8 @@ def main(write=False):
         entry = derive_entry(spec, sib)
         card_text, ident = derive_cards(spec, spec["sibling"])
         scopes = {"any", spec["sc"], spec["dot"], ident}
+        if spec.get("dose_parent"):
+            scopes.add(spec["dose_parent"])
         n = reach_count(scopes)
         print(f"  {spec['key']:<10} <- {spec['sibling']:<11} 파라미터 {len(entry['parameters']):>2} · "
               f"카드 {card_text.count('- term_id:'):>2} · 도달축 {n}")
@@ -183,7 +190,9 @@ def main(write=False):
         reg_lines.append(
             f"    '{spec['key']}': dict(   # 2026-09-11 tools/add_application.py 로 {spec['sibling']} 에서 파생\n"
             f"        cards=['layerM_cards_{spec['key']}.yaml'],\n"
-            f"        scopes={{'any', '{spec['sc']}', '{spec['dot']}', '{ident}'}}),\n")
+            f"        scopes={{'any', '{spec['sc']}', "
+            + (f"'{spec['dose_parent']}', " if spec.get("dose_parent") else "")
+            + f"'{spec['dot']}', '{ident}'}}),\n")
     if not new_entries:
         print("\n  늘릴 것 없음"); return 0
     if not write:
