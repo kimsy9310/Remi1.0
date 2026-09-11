@@ -162,6 +162,10 @@ v1.1 감사 이력 4건은 그때 실제로 그 이름이었으므로 남겼다.
 
 ## 지금 서 있는 자리
 
+**2026-09-11 부터 세션을 기능별로 가른다** — [`docs/session_split.md`](docs/session_split.md).
+S1 ONTOLOGY · S2 INGREDIENT · S3 MODEL · S4 INTAKE · S5 APP. 한 파일은 한 세션만 고친다.
+새 세션은 그 문서의 6절 프롬프트로 시작한다.
+
 착수 순서는 [`docs/상호작용_알고리즘.md`](docs/상호작용_알고리즘.md) 9 절.
 
 | | | |
