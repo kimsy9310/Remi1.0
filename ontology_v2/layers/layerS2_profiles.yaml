@@ -431,6 +431,10 @@ structure_profiles:
     - oil
     role: secondary
   - id: P.apparent_viscosity
+    plausible_range: '0.5 - 50 Pa.s @50 1/s'
+    range_source: literature draft 2026-09-11
+    range_confidence: draft
+    range_basis: 'wide: pourable to spoonable. Dressing (<2) and dip (>2, yield stress) split this range'
     question_origin: perception
     governing_mechanism: Aqueous-phase thickening + droplet crowding; primary driver of thickness/cling.
     driven_by:
@@ -439,6 +443,10 @@ structure_profiles:
     - droplet_packing
     role: primary
   - id: P.yield_stress
+    plausible_range: '0 - 150 Pa'
+    range_source: literature draft 2026-09-11
+    range_confidence: draft
+    range_basis: mayonnaise-like semi-solids at the top
     question_origin: perception
     governing_mechanism: Thickener/particle network + high-phi packing; enables standing/scoopable texture.
     driven_by:
@@ -453,6 +461,10 @@ structure_profiles:
     - droplet_size_d32
     role: secondary
   - id: P.pH
+    plausible_range: '3.2 - 4.5'
+    range_source: literature draft 2026-09-11
+    range_confidence: draft
+    range_basis: acidified for safety and identity
     question_origin: perception
     governing_mechanism: Sets emulsifier/protein charge & stability; onset/sharpness of sour taste.
     driven_by:
@@ -460,6 +472,9 @@ structure_profiles:
     - vinegar
     role: secondary
   - id: P.soluble_solids_brix
+    plausible_range: '5 - 30 degBx'
+    range_source: literature draft 2026-09-11
+    range_confidence: draft
     question_origin: perception
     governing_mechanism: Dissolved sugars/solids; objective correlate of sweetness; also adds body/viscosity.
     driven_by:
@@ -793,10 +808,9 @@ structure_profiles:
   parameters:
   - id: P.oil_phase_fraction
     question_origin: defining
-    plausible_range: 0.05 - 0.75 (w/w)
-    range_basis: O/W stable across wide phi; near random close packing (~0.64-0.74) crowding/phase-inversion
-      risk rises without HIPE-style formulation. Product targets -> profiles file.
-    range_source: copied from Oil-in-water emulsion sauce
+    plausible_range: 0.05 - 0.50 (w/w)
+    range_basis: 'pourable: vinaigrette 30-50%, low-fat 5-20%'
+    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
     range_confidence: draft
     governing_mechanism: Volume fraction sets droplet packing, viscosity, opacity, richness.
     driven_by:
@@ -863,7 +877,9 @@ structure_profiles:
     - droplet_packing
     role: primary
     range_confidence: draft
-    range_source: copied from Oil-in-water emulsion sauce
+    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
+    plausible_range: 0.05 - 2 Pa.s @50 1/s
+    range_basis: pours under gravity; the axis that separates dressing from dip
   - id: P.yield_stress
     question_origin: perception
     governing_mechanism: Thickener/particle network + high-phi packing; enables standing/scoopable texture.
@@ -872,7 +888,9 @@ structure_profiles:
     - oil_phase_fraction
     role: primary
     range_confidence: draft
-    range_source: copied from Oil-in-water emulsion sauce
+    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
+    plausible_range: 0 - 5 Pa
+    range_basis: no standing structure - it runs off a spoon
   - id: P.gloss_optical
     question_origin: perception
     governing_mechanism: Surface reflectance and light scattering set by droplet size and oil fraction.
@@ -890,7 +908,9 @@ structure_profiles:
     - vinegar
     role: secondary
     range_confidence: draft
-    range_source: copied from Oil-in-water emulsion sauce
+    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
+    plausible_range: 3.0 - 4.2
+    range_basis: acidified; acidity is usually the identity
   - id: P.soluble_solids_brix
     question_origin: perception
     governing_mechanism: Dissolved sugars/solids; objective correlate of sweetness; also adds body/viscosity.
@@ -900,7 +920,8 @@ structure_profiles:
     - bulking_agent
     role: primary
     range_confidence: draft
-    range_source: copied from Oil-in-water emulsion sauce
+    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
+    plausible_range: 5 - 25 degBx
   - id: P.titratable_acidity
     question_origin: perception
     governing_mechanism: Total acid available to neutralize; magnitude/duration of sour taste (complements
@@ -1004,6 +1025,12 @@ structure_profiles:
   derived_from: Oil-in-water emulsion sauce
   derived_on: '2026-09-11'
   status: DRAFT - ranges copied from sibling, review before trusting
+  discriminators:
+  - P.oil_phase_fraction
+  - P.apparent_viscosity
+  - P.yield_stress
+  - P.pH
+  - P.soluble_solids_brix
 - structure_class: SC.emulsion.ow
   application: APP.dip
   state: null
@@ -1026,10 +1053,10 @@ structure_profiles:
   parameters:
   - id: P.oil_phase_fraction
     question_origin: defining
-    plausible_range: 0.05 - 0.75 (w/w)
+    plausible_range: 0.15 - 0.60 (w/w)
     range_basis: O/W stable across wide phi; near random close packing (~0.64-0.74) crowding/phase-inversion
       risk rises without HIPE-style formulation. Product targets -> profiles file.
-    range_source: copied from Oil-in-water emulsion sauce
+    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
     range_confidence: draft
     governing_mechanism: Volume fraction sets droplet packing, viscosity, opacity, richness.
     driven_by:
@@ -1096,7 +1123,9 @@ structure_profiles:
     - droplet_packing
     role: primary
     range_confidence: draft
-    range_source: copied from Oil-in-water emulsion sauce
+    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
+    plausible_range: 2 - 30 Pa.s @50 1/s
+    range_basis: holds on a chip
   - id: P.yield_stress
     question_origin: perception
     governing_mechanism: Thickener/particle network + high-phi packing; enables standing/scoopable texture.
@@ -1105,7 +1134,9 @@ structure_profiles:
     - oil_phase_fraction
     role: primary
     range_confidence: draft
-    range_source: copied from Oil-in-water emulsion sauce
+    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
+    plausible_range: 20 - 200 Pa
+    range_basis: stands in the bowl, scoops - the axis that separates dip from dressing
   - id: P.gloss_optical
     question_origin: perception
     governing_mechanism: Surface reflectance and light scattering set by droplet size and oil fraction.
@@ -1123,7 +1154,9 @@ structure_profiles:
     - vinegar
     role: secondary
     range_confidence: draft
-    range_source: copied from Oil-in-water emulsion sauce
+    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
+    plausible_range: 3.8 - 5.0
+    range_basis: milder than dressing
   - id: P.soluble_solids_brix
     question_origin: perception
     governing_mechanism: Dissolved sugars/solids; objective correlate of sweetness; also adds body/viscosity.
@@ -1133,7 +1166,8 @@ structure_profiles:
     - bulking_agent
     role: primary
     range_confidence: draft
-    range_source: copied from Oil-in-water emulsion sauce
+    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
+    plausible_range: 5 - 20 degBx
   - id: P.titratable_acidity
     question_origin: perception
     governing_mechanism: Total acid available to neutralize; magnitude/duration of sour taste (complements
@@ -1237,6 +1271,12 @@ structure_profiles:
   derived_from: Oil-in-water emulsion sauce
   derived_on: '2026-09-11'
   status: DRAFT - ranges copied from sibling, review before trusting
+  discriminators:
+  - P.oil_phase_fraction
+  - P.apparent_viscosity
+  - P.yield_stress
+  - P.pH
+  - P.soluble_solids_brix
 - structure_class: SC.suspension
   application: APP.condiment
   state: null
@@ -1263,10 +1303,9 @@ structure_profiles:
   parameters:
   - id: P.solids_volume_fraction
     question_origin: defining
-    plausible_range: 0.02 - 0.60 (v/v)
-    range_basis: Below ~0.02 the product reads as a cloudy liquid. Near random close packing (~0.58-0.64)
-      particles jam, a yield stress appears and settling stops; above that the product is a paste.
-    range_source: copied from Suspension (solid-in-liquid dispersion)
+    plausible_range: 0.30 - 0.60 (v/v)
+    range_basis: paste; gochujang, doenjang, ssamjang
+    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
     range_confidence: draft
     governing_mechanism: Sets opacity, body, and whether the system settles at all or jams into a network.
     driven_by:
@@ -1274,10 +1313,9 @@ structure_profiles:
     role: primary
   - id: P.particle_size_d50
     question_origin: defining
-    plausible_range: 5 - 5000 micrometre
-    range_basis: Below ~5 um most food mills cannot reach without wet colloid milling. Above ~3000 um
-      pieces are seen and chewed individually rather than felt as texture.
-    range_source: copied from Suspension (solid-in-liquid dispersion)
+    plausible_range: 50 - 2000 micrometre
+    range_basis: ground grain/bean/chilli
+    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
     range_confidence: draft
     governing_mechanism: Squared term in Stokes settling; also sets perceived piece size.
     driven_by:
@@ -1335,10 +1373,9 @@ structure_profiles:
     - L.ap.serum_layer
   - id: P.pH
     question_origin: defining
-    plausible_range: 2.5 - 7.0
-    range_basis: 4.6 is the regulatory and microbiological dividing line for acidified shelf-stable foods;
-      below ~3.0 most products are too sour to eat as a sauce.
-    range_source: copied from Suspension (solid-in-liquid dispersion)
+    plausible_range: 4.5 - 6.0
+    range_basis: fermented
+    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
     range_confidence: draft
     governing_mechanism: Governs C. botulinum outgrowth and most spoilage; also directly changes perceived
       sourness, colour of anthocyanin and chlorophyll systems, and hydrocolloid behaviour.
@@ -1365,9 +1402,9 @@ structure_profiles:
     role: primary
   - id: P.salt_in_water_phase
     question_origin: derived
-    plausible_range: 0 - 25 %
-    range_basis: Roughly 10% water-phase salt approaches the aw threshold that inhibits C. botulinum.
-    range_source: copied from Suspension (solid-in-liquid dispersion)
+    plausible_range: 8 - 25 %
+    range_basis: 'concentrated: eaten in small amounts - the axis that separates condiment from soup'
+    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
     range_confidence: draft
     governing_mechanism: Microbial inhibition depends on concentration in the water, not on the whole-product
       figure.
@@ -1451,6 +1488,11 @@ structure_profiles:
   derived_from: Suspension (solid-in-liquid dispersion)
   derived_on: '2026-09-11'
   status: DRAFT - ranges copied from sibling, review before trusting
+  discriminators:
+  - P.solids_volume_fraction
+  - P.particle_size_d50
+  - P.pH
+  - P.salt_in_water_phase
 - structure_class: SC.suspension
   application: APP.soup
   state: null
@@ -1475,10 +1517,9 @@ structure_profiles:
   parameters:
   - id: P.solids_volume_fraction
     question_origin: defining
-    plausible_range: 0.02 - 0.60 (v/v)
-    range_basis: Below ~0.02 the product reads as a cloudy liquid. Near random close packing (~0.58-0.64)
-      particles jam, a yield stress appears and settling stops; above that the product is a paste.
-    range_source: copied from Suspension (solid-in-liquid dispersion)
+    plausible_range: 0.02 - 0.20 (v/v)
+    range_basis: dilute; eaten by the bowl
+    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
     range_confidence: draft
     governing_mechanism: Sets opacity, body, and whether the system settles at all or jams into a network.
     driven_by:
@@ -1486,10 +1527,9 @@ structure_profiles:
     role: primary
   - id: P.particle_size_d50
     question_origin: defining
-    plausible_range: 5 - 5000 micrometre
-    range_basis: Below ~5 um most food mills cannot reach without wet colloid milling. Above ~3000 um
-      pieces are seen and chewed individually rather than felt as texture.
-    range_source: copied from Suspension (solid-in-liquid dispersion)
+    plausible_range: 500 - 5000 micrometre
+    range_basis: pieces you chew
+    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
     range_confidence: draft
     governing_mechanism: Squared term in Stokes settling; also sets perceived piece size.
     driven_by:
@@ -1547,10 +1587,10 @@ structure_profiles:
     - L.ap.serum_layer
   - id: P.pH
     question_origin: defining
-    plausible_range: 2.5 - 7.0
+    plausible_range: 5.0 - 7.0
     range_basis: 4.6 is the regulatory and microbiological dividing line for acidified shelf-stable foods;
       below ~3.0 most products are too sour to eat as a sauce.
-    range_source: copied from Suspension (solid-in-liquid dispersion)
+    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
     range_confidence: draft
     governing_mechanism: Governs C. botulinum outgrowth and most spoilage; also directly changes perceived
       sourness, colour of anthocyanin and chlorophyll systems, and hydrocolloid behaviour.
@@ -1577,9 +1617,9 @@ structure_profiles:
     role: primary
   - id: P.salt_in_water_phase
     question_origin: derived
-    plausible_range: 0 - 25 %
-    range_basis: Roughly 10% water-phase salt approaches the aw threshold that inhibits C. botulinum.
-    range_source: copied from Suspension (solid-in-liquid dispersion)
+    plausible_range: 0.5 - 2.0 %
+    range_basis: seasoning level - the axis that separates soup from condiment
+    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
     range_confidence: draft
     governing_mechanism: Microbial inhibition depends on concentration in the water, not on the whole-product
       figure.
@@ -1663,4 +1703,8 @@ structure_profiles:
   derived_from: Suspension (solid-in-liquid dispersion)
   derived_on: '2026-09-11'
   status: DRAFT - ranges copied from sibling, review before trusting
-
+  discriminators:
+  - P.solids_volume_fraction
+  - P.particle_size_d50
+  - P.pH
+  - P.salt_in_water_phase
