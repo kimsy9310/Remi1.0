@@ -206,8 +206,8 @@ def cross_check(onto, profile, item, meas):
     if hi <= typ:
         flags.append(f"upper({hi}) <= typical({typ})")
     k = hi / typ if typ else float("inf")
-    if not (1.5 <= k <= 5):
-        flags.append(f"upper/typical = {k:.1f} (기대 1.5~5)")
+    if not (1.5 <= k <= 8):                      # check_bounds.K_OK 와 같이. 09-11 5 -> 8
+        flags.append(f"upper/typical = {k:.1f} (기대 1.5~8)")
     if g in meas:
         lo_m, hi_m = meas[g]
         if hi_m > 0 and not (lo_m <= typ <= hi_m * 1.5):
@@ -267,6 +267,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--write", action="store_true")
     ap.add_argument("--profile")
+    ap.add_argument("--ids", help="쉼표로 나눈 ING.* 만 묻는다 (누락 보충용). --profile 과 같이 쓴다")
+    ap.add_argument("--rebuild-review", action="store_true",
+                    help="API 를 안 부르고 팔레트의 api_draft 행에서 검토표를 다시 만든다 (판정·메모는 남긴다)")
     ap.add_argument("--model", default=MODEL)
     a = ap.parse_args()
 
@@ -280,8 +283,18 @@ def main():
     print("=" * 70)
 
     plan = []
+    if a.rebuild_review:
+        review = items_from_palette(onto, profiles)
+        save_review(review, full=not a.profile)     # 전 제형이면 옛 행은 안 남긴다 (이름 바뀐 제형 등)
+        return 0
+
+    only = {s.strip() for s in (a.ids or "").split(",") if s.strip()}
     for p in profiles:
         ings = ask_list(onto, p)
+        if only:
+            ings = [g for g in ings if g in only]
+            if not ings:
+                print(f"  {p}: --ids 에 맞는 재료 없음"); continue
         prompt = build_prompt(onto, p, ings)
         plan.append((p, ings, prompt))
         print(f"  {p:<22} 재료 {len(ings):>3}종 · 프롬프트 ~{len(prompt)//4:>5} 토큰")
@@ -322,14 +335,68 @@ def main():
         print(f"  {p:<22} 답 {len(items):>3} (누락 {len(missing)}) · 팔레트 갱신 {n_upd} 신규 {n_new} · "
               f"교차검사 걸림 {n_flag} · 토큰 {usage.input_tokens}+{usage.output_tokens}")
 
+    save_review(review)
+    return 0
+
+# ------------------------------------------------------------------ 검토표
+NOTE_RE = re.compile(r"upper\s*([\d.]+)%.*?lower_hint\s*([\d.]+)%\s*·\s*(\w+)\s*·\s*(high|medium|low)\s*·\s*(.*)$")
+
+
+def items_from_palette(onto, profiles):
+    """팔레트의 api_draft 행을 API 응답 모양으로 되읽는다 - 검토표를 다시 만들 때."""
+    wb = openpyxl.load_workbook(PALETTE, data_only=True, read_only=True)
+    hdr = [str(c or "").strip() for c in next(wb["palette"].iter_rows(values_only=True))]
+    review, meas_cache = [], {}
+    for r in wb["palette"].iter_rows(min_row=2, values_only=True):
+        d = dict(zip(hdr, r))
+        p, g = d.get("프로파일"), d.get("온톨로지ID")
+        if p not in profiles or d.get("통상출처") != "api_draft" or str(d.get("목적") or "").strip():
+            continue
+        m = NOTE_RE.search(str(d.get("통상근거") or ""))
+        if not m or g not in onto.ingredients:
+            continue
+        it = dict(id=g, typical_pct=float(d["통상"]), upper_pct=float(m.group(1)),
+                  lower_hint_pct=float(m.group(2)), dose_response=m.group(3),
+                  confidence=m.group(4), rationale=m.group(5))
+        if p not in meas_cache:
+            meas_cache[p] = measured_range(onto, p)
+        fl = cross_check(onto, p, it, meas_cache[p])
+        review.append((p, onto.ing_label(g), g, it["typical_pct"], it["upper_pct"],
+                       it["lower_hint_pct"], it["dose_response"], it["confidence"],
+                       "; ".join(fl), it["rationale"]))
+    return review
+
+
+def save_review(review, full=False):
+    # 검토표는 합친다: 이번에 물은 (제형, ID) 만 갈아끼우고 나머지 행(사람의 판정·메모 포함)은
+    # 남긴다. --profile / --ids 로 일부만 다시 물어도 845행짜리 표가 안 사라진다.
+    HEAD = ["제형", "재료", "ID", "통상%", "상한%(오프노트)", "하한힌트%", "형태",
+            "확신", "교차검사 걸림", "근거", "판정", "메모"]
+    asked = {(r[0], r[2]) for r in review}
+    kept, judged = [], {}
+    if os.path.exists(REVIEW):
+        try:
+            old_ws = openpyxl.load_workbook(REVIEW, data_only=True, read_only=True).active
+        except PermissionError:                  # 엑셀·OneDrive 가 잠갔다. 복사본으로 읽는다
+            tmp = REVIEW.replace(".xlsx", "_tmpcopy.xlsx")
+            shutil.copy2(REVIEW, tmp)
+            old_ws = openpyxl.load_workbook(tmp, data_only=True, read_only=True).active
+        for r in list(old_ws.iter_rows(values_only=True))[1:]:
+            if not (r and r[0]):
+                continue
+            r = list(r[:12]) + [""] * (12 - len(r[:12]))
+            if (r[0], r[2]) in asked:
+                judged[(r[0], r[2])] = r[10:12]      # 사람의 판정·메모는 살린다
+            elif not full:
+                kept.append(r)
+    rows = [list(r) + list(judged.get((r[0], r[2]), ["", ""])) for r in review] + kept
+    rows.sort(key=lambda r: (not r[8], r[0], str(r[1])))    # 걸린 것부터
     wb = openpyxl.Workbook(); ws = wb.active; ws.title = "typical_review"
-    ws.append(["제형", "재료", "ID", "통상%", "상한%(오프노트)", "하한힌트%", "형태",
-               "확신", "교차검사 걸림", "근거", "판정", "메모"])
+    ws.append(HEAD)
     for c in ws[1]:
         c.font = openpyxl.styles.Font(bold=True)
-    review.sort(key=lambda r: (r[8] == "", r[0], r[1]))    # 걸린 것부터
-    for r in review:
-        ws.append(list(r) + ["", ""])
+    for r in rows:
+        ws.append(r)
     for row in ws.iter_rows(min_row=2):
         if row[8].value:
             for c in row:
@@ -337,9 +404,14 @@ def main():
     for col, w in zip("ABCDEFGHIJKL", (14, 22, 30, 8, 12, 10, 10, 7, 40, 50, 8, 24)):
         ws.column_dimensions[col].width = w
     ws.freeze_panes = "A2"
-    wb.save(REVIEW)
-    print(f"\n  검토표: {REVIEW}  ({len(review)}행, 걸린 것 맨 위)")
-    return 0
+    out = REVIEW
+    try:
+        wb.save(out)
+    except PermissionError:                      # 엑셀에서 열어 둔 채다
+        out = REVIEW.replace(".xlsx", "_new.xlsx")
+        wb.save(out)
+        print(f"\n  typical_review.xlsx 가 열려 있어 {os.path.basename(out)} 로 썼습니다. 닫고 이름을 바꾸세요.")
+    print(f"\n  검토표: {out}  ({len(rows)}행 = 이번 {len(review)} + 유지 {len(kept)}, 걸린 것 맨 위)")
 
 
 if __name__ == "__main__":

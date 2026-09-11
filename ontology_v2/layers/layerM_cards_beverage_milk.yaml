@@ -1,8 +1,15 @@
+# =============================================================================
+# AXIS_CARD — Oil-in-water emulsion milk-type beverage   (DRAFT, derived 2026-09-11)
+# -----------------------------------------------------------------------------
+# beverage_cloud 의 카드를 복사하고 active_in 만 SC.emulsion.ow|APP.beverage.milk 로 바꿨다.
+# 앵커 문장은 형제와 같다 - 이 용도에서 다르게 읽혀야 할 축이 있으면 그 카드만
+# 고친다. tools/add_application.py 가 만들었다.
+# =============================================================================
 meta:
   layer: M
   version: '2.0'
   date: '2026-08-18'
-  profile: Oil-in-water emulsion beverage
+  profile: Oil-in-water emulsion milk-type beverage
   spec: remi_ontology_spec_v2.md §2.3, §5.7, §5.8, §6.2
   counts:
     cards: 13
@@ -18,7 +25,7 @@ measurement_cards:
       '+3': '기준보다 뚜렷하게 더 걸쭉하다'
     evaluation_note: '바디감과 헷갈리기 쉽습니다. 바디감은 묽은 음료에도 쓰는 말이고, 걸쭉함은 풀바디를 넘어선 구간입니다. 스푼으로 떠서 흐르는 모양을 보면 갈라집니다.'
   active_in:
-  - SC.emulsion.ow|APP.beverage
+  - SC.emulsion.ow|APP.beverage.milk
   tier: monitored
   method: benchmark_difference
   scale_type: diff_7
@@ -42,7 +49,7 @@ measurement_cards:
       '+3': '기준보다 뚜렷하게 더 달다'
     evaluation_note: '마시는 온도에서 평가하세요. 차가우면 단맛이 눌립니다(R-2 저온→단맛).'
   active_in: &id001
-  - SC.emulsion.ow|APP.beverage
+  - SC.emulsion.ow|APP.beverage.milk
   tier: core
   method: benchmark_difference
   scale_type: diff_7
@@ -165,7 +172,7 @@ measurement_cards:
       '+3': 기준보다 뚜렷하게 잘 따라진다
     evaluation_note: 병을 기울여 처음 흘러나오기까지와, 나오는 줄기의 굵기를 보세요.
   active_in:
-  - SC.emulsion.ow|APP.beverage
+  - SC.emulsion.ow|APP.beverage.milk
   tier: monitored
   method: difference_from_reference
   scale_type: diff_7
@@ -187,7 +194,7 @@ measurement_cards:
       '+3': 코팅감이 기준보다 뚜렷하게 오래 남는다
     evaluation_note: 삼킨 뒤 10초쯤 지나 입안에 남은 막을 봅니다. 시간 축이라 편차가 큽니다 - core 로 올린다면 반복 시료가 필요합니다.
   active_in:
-  - SC.emulsion.ow|APP.beverage
+  - SC.emulsion.ow|APP.beverage.milk
   tier: monitored
   method: benchmark_difference
   scale_type: diff_7
@@ -209,7 +216,7 @@ measurement_cards:
       '+3': 기준보다 층이 뚜렷하게 갈라졌다
     evaluation_note: 따로 보관해 둔 병으로 하는 저장 후 합·부 판정입니다(스펙 5.8). 크리밍·웃물·자유 기름을 봅니다.
   active_in:
-  - SC.emulsion.ow|APP.beverage
+  - SC.emulsion.ow|APP.beverage.milk
   tier: monitored
   method: benchmark_difference
   scale_type: diff_7
@@ -231,7 +238,7 @@ measurement_cards:
       '+3': 기준보다 뚜렷하게 뽀얗게 희다
     evaluation_note: 탁함과 다른 축입니다. 탁함은 뿌연 정도, 백탁은 희기입니다 - 간장처럼 탁하지만 희지 않은 것도, 쌀음료처럼 둘 다 높은 것도 있습니다.
   active_in:
-  - SC.emulsion.ow|APP.beverage
+  - SC.emulsion.ow|APP.beverage.milk
   tier: monitored
   method: difference_from_reference
   scale_type: diff_7

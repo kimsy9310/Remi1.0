@@ -57,6 +57,23 @@ sys.path[:0] = [os.path.join(ROOT, "engine")]
 # SC 에서 온다. 베끼지도, 크기를 고르지도 않는다.
 # ---------------------------------------------------------------------------
 NEW = [
+    # 2026-09-11 (b): beverage 를 cloud / milk 로 갈랐다. 원래 beverage 정의가 주스·탄산의
+    # 클라우드 에멀전(기름 ppm~수 %)이라 API 통상량이 유지 0.15% 로 나왔다. 쌀음료 같은
+    # 식물성 밀크는 지방 1~3%·고형분 8~12% 의 다른 물건이다. 형제는 cloud, 가족 스코프
+    # (SC.emulsion.ow.beverage / |APP.beverage)는 둘이 같이 물려받는다 - R-1 음료 관계는
+    # 바디·백탁·크리밍·기름 고리라 둘 다에 맞는다.
+    dict(key="beverage_milk", app="APP.beverage.milk", sibling="beverage_cloud", sibling_app="APP.beverage.cloud",
+         sc="SC.emulsion.ow", dot="SC.emulsion.ow.beverage.milk",
+         family=["SC.emulsion.ow.beverage", "SC.emulsion.ow|APP.beverage"],
+         label="Oil-in-water emulsion milk-type beverage",
+         ko_label="수중유 에멀전 밀크형 음료",
+         ko_def="연속상이 물이고 지방 방울(1~3% 안팎)과 단백질·전분·고형분이 분산된 O/W 음료. "
+                "우유·두유·쌀음료·귀리음료처럼 뿌옇게 희고 가벼운 바디가 있으며, 크리밍·침전 없이 "
+                "고르게 유지되어야 하고 낮은 점도로 마신다.",
+         definition="O/W beverage with dispersed fat droplets (about 1-3%) plus protein, starch and "
+                    "solids: milk, soy, rice or oat drinks. Opaque white, light body, must stay "
+                    "uniform without creaming or sedimentation; low viscosity, consumed as a liquid.",
+         required=["FT.fat_source", "FT.emulsifier"]),
     dict(key="dressing", app="APP.dressing", sibling="sauce_ow",
          sc="SC.emulsion.ow", dot="SC.emulsion.ow.dressing", dose_parent="SC.emulsion.ow.sauce",
          label="Oil-in-water emulsion dressing",
@@ -100,9 +117,9 @@ def load_s():
     return yaml.safe_load(io.open(S_FILE, encoding="utf-8"))
 
 
-def find_sibling(S, key):
+def find_sibling(S, key, app=None):
     for sp in S["structure_profiles"]:
-        if sp.get("source_file", "").endswith(f"{key}.yaml") or \
+        if (app and sp.get("application") == app) or            sp.get("source_file", "").endswith(f"{key}.yaml") or \
            (key == "sauce_ow" and sp.get("application") == "APP.sauce") or \
            (key == "suspension" and sp.get("structure_class") == "SC.suspension" and not sp.get("application")):
             return sp
@@ -176,12 +193,13 @@ def main(write=False):
         if spec["app"] in have:
             print(f"  {spec['key']:<10} 이미 있음 - 건너뜀")
             continue
-        sib = find_sibling(S, spec["sibling"])
+        sib = find_sibling(S, spec["sibling"], spec.get("sibling_app"))
         entry = derive_entry(spec, sib)
         card_text, ident = derive_cards(spec, spec["sibling"])
         scopes = {"any", spec["sc"], spec["dot"], ident}
         if spec.get("dose_parent"):
             scopes.add(spec["dose_parent"])
+        scopes |= set(spec.get("family") or [])
         n = reach_count(scopes)
         print(f"  {spec['key']:<10} <- {spec['sibling']:<11} 파라미터 {len(entry['parameters']):>2} · "
               f"카드 {card_text.count('- term_id:'):>2} · 도달축 {n}")
@@ -192,6 +210,7 @@ def main(write=False):
             f"        cards=['layerM_cards_{spec['key']}.yaml'],\n"
             f"        scopes={{'any', '{spec['sc']}', "
             + (f"'{spec['dose_parent']}', " if spec.get("dose_parent") else "")
+            + "".join(f"'{s}', " for s in (spec.get("family") or []))
             + f"'{spec['dot']}', '{ident}'}}),\n")
     if not new_entries:
         print("\n  늘릴 것 없음"); return 0

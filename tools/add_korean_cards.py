@@ -132,9 +132,9 @@ JAR = {
 
 # ------------------------------------------------- 평가 주의 (프로파일, 축)
 EVAL = {
-    ("beverage", "L.ta.sweet"):
+    ("beverage_cloud", "L.ta.sweet"):
         "마시는 온도에서 평가하세요. 차가우면 단맛이 눌립니다(R-2 저온→단맛).",
-    ("beverage", "L.ap.oil_ring"):
+    ("beverage_cloud", "L.ap.oil_ring"):
         "따로 보관해 둔 병으로 하는 저장 후 합·부 판정입니다(스펙 5.8).",
 
     ("beverage_coffee_milk", "L.ta.sweet"):

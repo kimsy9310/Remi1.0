@@ -54,7 +54,12 @@ K_BY_TAG = {
     "FT.mineral_fortifier": 3.0, "FT.firming_agent": 3.0, "FT.weighting_agent": 2.0,
 }
 K_DEFAULT = 3.0
-K_OK = (1.5, 5.0)
+K_OK = (1.5, 8.0)     # 2026-09-11 5 -> 8. API 가 0.05 -> 0.3 처럼 반올림해 k=6 이 흔하다 (35건)
+
+# 하한 0 예외 (2026-09-11 사용자 승인): API 확신 high 이고 k = 상한/통상 < 1.5 인
+# 벌크 재료(아이스크림 우유 55/70 · 탈지분유 10/13 · 설탕 13/18 · 팜유 9/13)는 하한 0 이면
+# 1 SD 가 통상의 절반을 넘어 사전이 무의미해진다. 이때만 하한 = API lower_hint.
+BULK_K = 1.5
 
 
 def read_rows():
@@ -82,20 +87,43 @@ def api_upper(note):
     return float(m.group(1)) if m else None
 
 
+def api_lower_hint(note):
+    m = re.search(r"lower_hint\s*([\d.]+)\s*%", str(note or ""))
+    return float(m.group(1)) if m else None
+
+
+def api_confidence(note):
+    m = re.search(r"·\s*(high|medium|low)\s*·", str(note or ""))   # "· high ·" 꼴. 이유 문장 안의 high 와 안 섞인다
+    return m.group(1) if m else None
+
+
+def limitation_upper(onto, g, profile_scopes):
+    """limitations 의 '> ~0.5%' 상한. 이 제형의 스코프에 걸린 것만 (잔탄 0.5% 는 소스 잎에만)."""
+    out = []
+    for lim in (onto.ingredients.get(g, {}).get("limitations") or []):
+        sc = lim.get("scoped_to_structure_class") or "any"
+        if sc not in profile_scopes:
+            continue
+        m = re.search(r">\s*~?\s*([\d.]+)\s*%", str(lim.get("statement") or ""))
+        if m:
+            out.append(float(m.group(1)))
+    return min(out) if out else None
+
+
 def check(onto, rows):
     hits = []
     for d in rows:
         lo, hi, typ = fnum(d.get("하한")), fnum(d.get("상한")), fnum(d.get("통상"))
         g = d["온톨로지ID"]
         f = []
-        if lo is not None and lo != 0:
+        if lo is not None and lo != 0 and "벌크 예외" not in str(d.get("범위근거") or ""):
             f.append("R1 하한≠0")
         if typ is None:
             f.append("R2 통상 없음")
         else:
             if lo is not None and hi is not None and not (lo <= typ <= hi):
                 f.append(f"R3 통상 {typ} ∉ [{lo},{hi}]")
-            if hi is not None and typ > 0:
+            if hi is not None and typ > 0 and "벌크 예외" not in str(d.get("범위근거") or ""):
                 k = hi / typ
                 if not (K_OK[0] <= k <= K_OK[1]):
                     f.append(f"R4 k={k:.1f}")
@@ -128,20 +156,30 @@ def write_drafts(onto, hdr, rows, reset_old=False):
         if had and not reset_old:
             continue                                   # 있는 범위는 안 건드린다
         prev = f" · 이전 {lo}~{hi}" if had else ""
-        up = api_upper(d.get("통상근거"))
+        g = d["온톨로지ID"]
+        note = d.get("통상근거")
+        up = api_upper(note)
         if up and up > typ:
             hi_new, why = up, "API upper(오프노트 시작)"
         else:
-            g = d["온톨로지ID"]
             ft = (onto.ingredients.get(g, {}).get("function_tags") or [None])[0]
             k = K_BY_TAG.get(ft, K_DEFAULT)
             hi_new, why = round(typ * k, 4), f"통상 × {k} ({(ft or '기능군 없음').replace('FT.', '')})"
+        # 온톨로지 limitations 가 이 제형 스코프에서 더 낮은 상한을 말하면 그것으로 자른다
+        lim = limitation_upper(onto, g, onto.profiles.get(d["프로파일"], {}).get("scopes") or set())
+        if lim is not None and lim < hi_new and lim > typ:
+            hi_new, why = lim, f"limitations {lim}% (API upper {up} 를 자름)"
+        # 하한 0 예외: 확신 high · 벌크(k < 1.5) 면 lower_hint
+        lo_new, lo_why = 0, "규칙"
+        lh = api_lower_hint(note)
+        if lh and api_confidence(note) == "high" and hi_new / typ < BULK_K and 0 < lh < typ:
+            lo_new, lo_why = lh, "벌크 예외 · API lower_hint"
         r = d["_row"]
-        ws.cell(r, col["하한"]).value = 0
+        ws.cell(r, col["하한"]).value = lo_new
         ws.cell(r, col["상한"]).value = hi_new
         ws.cell(r, col["범위근거"]).value = (
-            f"draft {datetime.date.today()} · 하한 0 (규칙) · 상한 {hi_new} = {why} · "
-            f"1 SD = {hi_new / RANGE_TO_SD:.3g}%p{prev}")
+            f"draft {datetime.date.today()} · 하한 {lo_new} ({lo_why}) · 상한 {hi_new} = {why} · "
+            f"1 SD = {(hi_new - lo_new) / RANGE_TO_SD:.3g}%p{prev}")
         n += 1
     wb.save(PALETTE)
     return n

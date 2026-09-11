@@ -1,0 +1,247 @@
+meta:
+  layer: M
+  version: '2.0'
+  date: '2026-08-18'
+  profile: Oil-in-water emulsion cloud beverage
+  spec: remi_ontology_spec_v2.md §2.3, §5.7, §5.8, §6.2
+  counts:
+    cards: 13
+    core: 4
+    monitored: 9
+    sample_aged: 3
+measurement_cards:
+- term_id: L.tx.thickness
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 덜 걸쭉하다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 더 걸쭉하다'
+    evaluation_note: '바디감과 헷갈리기 쉽습니다. 바디감은 묽은 음료에도 쓰는 말이고, 걸쭉함은 풀바디를 넘어선 구간입니다. 스푼으로 떠서 흐르는 모양을 보면 갈라집니다.'
+  active_in:
+  - SC.emulsion.ow|APP.beverage.cloud
+  tier: monitored
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: medium
+  evidence_required: sample
+  note: >-
+    Monitored by default, not core. Most beverages are asked about BODY; a thick
+    beverage (yogurt smoothie, drinkable yogurt) is asked about THICKNESS instead.
+    Which one is core is a PRODUCT decision - a product-level file (F7) promotes
+    this to core and demotes L.tx.body. Added 2026-09-07 together with PO.0061,
+    which made the axis reachable in beverage scope for the first time.
+    Never core together with L.tx.body (they are the same continuum: body below,
+    thickness above) or with L.tx.pourability (IN.0003 inverse).
+- term_id: L.ta.sweet
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 덜 달다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 더 달다'
+    evaluation_note: '마시는 온도에서 평가하세요. 차가우면 단맛이 눌립니다(R-2 저온→단맛).'
+  active_in: &id001
+  - SC.emulsion.ow|APP.beverage.cloud
+  tier: core
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+  evaluation_note: 'Serve at drinking temperature: cold suppresses sweetness (R-2 cold->sweet).'
+- term_id: L.ta.sour
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 덜 시다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 더 시다'
+  active_in: *id001
+  tier: core
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+- term_id: L.tx.body
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 묽고 물 같다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 묵직하고 꽉 찬다'
+  active_in: *id001
+  tier: core
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: medium
+  evidence_required: sample
+  note: Term body (absorbs v1 body_mouthfeel). Sugar reduction -> watery defect.
+- term_id: L.ap.cloudy
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 맑다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 뿌옇다'
+  active_in: *id001
+  tier: core
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+  note: Identity attribute for cloudy beverages; visual, easily askable.
+- term_id: L.ta.aftertaste_length
+  ko:
+    anchors:
+      '-3': '뒷맛이 기준보다 뚜렷하게 빨리 사라진다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '뒷맛이 기준보다 뚜렷하게 오래 남는다'
+  active_in: *id001
+  tier: monitored
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: low
+  evidence_required: sample
+- term_id: L.ap.color_intensity
+  ko:
+    anchors:
+      '-3': '색이 기준보다 뚜렷하게 옅다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '색이 기준보다 뚜렷하게 진하다'
+  active_in: *id001
+  tier: monitored
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+  note: Represents v1 SA.color (match-to-target). vividness/uniformity cards available if needed.
+- term_id: L.ar.rancid_oxidized
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 깨끗하다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '쩐내·종이·절은 기름 냄새가 기준보다 뚜렷하다'
+  active_in: *id001
+  tier: monitored
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: minimize
+  reliability: low
+  evidence_required: sample_aged
+  note: Representative defect-watch card for v1 SA.off_flavor (decomposed into off_note terms); oxidation is the
+    beverage-relevant failure.
+- term_id: L.ap.oil_ring
+  ko:
+    anchors:
+      '-3': '기준보다 확실히 깨끗하다 (고리가 보이지 않는다)'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷한 기름 고리가 목이나 표면에 보인다'
+    evaluation_note: '따로 보관해 둔 병으로 하는 저장 후 합·부 판정입니다(스펙 5.8).'
+  active_in: *id001
+  tier: monitored
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: minimize
+  reliability: high
+  evidence_required: sample_aged
+  evaluation_note: Aged pass/fail check on the set-aside bottle (§5.8).
+
+- term_id: L.tx.pourability
+  ko:
+    anchors:
+      '-3': 기준보다 뚜렷하게 잘 따라지지 않는다
+      '0': 기준과 구분되지 않는다
+      '+3': 기준보다 뚜렷하게 잘 따라진다
+    evaluation_note: 병을 기울여 처음 흘러나오기까지와, 나오는 줄기의 굵기를 보세요.
+  active_in:
+  - SC.emulsion.ow|APP.beverage.cloud
+  tier: monitored
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+  note: >-
+    Added 2026-09-07 with PO.0062. A beverage is poured before it is drunk, so
+    this axis is more native here than in a sauce, yet only the sauce profile had
+    it. Never core together with L.tx.thickness (IN.0003 inverse) - asking both is
+    asking one question twice.
+
+- term_id: L.tx.mouthcoating_persistence
+  ko:
+    anchors:
+      '-3': 코팅감이 기준보다 뚜렷하게 빨리 사라진다
+      '0': 기준과 구분되지 않는다
+      '+3': 코팅감이 기준보다 뚜렷하게 오래 남는다
+    evaluation_note: 삼킨 뒤 10초쯤 지나 입안에 남은 막을 봅니다. 시간 축이라 편차가 큽니다 - core 로 올린다면 반복 시료가 필요합니다.
+  active_in:
+  - SC.emulsion.ow|APP.beverage.cloud
+  tier: monitored
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: low
+  evidence_required: sample
+  note: >-
+    Added 2026-09-07 with PO.0063 / PO.0064. Fat leaves a film on the palate
+    whether it arrives in a sauce or a milk drink; the lingering coating of a
+    creamer beverage is this axis. Defect watch for plant beverages that use
+    high-melting fats.
+
+- term_id: L.ap.separated
+  ko:
+    anchors:
+      '-3': 기준보다 확실히 안정적이다 (분리 흔적 없음)
+      '0': 기준과 구분되지 않는다
+      '+3': 기준보다 층이 뚜렷하게 갈라졌다
+    evaluation_note: 따로 보관해 둔 병으로 하는 저장 후 합·부 판정입니다(스펙 5.8). 크리밍·웃물·자유 기름을 봅니다.
+  active_in:
+  - SC.emulsion.ow|APP.beverage.cloud
+  tier: monitored
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: minimize
+  reliability: high
+  evidence_required: sample_aged
+  note: >-
+    Added 2026-09-07 with PO.0065. Visible phase split is the most common storage
+    failure of an emulsion beverage, and the beverage profile carried the oil-ring
+    card without the separation card behind it. Only the creaming leg is wired -
+    P.coalescence_rate has no ingredient actuator in beverage scope yet.
+
+- term_id: L.ap.milky_whiteness
+  ko:
+    anchors:
+      '-3': 흰빛이 기준보다 뚜렷하게 약하다
+      '0': 기준과 구분되지 않는다
+      '+3': 기준보다 뚜렷하게 뽀얗게 희다
+    evaluation_note: 탁함과 다른 축입니다. 탁함은 뿌연 정도, 백탁은 희기입니다 - 간장처럼 탁하지만 희지 않은 것도, 쌀음료처럼 둘 다 높은 것도 있습니다.
+  active_in:
+  - SC.emulsion.ow|APP.beverage.cloud
+  tier: monitored
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+  note: >-
+    Added 2026-09-07 with PO.0067 and the beverage-scope droplet edge
+    (FT.emulsifier_droplet_beverage_scope). Finer droplets scatter light more and
+    read whiter - the reason homogenisation whitens a milk drink. Promotable to
+    core for plant beverages, where whiteness is what the drink is judged on
+    before it is tasted.

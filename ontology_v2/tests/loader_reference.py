@@ -32,9 +32,14 @@ PROFILES = {
     'sauce_ow': dict(
         cards=['layerM_cards_sauce_ow.yaml'],
         scopes={'any', 'SC.emulsion.ow', 'SC.emulsion.ow.sauce', 'SC.emulsion.ow|APP.sauce'}),
-    'beverage': dict(
-        cards=['layerM_cards_beverage.yaml'],
-        scopes={'any', 'SC.emulsion.ow', 'SC.emulsion.ow.beverage', 'SC.emulsion.ow|APP.beverage'}),
+    # 2026-09-11: 'beverage' 를 beverage_cloud / beverage_milk 로 갈랐다. 원래 정의가 주스·탄산의
+    # 클라우드 에멀전이라 API 가 유지를 0.15% 로 잡았다. 식물성 밀크(쌀음료)는 지방 1~3% 의 다른 물건이다.
+    # 'SC.emulsion.ow.beverage' / 'SC.emulsion.ow|APP.beverage' 는 둘이 같이 물려받는 가족 스코프다
+    # (R-1 음료 관계 PO.0036~0041·0059~0067 은 둘 다에 맞는다: 바디·백탁·크리밍·기름 고리).
+    'beverage_cloud': dict(
+        cards=['layerM_cards_beverage_cloud.yaml'],
+        scopes={'any', 'SC.emulsion.ow', 'SC.emulsion.ow.beverage', 'SC.emulsion.ow|APP.beverage',
+                'SC.emulsion.ow.beverage.cloud', 'SC.emulsion.ow|APP.beverage.cloud'}),
     # 2026-09-10: 'beverage_coffee_milk' 를 뺐다. 제품이 프로파일 등록부에
     # 제형처럼 올라 있었다. 스펙 2.3 이 활성 맥락을 SC x APP x ST 로만 정의해
     # 제품 차원이 없다는 것을 그 파일 헤더가 이미 적고 있었다. 실측이 없어
@@ -69,6 +74,9 @@ PROFILES = {
     'soup': dict(   # 2026-09-11 tools/add_application.py 로 suspension 에서 파생
         cards=['layerM_cards_soup.yaml'],
         scopes={'any', 'SC.suspension', 'SC.suspension.soup', 'SC.suspension|APP.soup'}),
+    'beverage_milk': dict(   # 2026-09-11 tools/add_application.py 로 beverage_cloud 에서 파생
+        cards=['layerM_cards_beverage_milk.yaml'],
+        scopes={'any', 'SC.emulsion.ow', 'SC.emulsion.ow.beverage', 'SC.emulsion.ow|APP.beverage', 'SC.emulsion.ow.beverage.milk', 'SC.emulsion.ow|APP.beverage.milk'}),
     'icecream': dict(
         cards=['layerM_cards_icecream.yaml'],
         scopes={'any', 'SC.emulsion.ow', 'SC.frozen.ice_cream',

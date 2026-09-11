@@ -211,13 +211,13 @@ structure_profiles:
   filler: ING.water
   filler_note: filler = aqueous phase of the mix (water); displaced by solids/fat additions
 - structure_class: SC.emulsion.ow
-  application: APP.beverage
+  application: APP.beverage.cloud   # 2026-09-11: APP.beverage 를 cloud / milk 로 갈랐다. APP.beverage 는 둘의 가족 스코프로 남는다
   state: null
-  label: Oil-in-water emulsion beverage
+  label: Oil-in-water emulsion cloud beverage
   required_functions: [FT.fat_source, FT.emulsifier]
   required_functions_note: '분산상(기름)과 그것을 붙잡는 계면 활성이 없으면 O/W 에멀전이 아니다.'
   ko:
-    label: '수중유 에멀전 음료'
+    label: '수중유 에멀전 클라우드 음료'
     definition: '마실 수 있는 수상에 기름이 묽게 분산된 O/W 에멀전이다(기름이 ppm~수 % 수준인 경우가 많다). 기름 방울이 향유·백탁·색·지용성 성분을 실어 나른다. 핵심 품질은 눈에 보이는 기름 고리 없이 고르게 뿌연 상태를 유지하는 것이며, 점도가 낮아 액체로 마신다.'
   definition: A DILUTE O/W emulsion (oil often ppm-to-low-percent) dispersed in a drinkable aqueous phase. Oil droplets
     carry flavor oil, cloud, color or fat-soluble actives. Key quality is a STABLE CLOUD (uniform turbidity) with
@@ -1708,3 +1708,175 @@ structure_profiles:
   - P.particle_size_d50
   - P.pH
   - P.salt_in_water_phase
+
+# ---- 2026-09-11 용도 확장 (tools/add_application.py). 전부 DRAFT ----
+- structure_class: SC.emulsion.ow
+  application: APP.beverage.milk
+  state: null
+  label: Oil-in-water emulsion milk-type beverage
+  required_functions:
+  - FT.fat_source
+  - FT.emulsifier
+  required_functions_note: 분산상(기름)과 그것을 붙잡는 계면 활성이 없으면 O/W 에멀전이 아니다.
+  ko:
+    label: 수중유 에멀전 밀크형 음료
+    definition: 연속상이 물이고 지방 방울(1~3% 안팎)과 단백질·전분·고형분이 분산된 O/W 음료. 우유·두유·쌀음료·귀리음료처럼 뿌옇게 희고 가벼운 바디가 있으며,
+      크리밍·침전 없이 고르게 유지되어야 하고 낮은 점도로 마신다.
+  definition: 'O/W beverage with dispersed fat droplets (about 1-3%) plus protein, starch and solids:
+    milk, soy, rice or oat drinks. Opaque white, light body, must stay uniform without creaming or sedimentation;
+    low viscosity, consumed as a liquid.'
+  dominant_axes:
+  - continuous_phase
+  - dispersed_phase
+  - stabilization
+  - physical_state
+  boundary_note: ''
+  parameters:
+  - id: P.oil_phase_fraction
+    question_origin: defining
+    plausible_range: '0.005 - 0.04 (milk-type, 0.5-4% fat; whole milk 3.5, plant milks 1-3)'
+    range_basis: Beverage emulsions are dilute; high phi belongs to sauce class.
+    range_source: copied from Oil-in-water emulsion cloud beverage (oil fraction · d32 rewritten for milk-type, draft)
+    range_confidence: draft
+    governing_mechanism: Sets cloud intensity and flavor load; far lower than sauce.
+    driven_by:
+    - flavor_oil
+    - cloud_oil
+    role: primary
+  - id: P.droplet_size_d32
+    question_origin: defining
+    plausible_range: 0.3 - 2.0 (homogenised milk-type; <1 um keeps creaming slow over shelf life)
+    range_basis: Sub-micron droplets resist creaming and give stable cloud; >1 um creams/rings quickly.
+    range_source: copied from Oil-in-water emulsion cloud beverage (oil fraction · d32 rewritten for milk-type, draft)
+    range_confidence: draft
+    governing_mechanism: Smaller droplets = slower creaming + more uniform cloud; must be matched by enough
+      emulsifier to cover interface.
+    driven_by:
+    - emulsifier
+    - process_homogenization
+    role: primary
+  - id: P.density_difference
+    question_origin: defining
+    governing_mechanism: 'Creaming rate is proportional to delta-rho (Stokes). Flavor oils are less dense
+      than water -> droplets rise -> ring. Weighting agents raise droplet density to match water and near-eliminate
+      creaming.
+
+      '
+    driven_by:
+    - weighting_agent
+    - oil_type
+    role: primary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion cloud beverage (oil fraction · d32 rewritten for milk-type, draft)
+  - id: P.ring_formation
+    question_origin: failure
+    governing_mechanism: Gravitational rise of droplets forms a white/oily ring at the container neck
+      - a major beverage defect.
+    driven_by:
+    - density_difference
+    - droplet_size_d32
+    - thickener_optional
+    role: primary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion cloud beverage (oil fraction · d32 rewritten for milk-type, draft)
+  - id: P.creaming_index
+    question_origin: failure
+    target: minimize
+    governing_mechanism: Bulk droplet migration; suppressed by small d32 and density matching.
+    driven_by:
+    - density_difference
+    - droplet_size_d32
+    role: primary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion cloud beverage (oil fraction · d32 rewritten for milk-type, draft)
+  - id: P.ostwald_ripening
+    question_origin: failure
+    driven_by:
+    - flavor_oil
+    - droplet_size_d32
+    role: primary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion cloud beverage (oil fraction · d32 rewritten for milk-type, draft)
+  - id: P.turbidity_cloud
+    question_origin: perception
+    governing_mechanism: Light scattering by droplets; a DESIRED appearance in cloudy beverages. Set by
+      droplet number, size and oil load.
+    driven_by:
+    - oil_phase_fraction
+    - droplet_size_d32
+    - cloud_oil
+    role: primary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion cloud beverage (oil fraction · d32 rewritten for milk-type, draft)
+  - id: P.apparent_viscosity
+    question_origin: perception
+    governing_mechanism: Low in beverages; minor body/mouthfeel contribution; sugar contributes here (low-sugar
+      -> watery).
+    driven_by:
+    - sugar
+    - thickener_optional
+    role: secondary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion cloud beverage (oil fraction · d32 rewritten for milk-type, draft)
+  - id: P.soluble_solids_brix
+    question_origin: perception
+    governing_mechanism: Sweetness AND body/density; sugar reduction gives 'watery' defect (mouthfeel
+      loss).
+    driven_by:
+    - sugar
+    - sweetener
+    role: primary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion cloud beverage (oil fraction · d32 rewritten for milk-type, draft)
+  - id: P.pH
+    question_origin: perception
+    governing_mechanism: Sourness onset; also affects emulsifier charge & microbial stability.
+    driven_by:
+    - acid
+    role: secondary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion cloud beverage (oil fraction · d32 rewritten for milk-type, draft)
+  relevant_attributes:
+  - id: L.ta.sweet
+    tier: core
+    default_goal: maintain
+  - id: L.ta.sour
+    tier: core
+    default_goal: maintain
+  - id: L.tx.body
+    tier: core
+    default_goal: maintain
+  - id: L.ap.cloudy
+    tier: core
+    default_goal: maintain
+  - id: L.ta.aftertaste_length
+    tier: monitored
+    default_goal: maintain
+  - id: L.ap.color_intensity
+    tier: monitored
+    default_goal: maintain
+  - id: L.ar.rancid_oxidized
+    tier: monitored
+    default_goal: minimize
+    evidence_required: sample_aged
+  - id: L.ap.oil_ring
+    tier: monitored
+    default_goal: minimize
+    evidence_required: sample_aged
+  constraints:
+  - id: LESSON.weighting_agent_regulatory
+    statement: Weighting agents are regulated and region-specific (e.g., BVO withdrawn in many markets;
+      SAIB/ester gum have use limits). Choice constrained by target market.
+    type: regulatory_bound
+  - id: LESSON.emulsifier_load_vs_size
+    statement: Reducing droplet size without increasing emulsifier under-covers the interface -> instability.
+      Stabilizer dose must track oil load & size.
+    type: functional_coupling
+  - id: LESSON.dilute_oil
+    statement: Oil load is low (ppm-low%); high phi would make it a sauce/dressing, not a beverage.
+    type: class_boundary
+  filler: ING.water
+  derived_from: Oil-in-water emulsion cloud beverage
+  derived_on: '2026-09-11'
+  status: DRAFT - ranges copied from sibling, review before trusting
+
