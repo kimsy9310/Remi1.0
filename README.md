@@ -172,7 +172,7 @@ python tools/check_bounds.py                     # 팔레트 범위
 
 | 문서 | 무엇 |
 |---|---|
-| [`docs/session_split.md`](docs/session_split.md) | 진행도와 세션 분할 (S1 ONTOLOGY · S2 INGREDIENT · S3 MODEL · S4 INTAKE · S5 APP) |
+| [`docs/session_split.md`](docs/session_split.md) | 진행도와 세션 분할 (S1 ONTOLOGY · S2 INGREDIENT · S3 MODEL · S4 LANGUAGE · S5 APP) |
 | [`docs/layer_boundaries.md`](docs/layer_boundaries.md) | 알고리즘 구간 × 레이어. 무엇을 읽고 무엇을 쓰나 |
 | [`docs/bounds_strategy.md`](docs/bounds_strategy.md) | 재료 범위 = 사전의 단위. 통상·상한·하한 규칙과 실행 결과 |
 | [`docs/척도정의_전략.md`](docs/척도정의_전략.md) | ±3 척도, `RANGE_TO_SD` |
