@@ -39,8 +39,8 @@ streamlit run app/main.py
 
 ## 어떻게 돌아가나 — 알고리즘
 
-기준 그림은 `Algorithm_Remi/1st_Draft_algorithm_remi.drawio`. 구간과 각 구간이
-읽는 레이어는 [`docs/layer_boundaries.md`](docs/layer_boundaries.md).
+기준 그림은 `1st_Draft_algorithm_remi.drawio`(2026-09-04, 저장소 밖 사용자 파일). 구간과
+각 구간이 읽는 레이어는 [`docs/layer_boundaries.md`](docs/layer_boundaries.md).
 
 | 구간 | 하는 일 | 상태 (2026-09-11) |
 |---|---|---|
@@ -137,7 +137,6 @@ projects/       제품 폴더. <제품>/product_card.yaml
 tools/          온톨로지·팔레트를 고치는 도구. 전부 --check 가 기본, --write 로만 쓴다
 docs/           전략·진단 문서
 data/           실측 · 팔레트 · 검토표 (백업·DB 는 git 제외)
-Algorithm_Remi/ 알고리즘 그림 (drawio)
 ```
 
 ---
