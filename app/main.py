@@ -49,12 +49,18 @@ _NOT_MEASUREMENT = ("palette.xlsx", "draft_review.xlsx",
 
 
 def measurement_files():
-    """실측 xlsx 만. 정본·검토 대장과 업로드 임시파일을 뺀다."""
+    """실측 xlsx 만. 정본·검토 대장·백업·업로드 임시파일을 뺀다."""
     return sorted(
         f for f in os.listdir(DATA_DIR)
         if f.endswith(".xlsx")
         and not f.startswith(("~", "$", "_검사중_", "."))
-        and f not in _NOT_MEASUREMENT)
+        and f not in _NOT_MEASUREMENT
+        # 검토표는 이름이 _review 로 끝난다. 하나씩 목록에 적으면 새 검토표를
+        # 만들 때마다 여기 빠져서 실측 목록에 섞인다 (ko_normalization_review 가 그랬다).
+        and not f.endswith("_review.xlsx")
+        # build_palette --write 가 남기는 palette_백업_*.xlsx. 2026-09-11 검증에서
+        # 이것이 실측 목록에 떠서 고르면 "recipes 시트가 없습니다" 로 멈췄다.
+        and "_백업_" not in f and "backup" not in f.lower())
 
 
 # ---------------------------------------------------------------- 캐시
