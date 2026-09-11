@@ -82,7 +82,6 @@ measurement_cards:
   default_goal: maintain
   reliability: medium
   evidence_required: sample
-  jar_target: match or exceed benchmark
   note: 'target (not maintain): fermented positioning axis for Ranita products.'
 - term_id: L.tx.thickness
   ko:
@@ -112,7 +111,6 @@ measurement_cards:
   default_goal: minimize
   reliability: high
   evidence_required: sample
-  jar_target: as smooth as the benchmark
   anchors:
   - intensity: 0
     reference: smooth ketchup

@@ -83,7 +83,6 @@ measurement_cards:
   default_goal: minimize
   reliability: medium
   evidence_required: sample
-  jar_target: as smooth as benchmark or smoother
 - term_id: L.tx.body
   ko:
     anchors:

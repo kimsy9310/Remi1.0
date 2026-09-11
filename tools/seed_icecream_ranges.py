@@ -138,5 +138,18 @@ def main(force=False):
         print(f"아직 비어 있는 것: {[g.replace('ING.','') for g in miss]}")
 
 
+SUPERSEDED = """
+2026-09-11 — 이 도구는 더 이상 팔레트에 쓰지 않는다.
+
+  이 표는 "하한 = 넣는 의미가 생기는 최소량" 으로 설계됐는데, 범위 전략
+  (docs/bounds_strategy.md)이 하한 0 · 감각 수용 구간 · 통상량은 API 초안 -> 사람
+  검사로 정해졌다. 사용자: "기존의 중앙값은 잊고 처음부터 시작하자."
+  아래 표의 값과 메모는 검토할 때 참고가 되므로 파일은 남긴다.
+"""
+
 if __name__ == "__main__":
+    print(SUPERSEDED)
+    raise SystemExit(2)
+
+if False and __name__ == "__main__":     # 옛 진입점. 살리려면 위 가드를 빼라
     main(force="--force" in sys.argv)

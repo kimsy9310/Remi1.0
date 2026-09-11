@@ -50,7 +50,8 @@ SRC = os.path.join(
 OUT = os.path.join(_ROOT, "data", "palette.xlsx")
 
 COLS = ["프로파일", "슬롯", "재료", "온톨로지ID", "등급",
-        "하한", "상한", "범위근거", "담당축", "메모", "확인"]
+        "하한", "상한", "통상", "통상출처", "통상근거",
+        "범위근거", "담당축", "메모", "확인"]
 
 GRADE_FILL = {
     "필수": "CFE2F3",   # 파랑
@@ -192,52 +193,14 @@ def build(write=False):
                 메모=row["memo"],
                 확인="" if ok else "ID 확인 필요"))
 
-    # ---------------------------------------------------- 쌀 우유 (실측에서 씨앗)
-    prof2 = "beverage_rice_milk"
-    try:
-        data = dataio.load_warmloop(
-            os.path.join(_ROOT, "data", "beverage_warmloop_260720.xlsx"), onto, prof2)
-        cards2 = onto._ref.load_cards(prof2, onto.layers)
-        core2 = [c["term_id"] for c in cards2
-                 if c["tier"] == "core" and c["evidence_required"] != "sample_aged"]
-        filler = onto.filler_of(prof2)
-        for i, gid in enumerate(data.names):
-            if gid == filler:
-                continue
-            col = data.X[:, i]
-            used = col[col > 0]
-            if used.size == 0:
-                continue
-            # **하한은 그 재료가 모든 샘플에 들어갔을 때만 0 보다 크다.**
-            # 일부 샘플에만 쓰인 재료에 사용량 최솟값을 하한으로 걸면, 그 재료를
-            # 안 쓰던 배합에까지 강제로 밀어 넣는다. 실제로 그렇게 됐다 —
-            # 해바라기유가 18건 중 4건에만 쓰였는데 하한 5.8 이 걸려, 기준 배합
-            # (해바라기유 0)에서 제안을 내면 곧장 +5.8 이 튀어나와 다른 모든
-            # 변화를 덮어버렸다. DoE 규칙 3 이 말하는 '필수 기능 재료' 만
-            # 0 을 피해야 하고, 선택 재료는 0 이 정상이다.
-            always = int((col > 0).sum()) == len(col)
-            lo = float(used.min()) if always else 0.0
-            hi = float(used.max())
-            if always and hi - lo < 1e-9:
-                # 모든 런에서 같은 수준으로만 썼다 → 범위에 대해 아는 것이 없다.
-                # 작업점 둘레로 임의 폭을 주되 그렇게 적어 둔다. 상한=하한은
-                # propose 의 경계로 못 쓰고(구간이 비어 있다) 스케일도 0 이 된다.
-                lo, hi = lo * 0.5, hi * 1.5
-                basis = f"실측 {used.size}건 모두 같은 수준({used[0]:.3g}) — 임의 폭, 검토 필요"
-            elif always:
-                basis = f"실측 {used.size}건 전부에 사용 — 사용 범위, 검토 필요"
-            else:
-                basis = (f"실측 {len(col)}건 중 {used.size}건에만 사용 — 선택 재료라 "
-                         f"하한 0, 상한은 최대 사용량. 검토 필요")
-            records.append(dict(
-                프로파일=prof2, 슬롯="(실측에서 자동)", 재료=gid.replace("ING.", ""),
-                온톨로지ID=gid, 등급="권장",
-                하한=round(lo, 4), 상한=round(hi, 4),
-                범위근거=basis,
-                담당축=axes_of(onto, prof2, gid, core2),
-                메모="", 확인="슬롯·등급 확인 필요"))
-    except Exception as e:                                    # noqa: BLE001
-        print(f"  (쌀 우유 씨앗 생략: {e})")
+    # ---------------------------------------------------- 실측 씨앗은 뺐다 (2026-09-11)
+    # 여기 쌀음료 실측 18건의 사용 폭(min~max)으로 범위를 만드는 블록이 있었다.
+    # 사용자 결정: 실측은 '특정 제형·재료 조합에서 실제로 어떻게 되는가' 의 학습
+    # 결과로만 남고, 범위의 기준이 아니다. 범위는 감각 수용 구간이고, 통상량은
+    # API 초안 -> 사람 검사로 채운다 (docs/bounds_strategy.md). 실측 폭은 좁아서
+    # 사전이 부풀고, 0 을 안 품어 '빼면 어떻게 되나' 를 못 묻는다.
+    # (이 블록은 이미 없는 프로파일 beverage_rice_milk 를 부르고 있어 어차피
+    #  KeyError 로 건너뛰던 상태였다 - 검증 결함 3.)
 
     # ---------------------------------------------------- 쓰기
     wb = openpyxl.Workbook()
@@ -248,7 +211,7 @@ def build(write=False):
         c.font = Font(bold=True)
         c.fill = PatternFill("solid", fgColor="E7EBE5")
     for rec in records:
-        ws.append([rec[c] for c in COLS])
+        ws.append([rec.get(c, "") for c in COLS])   # 통상 열은 생성기가 안 채운다
     gi = COLS.index("등급") + 1
     for r in range(2, ws.max_row + 1):
         g = ws.cell(r, gi).value

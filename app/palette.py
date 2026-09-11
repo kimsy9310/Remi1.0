@@ -35,8 +35,13 @@ import openpyxl
 _HERE = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_PATH = os.path.join(os.path.dirname(_HERE), "data", "palette.xlsx")
 
+# 2026-09-11 통상·통상출처·통상근거 추가 (docs/bounds_strategy.md 5절 1번).
+# 통상 = 이 제형에서 이 재료를 보통 얼마나 쓰나(%). 하한이 0 이면 상한과 함께
+# SD 를 정하고, A2 가 양을 못 읽었을 때 첫 배합의 시작점이 된다.
+# 통상출처 = api_draft | user | hand_YYYY-MM-DD. 사람이 검사하기 전엔 api_draft.
 COLS = ["프로파일", "목적", "슬롯", "재료", "온톨로지ID", "등급",
-        "하한", "상한", "범위근거", "담당축", "메모", "확인"]
+        "하한", "상한", "통상", "통상출처", "통상근거",
+        "범위근거", "담당축", "메모", "확인"]
 
 GRADES = ["필수", "권장", "옵션", "제한", "제외"]
 USABLE = ("필수", "권장", "옵션")        # 제한은 경고와 함께 허용, 제외는 뺀다
@@ -245,6 +250,9 @@ def load(profile, path=None, variant=None):
             온톨로지ID=str(d["온톨로지ID"]).strip(),
             등급=grade if grade in GRADES else "옵션",
             하한=_f(d.get("하한")), 상한=_f(d.get("상한")),
+            통상=_f(d.get("통상")),
+            통상출처=str(d.get("통상출처") or "").strip(),
+            통상근거=str(d.get("통상근거") or "").strip(),
             범위근거=str(d.get("범위근거") or "").strip(),
             담당축=str(d.get("담당축") or "").strip(),
             메모=str(d.get("메모") or "").strip(),
