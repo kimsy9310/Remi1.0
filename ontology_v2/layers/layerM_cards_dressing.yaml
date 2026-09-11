@@ -1,0 +1,288 @@
+# =============================================================================
+# AXIS_CARD — Oil-in-water emulsion dressing   (DRAFT, derived 2026-09-11)
+# -----------------------------------------------------------------------------
+# sauce_ow 의 카드를 복사하고 active_in 만 SC.emulsion.ow|APP.dressing 로 바꿨다.
+# 앵커 문장은 형제와 같다 - 이 용도에서 다르게 읽혀야 할 축이 있으면 그 카드만
+# 고친다. tools/add_application.py 가 만들었다.
+# =============================================================================
+meta:
+  layer: M
+  version: '2.0'
+  date: '2026-08-18'
+  profile: Oil-in-water emulsion dressing
+  spec: remi_ontology_spec_v2.md §2.3, §5.7, §5.8, §6.2
+  counts:
+    cards: 17
+    core: 7
+    monitored: 10
+    sample_aged: 2
+measurement_cards:
+- term_id: L.ta.salty
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 덜 짜다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 더 짜다'
+  active_in: &id001
+  - SC.emulsion.ow|APP.dressing
+  tier: core
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+- term_id: L.ta.sour
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 덜 시다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 더 시다'
+  active_in: *id001
+  tier: core
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+- term_id: L.ta.sweet
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 덜 달다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 더 달다'
+  active_in: *id001
+  tier: core
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+- term_id: L.ta.umami
+  ko:
+    anchors:
+      '-3': '감칠맛이 기준보다 뚜렷하게 약하다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '감칠맛이 기준보다 뚜렷하게 강하다'
+  active_in: *id001
+  tier: core
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: medium
+  evidence_required: sample
+- term_id: L.tx.thickness
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 덜 걸쭉하다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 더 걸쭉하다'
+  active_in: *id001
+  tier: core
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+- term_id: L.tx.creaminess
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 덜 크리미하다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 더 크리미하다'
+  active_in: *id001
+  tier: core
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: medium
+  evidence_required: sample
+  note: Integrated attribute; central axis of the low-fat defect.
+  anchors:
+  - intensity: 2
+    reference: fat-free vinaigrette
+    source: expert
+  - intensity: 14
+    reference: full-fat mayonnaise
+    source: expert
+- term_id: L.tx.cling
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 덜 붙고 흘러내린다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 잘 붙어 코팅된다'
+  active_in: *id001
+  tier: core
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: medium
+  evidence_required: sample
+  note: Partially correlated with thickness and creaminess (R-2); kept as distinct use-quality.
+- term_id: L.ap.glossy
+  ko:
+    anchors:
+      '-3': '윤기가 기준보다 뚜렷하게 덜하다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '윤기가 기준보다 뚜렷하게 더하다'
+  active_in: *id001
+  tier: monitored
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+- term_id: L.ap.milky_whiteness
+  ko:
+    anchors:
+      '-3': '흰빛이 기준보다 뚜렷하게 약하다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 뽀얗게 희다'
+  active_in: *id001
+  tier: monitored
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+- term_id: L.tx.oiliness
+  ko:
+    anchors:
+      '-3': '기름진 느낌이 기준보다 뚜렷하게 적다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기름진 느낌이 기준보다 뚜렷하게 많다'
+    evaluation_note: '결함 감시: 표면의 자유 기름막은 유화가 깨졌다는 신호입니다. 바람직한 크리미함과는 다른 축입니다.'
+  active_in: *id001
+  tier: monitored
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: minimize
+  reliability: medium
+  evidence_required: sample
+  evaluation_note: 'Defect watch: free-oil film signals emulsion breakdown; distinct from desirable creaminess.'
+- term_id: L.tx.spreadability
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 펴 바르기 어렵다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 잘 펴진다'
+  active_in: *id001
+  tier: monitored
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: medium
+  evidence_required: sample
+  note: >-
+    2026-09-07 correction: the note used to say this term absorbed v1 scoopability.
+    It did not - scooping and spreading are different actions, and the lexicon
+    definition was corrected the same day. Promotable for spoonable/semisolid products.
+- term_id: L.tx.mouthcoating_persistence
+  ko:
+    anchors:
+      '-3': '코팅감이 기준보다 뚜렷하게 빨리 사라진다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '코팅감이 기준보다 뚜렷하게 오래 남는다'
+    evaluation_note: '삼킨 뒤의 시간 축이라 편차가 큽니다. core 로 올린다면 반복 시료가 필요합니다.'
+  active_in: *id001
+  tier: monitored
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: low
+  evidence_required: sample
+  evaluation_note: Temporal afterfeel - high variance; replicates required if promoted.
+- term_id: L.ta.aftertaste_length
+  ko:
+    anchors:
+      '-3': '뒷맛이 기준보다 뚜렷하게 빨리 사라진다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '뒷맛이 기준보다 뚜렷하게 오래 남는다'
+  active_in: *id001
+  tier: monitored
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: low
+  evidence_required: sample
+- term_id: L.ta.bitter
+  ko:
+    anchors:
+      '-3': '쓴맛이 기준보다 뚜렷하게 약하다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '쓴맛이 기준보다 뚜렷하게 강하다'
+    evaluation_note: '결함 감시. 떫음과 헷갈리지 않았는지 먼저 확인하세요.'
+  active_in: *id001
+  tier: monitored
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: minimize
+  reliability: low
+  evidence_required: sample
+  evaluation_note: Defect watch; check astringency conflation first.
+- term_id: L.tx.pourability
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 잘 따라지지 않는다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 잘 따라진다'
+  active_in: *id001
+  tier: monitored
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+  note: Never core together with thickness (R-2 inverse).
+- term_id: L.ap.separated
+  ko:
+    anchors:
+      '-3': '기준보다 확실히 안정적이다 (분리 흔적 없음)'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 층이 뚜렷하게 갈라졌다'
+    evaluation_note: '따로 둔 병으로 하는 저장 후 합·부 판정입니다(스펙 5.8): 눈에 보이는 크리밍·웃물·자유 기름.'
+  active_in: *id001
+  tier: monitored
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: minimize
+  reliability: high
+  evidence_required: sample_aged
+  evaluation_note: 'Aged pass/fail check (§5.8): visible creaming / serum / free oil on the set-aside jar.'
+
+- term_id: L.ap.oil_ring
+  ko:
+    anchors:
+      '-3': 기준보다 확실히 깨끗하다 (고리가 보이지 않는다)
+      '0': 기준과 구분되지 않는다
+      '+3': 기준보다 뚜렷한 기름 고리가 목이나 표면에 보인다
+    evaluation_note: 따로 보관해 둔 병으로 하는 저장 후 합·부 판정입니다(스펙 5.8).
+  active_in:
+  - SC.emulsion.ow|APP.dressing
+  tier: monitored
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: minimize
+  reliability: high
+  evidence_required: sample_aged
+  note: >-
+    Added 2026-09-07 with PO.0066. A dressing that throws an oil ring at the jar
+    neck is the same creaming failure the beverage profile already recorded; the
+    sauce profile simply never had it wired. P.ring_formation stays beverage-only
+    - it is written for the neck of a bottle.

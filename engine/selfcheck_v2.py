@@ -317,7 +317,13 @@ IDENTITY_MAX = 3
 
 
 def _is_product_file(prof):
-    """meta.product 가 있으면 제품 단위 파일이다(F7)."""
+    """
+    제품인가. 2026-09-11 부터 제품은 projects/ 에 살고(PRODUCT_CARD 한 장) 제형
+    카드 파일 목록이 비어 있다 - onto.projects 에 있으면 제품이다. 옛 방식
+    (meta.product 가 있는 카드 파일, F7)도 남겨 둔다.
+    """
+    if prof in getattr(onto, "projects", {}):
+        return True
     for fn in onto.profiles[prof]["cards"]:
         d = _yaml.safe_load(open(_os.path.join(onto.layers, fn), encoding="utf-8"))
         if ((d or {}).get("meta") or {}).get("product"):

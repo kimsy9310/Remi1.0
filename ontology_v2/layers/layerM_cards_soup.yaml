@@ -1,0 +1,288 @@
+# =============================================================================
+# AXIS_CARD — Suspension soup / stew   (DRAFT, derived 2026-09-11)
+# -----------------------------------------------------------------------------
+# suspension 의 카드를 복사하고 active_in 만 SC.suspension|APP.soup 로 바꿨다.
+# 앵커 문장은 형제와 같다 - 이 용도에서 다르게 읽혀야 할 축이 있으면 그 카드만
+# 고친다. tools/add_application.py 가 만들었다.
+# =============================================================================
+meta:
+  layer: M
+  version: '2.0'
+  date: '2026-08-18'
+  profile: Suspension soup / stew
+  note: 'STRUCTURE PROFILE. Carries only what the structure implies (rheology, appearance) plus the basic tastes every food is scored on. Product-defining aroma and chemesthesis axes are not in the ontology at all - they live in the product folder (projects/), 2026-09-11. Split 2026-09-02; before that the fermented hot sauce was baked in here and every suspension user was asked about chilli.'
+  spec: remi_ontology_spec_v2.md §2.3, §5.7, §5.8, §6.2
+  counts:
+    cards: 16
+    core: 6
+    monitored: 10
+    sample_aged: 4
+  inactive_no_card:
+  - SA.pungency_onset (askability fail - knowledge kept in C edges / R-1, not asked)
+  - 'SA.numbing_tingle (promotable per product: sancho/chopi sauces)'
+  - SA.astringency (askability fail - folded into bitterness evaluation_note)
+  - SA.cloud_opacity, SA.color (excluded per tiering decision 2026-08-18)
+  - SA.fibrousness (no current actuator; awaits O layer)
+  flavor_slots: '2 - declared here, filled by the product'
+measurement_cards:
+- term_id: L.ta.salty
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 덜 짜다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 더 짜다'
+  active_in: &id001
+  - SC.suspension|APP.soup
+  tier: core
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+- term_id: L.ta.sour
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 덜 시다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 더 시다'
+  active_in: *id001
+  tier: core
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+- term_id: L.ta.sweet
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 덜 달다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 더 달다'
+  active_in: *id001
+  tier: core
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+- term_id: L.ta.umami
+  ko:
+    anchors:
+      '-3': '감칠맛이 기준보다 뚜렷하게 약하다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '감칠맛이 기준보다 뚜렷하게 강하다'
+  active_in: *id001
+  tier: core
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: medium
+  evidence_required: sample
+  jar_target: match or exceed benchmark
+  note: 'target (not maintain): fermented positioning axis for Ranita products.'
+- term_id: L.tx.thickness
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 덜 걸쭉하다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 더 걸쭉하다'
+  active_in: *id001
+  tier: core
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+- term_id: L.tx.grittiness
+  ko:
+    anchors:
+      '-3': '꺼끌거림이 기준보다 뚜렷하게 적다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '꺼끌거림이 기준보다 뚜렷하게 많다'
+  active_in: *id001
+  tier: core
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: minimize
+  reliability: high
+  evidence_required: sample
+  jar_target: as smooth as the benchmark
+  anchors:
+  - intensity: 0
+    reference: smooth ketchup
+    source: expert
+    confidence: medium
+  - intensity: 8
+    reference: coarse gochugaru sauce - clearly grainy
+    source: expert
+    confidence: low
+- term_id: L.ta.bitter
+  ko:
+    anchors:
+      '-3': '쓴맛이 기준보다 뚜렷하게 약하다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '쓴맛이 기준보다 뚜렷하게 강하다'
+    evaluation_note: '결함 감시. 쓴맛이 보고되면 떫음(입안이 마르고 조이는 느낌)부터 확인하세요 — 훈련되지 않은 평가자는 둘을 섞습니다. 떫음 자체는 카드가 없습니다(물어보기 어려움 판정).'
+  active_in: *id001
+  tier: monitored
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: minimize
+  reliability: low
+  evidence_required: sample
+  evaluation_note: Defect watch. If bitterness is reported, check astringency (drying/puckering) first - untrained
+    assessors conflate the two. Astringency itself holds no card (askability fail).
+- term_id: L.ta.aftertaste_length
+  ko:
+    anchors:
+      '-3': '뒷맛이 기준보다 뚜렷하게 빨리 사라진다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '뒷맛이 기준보다 뚜렷하게 오래 남는다'
+    evaluation_note: '시간 축이라 편차가 가장 큽니다. core 로 올린다면 반복을 늘리세요.'
+  active_in: *id001
+  tier: monitored
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: low
+  evidence_required: sample
+  evaluation_note: Temporal - highest variance; use extra replicates if ever promoted.
+- term_id: L.tx.pourability
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 잘 따라지지 않는다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 잘 따라진다'
+  active_in: *id001
+  tier: monitored
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: high
+  evidence_required: sample
+  note: Promotable per product (pourable-style sauces). Correlated with thickness (R-2) and shear thinning (R-1);
+    never core together with thickness.
+- term_id: L.tx.perceived_piece_size
+  ko:
+    anchors:
+      '-3': '건더기가 기준보다 뚜렷하게 잘다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '건더기가 기준보다 뚜렷하게 굵다'
+  active_in: *id001
+  tier: monitored
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: target
+  reliability: high
+  evidence_required: sample
+  note: Positioning attribute; becomes a fixed spec once product concept locks.
+- term_id: L.tx.cling
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 덜 붙고 흘러내린다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 잘 붙어 코팅된다'
+  active_in: *id001
+  tier: monitored
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: medium
+  evidence_required: sample
+- term_id: L.ap.serum_layer
+  ko:
+    anchors:
+      '-3': '기준보다 웃물이 확실히 적다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 웃물이 뚜렷하게 많이 고였다'
+    evaluation_note: '따로 둔 병으로 3일 합·부 판정(스펙 5.8). 스토크스 규칙: 3일에 웃물이 없으면 28일에도 대체로 없습니다.'
+  active_in: *id001
+  tier: monitored
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: minimize
+  reliability: high
+  evidence_required: sample_aged
+  evaluation_note: '3-day pass/fail check on a set-aside bottle (§5.8). Stokes rule: no serum at 3 days predicts
+    largely none at 28.'
+- term_id: L.ap.sediment
+  ko:
+    anchors:
+      '-3': '기준보다 침전이 확실히 적다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 침전이 뚜렷하게 많고 굳었다'
+    evaluation_note: '3일 합·부 판정. 중요한 것은 다시 섞이는지입니다 — 흔들어 풀리면 합격, 단단히 굳은 덩어리면 불합격.'
+  active_in: *id001
+  tier: monitored
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: minimize
+  reliability: high
+  evidence_required: sample_aged
+  evaluation_note: '3-day pass/fail. What matters is redispersion: a shake-back settle passes, a firm cake fails.'
+- term_id: L.ap.darkened
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 밝다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '기준보다 뚜렷하게 어두워졌다'
+  active_in: *id001
+  tier: monitored
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: fresh_sample
+  default_goal: minimize
+  reliability: high
+  evidence_required: sample_aged
+- term_id: L.ar.rancid_oxidized
+  ko:
+    anchors:
+      '-3': '기준보다 뚜렷하게 깨끗하다'
+      '0': '기준과 구분되지 않는다'
+      '+3': '쩐내·종이·절은 기름 냄새가 기준보다 뚜렷하다'
+  active_in:
+  - SC.suspension|APP.soup
+  tier: monitored
+  method: benchmark_difference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: minimize
+  reliability: low
+  evidence_required: sample_aged
+  note: Restored from v1 roster (off_flavor + flavor.rancid_oxidised). First shelf-life failure mode for sesame/perilla-oil
+    sauces.
+
+- term_id: L.tx.spreadability
+  ko:
+    anchors:
+      '-3': 기준보다 뚜렷하게 펴 바르기 어렵다
+      '0': 기준과 구분되지 않는다
+      '+3': 기준보다 뚜렷하게 잘 펴진다
+    evaluation_note: 빵이나 접시에 얇고 고르게 펴는 동작으로 봅니다. 떠내는 동작(스쿱)과는 다른 축입니다.
+  active_in:
+  - SC.suspension|APP.soup
+  tier: monitored
+  method: difference_from_reference
+  scale_type: diff_7
+  benchmark: current_recipe
+  default_goal: maintain
+  reliability: medium
+  evidence_required: sample
+  note: >-
+    Added 2026-09-07 with PO.0068. Xanthan already raised P.yield_stress in
+    suspension scope, so the parameter was reachable and only the percept link was
+    missing. A gochujang-style sauce is spread on a plate or in a bowl, and that
+    is a real use quality. Promotable to core for spoonable products.

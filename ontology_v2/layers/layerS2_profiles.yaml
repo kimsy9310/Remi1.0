@@ -768,3 +768,899 @@ structure_profiles:
     evidence_required: sample_aged
   constraints: []
   filler: ING.water
+
+# ---- 2026-09-11 용도 확장 (tools/add_application.py). 전부 DRAFT ----
+- structure_class: SC.emulsion.ow
+  application: APP.dressing
+  state: null
+  label: Oil-in-water emulsion dressing
+  required_functions:
+  - FT.fat_source
+  - FT.emulsifier
+  - FT.acidulant
+  required_functions_note: 분산상(기름)·계면 활성·수상 증점의 셋이 이 제형의 안정화 방식이다.
+  ko:
+    label: 수중유 에멀전 드레싱
+    definition: 연속상이 물이고 기름 방울이 분산된 두 상(相) 계. 소스와 같은 구조이나 따라 붓거나 버무리는 용도라 흐름성이 앞서고, 산미가 정체성인 경우가 많다.
+  definition: O/W emulsion used to coat or toss; same structure as sauce but pourability leads and acidity
+    is often the identity.
+  dominant_axes:
+  - continuous_phase
+  - dispersed_phase
+  - stabilization
+  - physical_state
+  boundary_note: ''
+  parameters:
+  - id: P.oil_phase_fraction
+    question_origin: defining
+    plausible_range: 0.05 - 0.75 (w/w)
+    range_basis: O/W stable across wide phi; near random close packing (~0.64-0.74) crowding/phase-inversion
+      risk rises without HIPE-style formulation. Product targets -> profiles file.
+    range_source: copied from Oil-in-water emulsion sauce
+    range_confidence: draft
+    governing_mechanism: Volume fraction sets droplet packing, viscosity, opacity, richness.
+    driven_by:
+    - oil
+    - fat_source
+    role: primary
+  - id: P.droplet_size_d32
+    question_origin: defining
+    plausible_range: 0.5 - 100 micrometre (macroemulsion; <0.2 = nanoemulsion class)
+    range_basis: Below ~0.2 um = nanoemulsion (distinct structure class); above ~100 um coarse/unstable.
+    range_source: copied from Oil-in-water emulsion sauce
+    range_confidence: draft
+    governing_mechanism: Set by emulsifier coverage and homogenization energy; smaller = whiter, creamier,
+      more stable.
+    driven_by:
+    - emulsifier
+    - process_homogenization
+    role: primary
+  - id: P.creaming_index
+    question_origin: failure
+    target: minimize (0 = no serum separation)
+    governing_mechanism: Gravity-driven droplet migration; suppressed by aqueous-phase viscosity and small
+      d32.
+    driven_by:
+    - thickener
+    - oil
+    - emulsifier
+    role: primary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion sauce
+  - id: P.coalescence_rate
+    question_origin: failure
+    governing_mechanism: Rupture of interfacial film when droplets contact; irreversible droplet merging.
+    driven_by:
+    - emulsifier
+    - process_homogenization
+    role: secondary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion sauce
+  - id: P.flocculation
+    question_origin: failure
+    governing_mechanism: Droplet aggregation without merging; driven by charge screening / bridging.
+    driven_by:
+    - emulsifier
+    - salt
+    - pH
+    role: secondary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion sauce
+  - id: P.ostwald_ripening
+    question_origin: failure
+    governing_mechanism: Diffusion of oil from small to large droplets (Laplace pressure).
+    driven_by:
+    - oil
+    role: secondary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion sauce
+  - id: P.apparent_viscosity
+    question_origin: perception
+    governing_mechanism: Aqueous-phase thickening + droplet crowding; primary driver of thickness/cling.
+    driven_by:
+    - thickener
+    - oil
+    - droplet_packing
+    role: primary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion sauce
+  - id: P.yield_stress
+    question_origin: perception
+    governing_mechanism: Thickener/particle network + high-phi packing; enables standing/scoopable texture.
+    driven_by:
+    - thickener
+    - oil_phase_fraction
+    role: primary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion sauce
+  - id: P.gloss_optical
+    question_origin: perception
+    governing_mechanism: Surface reflectance and light scattering set by droplet size and oil fraction.
+    driven_by:
+    - oil_phase_fraction
+    - droplet_size_d32
+    role: secondary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion sauce
+  - id: P.pH
+    question_origin: perception
+    governing_mechanism: Sets emulsifier/protein charge & stability; onset/sharpness of sour taste.
+    driven_by:
+    - acid
+    - vinegar
+    role: secondary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion sauce
+  - id: P.soluble_solids_brix
+    question_origin: perception
+    governing_mechanism: Dissolved sugars/solids; objective correlate of sweetness; also adds body/viscosity.
+    driven_by:
+    - sugar
+    - sweetener
+    - bulking_agent
+    role: primary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion sauce
+  - id: P.titratable_acidity
+    question_origin: perception
+    governing_mechanism: Total acid available to neutralize; magnitude/duration of sour taste (complements
+      pH, which sets onset).
+    driven_by:
+    - acid
+    - vinegar
+    role: secondary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion sauce
+  - id: P.sodium_content
+    question_origin: perception
+    governing_mechanism: Objective correlate of saltiness; also modulates perceived thickness and suppresses
+      bitterness.
+    driven_by:
+    - salt
+    role: secondary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion sauce
+  - id: P.flavor_release_dynamics
+    question_origin: perception
+    governing_mechanism: 'Partitioning & diffusion of tastants/aromatics from the matrix. Fat retains
+      lipophilic aroma (slower release, longer lingering); thickeners slow diffusion. Key driver of aftertaste
+      length and mouthcoating persistence.
+
+      '
+    driven_by:
+    - oil_phase_fraction
+    - thickener
+    role: secondary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion sauce
+  relevant_attributes:
+  - id: L.ta.salty
+    tier: core
+    default_goal: maintain
+  - id: L.ta.sour
+    tier: core
+    default_goal: maintain
+  - id: L.ta.sweet
+    tier: core
+    default_goal: maintain
+  - id: L.ta.umami
+    tier: core
+    default_goal: maintain
+  - id: L.tx.thickness
+    tier: core
+    default_goal: maintain
+  - id: L.tx.creaminess
+    tier: core
+    default_goal: maintain
+  - id: L.tx.cling
+    tier: core
+    default_goal: maintain
+  - id: L.ap.glossy
+    tier: monitored
+    default_goal: maintain
+  - id: L.ap.milky_whiteness
+    tier: monitored
+    default_goal: maintain
+  - id: L.tx.oiliness
+    tier: monitored
+    default_goal: minimize
+  - id: L.tx.spreadability
+    tier: monitored
+    default_goal: maintain
+  - id: L.tx.mouthcoating_persistence
+    tier: monitored
+    default_goal: maintain
+  - id: L.ta.aftertaste_length
+    tier: monitored
+    default_goal: maintain
+  - id: L.ta.bitter
+    tier: monitored
+    default_goal: minimize
+  - id: L.tx.pourability
+    tier: monitored
+    default_goal: maintain
+  - id: L.ap.separated
+    tier: monitored
+    default_goal: minimize
+    evidence_required: sample_aged
+  constraints:
+  - id: LESSON.oil_reduction_floor
+    statement: Reducing phi below ~0.30 generally requires viscosity/creaminess compensation (thickener
+      + fat replacer).
+    type: reformulation_dependency
+  - id: LESSON.xanthan_max
+    statement: Xanthan gum effective ~0.1-0.5%; above ~0.5% risks slimy/stringy ('long') mouthfeel.
+    type: ingredient_upper_limit
+    substitution_hint: combine with guar (synergistic thickening) to reach target viscosity at lower total
+      gum.
+  - id: LESSON.ph_safety
+    statement: Acidified dressings held at pH ~3.5-4.2 for microbial safety; constrains acid reduction.
+    type: safety_bound
+  - id: LESSON.emulsifier_required
+    statement: An interfacial emulsifier (egg yolk, lecithin, or mono-/diglycerides) is required to form/stabilize
+      droplets.
+    type: functional_requirement
+  filler: ING.water
+  derived_from: Oil-in-water emulsion sauce
+  derived_on: '2026-09-11'
+  status: DRAFT - ranges copied from sibling, review before trusting
+- structure_class: SC.emulsion.ow
+  application: APP.dip
+  state: null
+  label: Oil-in-water emulsion dip
+  required_functions:
+  - FT.fat_source
+  - FT.emulsifier
+  - FT.thickener
+  required_functions_note: 분산상(기름)·계면 활성·수상 증점의 셋이 이 제형의 안정화 방식이다.
+  ko:
+    label: 수중유 에멀전 딥
+    definition: 연속상이 물이고 기름 방울이 분산된 두 상 계. 찍어 먹는 용도라 항복응력이 있어 흘러내리지 않으면서 부드럽게 떠져야 한다.
+  definition: O/W emulsion eaten by dipping; needs yield stress to cling to the carrier yet scoop softly.
+  dominant_axes:
+  - continuous_phase
+  - dispersed_phase
+  - stabilization
+  - physical_state
+  boundary_note: ''
+  parameters:
+  - id: P.oil_phase_fraction
+    question_origin: defining
+    plausible_range: 0.05 - 0.75 (w/w)
+    range_basis: O/W stable across wide phi; near random close packing (~0.64-0.74) crowding/phase-inversion
+      risk rises without HIPE-style formulation. Product targets -> profiles file.
+    range_source: copied from Oil-in-water emulsion sauce
+    range_confidence: draft
+    governing_mechanism: Volume fraction sets droplet packing, viscosity, opacity, richness.
+    driven_by:
+    - oil
+    - fat_source
+    role: primary
+  - id: P.droplet_size_d32
+    question_origin: defining
+    plausible_range: 0.5 - 100 micrometre (macroemulsion; <0.2 = nanoemulsion class)
+    range_basis: Below ~0.2 um = nanoemulsion (distinct structure class); above ~100 um coarse/unstable.
+    range_source: copied from Oil-in-water emulsion sauce
+    range_confidence: draft
+    governing_mechanism: Set by emulsifier coverage and homogenization energy; smaller = whiter, creamier,
+      more stable.
+    driven_by:
+    - emulsifier
+    - process_homogenization
+    role: primary
+  - id: P.creaming_index
+    question_origin: failure
+    target: minimize (0 = no serum separation)
+    governing_mechanism: Gravity-driven droplet migration; suppressed by aqueous-phase viscosity and small
+      d32.
+    driven_by:
+    - thickener
+    - oil
+    - emulsifier
+    role: primary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion sauce
+  - id: P.coalescence_rate
+    question_origin: failure
+    governing_mechanism: Rupture of interfacial film when droplets contact; irreversible droplet merging.
+    driven_by:
+    - emulsifier
+    - process_homogenization
+    role: secondary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion sauce
+  - id: P.flocculation
+    question_origin: failure
+    governing_mechanism: Droplet aggregation without merging; driven by charge screening / bridging.
+    driven_by:
+    - emulsifier
+    - salt
+    - pH
+    role: secondary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion sauce
+  - id: P.ostwald_ripening
+    question_origin: failure
+    governing_mechanism: Diffusion of oil from small to large droplets (Laplace pressure).
+    driven_by:
+    - oil
+    role: secondary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion sauce
+  - id: P.apparent_viscosity
+    question_origin: perception
+    governing_mechanism: Aqueous-phase thickening + droplet crowding; primary driver of thickness/cling.
+    driven_by:
+    - thickener
+    - oil
+    - droplet_packing
+    role: primary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion sauce
+  - id: P.yield_stress
+    question_origin: perception
+    governing_mechanism: Thickener/particle network + high-phi packing; enables standing/scoopable texture.
+    driven_by:
+    - thickener
+    - oil_phase_fraction
+    role: primary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion sauce
+  - id: P.gloss_optical
+    question_origin: perception
+    governing_mechanism: Surface reflectance and light scattering set by droplet size and oil fraction.
+    driven_by:
+    - oil_phase_fraction
+    - droplet_size_d32
+    role: secondary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion sauce
+  - id: P.pH
+    question_origin: perception
+    governing_mechanism: Sets emulsifier/protein charge & stability; onset/sharpness of sour taste.
+    driven_by:
+    - acid
+    - vinegar
+    role: secondary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion sauce
+  - id: P.soluble_solids_brix
+    question_origin: perception
+    governing_mechanism: Dissolved sugars/solids; objective correlate of sweetness; also adds body/viscosity.
+    driven_by:
+    - sugar
+    - sweetener
+    - bulking_agent
+    role: primary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion sauce
+  - id: P.titratable_acidity
+    question_origin: perception
+    governing_mechanism: Total acid available to neutralize; magnitude/duration of sour taste (complements
+      pH, which sets onset).
+    driven_by:
+    - acid
+    - vinegar
+    role: secondary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion sauce
+  - id: P.sodium_content
+    question_origin: perception
+    governing_mechanism: Objective correlate of saltiness; also modulates perceived thickness and suppresses
+      bitterness.
+    driven_by:
+    - salt
+    role: secondary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion sauce
+  - id: P.flavor_release_dynamics
+    question_origin: perception
+    governing_mechanism: 'Partitioning & diffusion of tastants/aromatics from the matrix. Fat retains
+      lipophilic aroma (slower release, longer lingering); thickeners slow diffusion. Key driver of aftertaste
+      length and mouthcoating persistence.
+
+      '
+    driven_by:
+    - oil_phase_fraction
+    - thickener
+    role: secondary
+    range_confidence: draft
+    range_source: copied from Oil-in-water emulsion sauce
+  relevant_attributes:
+  - id: L.ta.salty
+    tier: core
+    default_goal: maintain
+  - id: L.ta.sour
+    tier: core
+    default_goal: maintain
+  - id: L.ta.sweet
+    tier: core
+    default_goal: maintain
+  - id: L.ta.umami
+    tier: core
+    default_goal: maintain
+  - id: L.tx.thickness
+    tier: core
+    default_goal: maintain
+  - id: L.tx.creaminess
+    tier: core
+    default_goal: maintain
+  - id: L.tx.cling
+    tier: core
+    default_goal: maintain
+  - id: L.ap.glossy
+    tier: monitored
+    default_goal: maintain
+  - id: L.ap.milky_whiteness
+    tier: monitored
+    default_goal: maintain
+  - id: L.tx.oiliness
+    tier: monitored
+    default_goal: minimize
+  - id: L.tx.spreadability
+    tier: monitored
+    default_goal: maintain
+  - id: L.tx.mouthcoating_persistence
+    tier: monitored
+    default_goal: maintain
+  - id: L.ta.aftertaste_length
+    tier: monitored
+    default_goal: maintain
+  - id: L.ta.bitter
+    tier: monitored
+    default_goal: minimize
+  - id: L.tx.pourability
+    tier: monitored
+    default_goal: maintain
+  - id: L.ap.separated
+    tier: monitored
+    default_goal: minimize
+    evidence_required: sample_aged
+  constraints:
+  - id: LESSON.oil_reduction_floor
+    statement: Reducing phi below ~0.30 generally requires viscosity/creaminess compensation (thickener
+      + fat replacer).
+    type: reformulation_dependency
+  - id: LESSON.xanthan_max
+    statement: Xanthan gum effective ~0.1-0.5%; above ~0.5% risks slimy/stringy ('long') mouthfeel.
+    type: ingredient_upper_limit
+    substitution_hint: combine with guar (synergistic thickening) to reach target viscosity at lower total
+      gum.
+  - id: LESSON.ph_safety
+    statement: Acidified dressings held at pH ~3.5-4.2 for microbial safety; constrains acid reduction.
+    type: safety_bound
+  - id: LESSON.emulsifier_required
+    statement: An interfacial emulsifier (egg yolk, lecithin, or mono-/diglycerides) is required to form/stabilize
+      droplets.
+    type: functional_requirement
+  filler: ING.water
+  derived_from: Oil-in-water emulsion sauce
+  derived_on: '2026-09-11'
+  status: DRAFT - ranges copied from sibling, review before trusting
+- structure_class: SC.suspension
+  application: APP.condiment
+  state: null
+  label: Suspension condiment (paste)
+  required_functions:
+  - FT.particulate
+  - FT.thickener
+  required_functions_note: 분산될 고체와, 그것이 가라앉지 않게 하는 수상 증점이 이 제형의 뼈대다.
+  ko:
+    label: 현탁 양념·페이스트
+    definition: 녹지 않는 고체 입자가 연속 액상에 분산된 계. 고추장·된장·쌈장처럼 소량을 곁들이는 용도라 향과 짠맛이 진하고 떠먹거나 바른다.
+  definition: Solid-in-liquid dispersion used as a condiment or paste in small amounts; concentrated in
+    aroma and salt, spooned or spread.
+  dominant_axes:
+  - dispersion
+  - stability
+  - appearance
+  - rheology
+  boundary_note: 'Against SC.solution: a solution is transparent and has no dispersed phase. Against SC.emulsion.ow:
+    the dispersed phase is solid, not liquid - it will not coalesce and cannot be refined by emulsifier
+    choice. Against SC.gel: a gel is self-supporting throughout; a suspension flows. A high-solids suspension
+    that develops a yield stress sits on that boundary and is best described as a suspension WITH yield
+    stress rather than as a gel.'
+  parameters:
+  - id: P.solids_volume_fraction
+    question_origin: defining
+    plausible_range: 0.02 - 0.60 (v/v)
+    range_basis: Below ~0.02 the product reads as a cloudy liquid. Near random close packing (~0.58-0.64)
+      particles jam, a yield stress appears and settling stops; above that the product is a paste.
+    range_source: copied from Suspension (solid-in-liquid dispersion)
+    range_confidence: draft
+    governing_mechanism: Sets opacity, body, and whether the system settles at all or jams into a network.
+    driven_by:
+    - FT.particulate
+    role: primary
+  - id: P.particle_size_d50
+    question_origin: defining
+    plausible_range: 5 - 5000 micrometre
+    range_basis: Below ~5 um most food mills cannot reach without wet colloid milling. Above ~3000 um
+      pieces are seen and chewed individually rather than felt as texture.
+    range_source: copied from Suspension (solid-in-liquid dispersion)
+    range_confidence: draft
+    governing_mechanism: Squared term in Stokes settling; also sets perceived piece size.
+    driven_by:
+    - FT.particulate
+    - process_milling
+    role: primary
+    cross_links:
+    - L.tx.perceived_piece_size
+  - id: P.particle_size_d90
+    question_origin: derived
+    plausible_range: 10 - 8000 micrometre
+    range_basis: Oral grit detection begins near 30 um. Perception tracks the COARSE TAIL, not the mean
+      - a product with a fine d50 and a coarse d90 is perceived as gritty.
+    range_source: copied from Suspension (solid-in-liquid dispersion)
+    range_confidence: draft
+    governing_mechanism: The largest particles determine perceived grittiness; the mean does not.
+    role: primary
+    cross_links:
+    - L.tx.grittiness
+    note: Reporting only a mean particle size is the standard mistake here. Two batches with the same
+      d50 can differ completely in mouthfeel.
+  - id: P.sedimentation_rate
+    question_origin: defining
+    plausible_range: 0 - 20 mm/day
+    range_basis: Zero when jammed or yield-stress-stabilised. Consumer-visible settling in a 200 mm bottle
+      appears within days above ~2 mm/day.
+    range_source: copied from Suspension (solid-in-liquid dispersion)
+    range_confidence: draft
+    governing_mechanism: 'Stokes: proportional to d^2 and to density difference, inversely to continuous-phase
+      viscosity. Suppressed entirely above the jamming threshold or above the yield stress needed to support
+      a particle.'
+    driven_by:
+    - P.particle_size_d50
+    - P.density_difference
+    - P.apparent_viscosity
+    - P.yield_stress
+    role: primary
+    cross_links:
+    - L.ap.sediment
+    note: Cheap to measure and slow to reveal itself. This is exactly the parameter a keeping trial exists
+      for - it cannot be answered at T0 by anyone.
+  - id: P.serum_separation_index
+    question_origin: defining
+    plausible_range: 0 - 30 %
+    range_basis: Above roughly 5% a clear rim is obvious in a transparent container and is read as spoilage.
+    range_source: copied from Suspension (solid-in-liquid dispersion)
+    range_confidence: draft
+    governing_mechanism: Water expelled from a weakly flocculated network, or released from soft particles
+      that shrink on standing.
+    driven_by:
+    - FT.thickener
+    - FT.particulate
+    role: primary
+    cross_links:
+    - L.ap.serum_layer
+  - id: P.pH
+    question_origin: defining
+    plausible_range: 2.5 - 7.0
+    range_basis: 4.6 is the regulatory and microbiological dividing line for acidified shelf-stable foods;
+      below ~3.0 most products are too sour to eat as a sauce.
+    range_source: copied from Suspension (solid-in-liquid dispersion)
+    range_confidence: draft
+    governing_mechanism: Governs C. botulinum outgrowth and most spoilage; also directly changes perceived
+      sourness, colour of anthocyanin and chlorophyll systems, and hydrocolloid behaviour.
+    driven_by:
+    - FT.acidulant
+    - FT.fermented_paste
+    role: primary
+    note: 'EQUILIBRIUM pH, not the pH of the liquid poured off. A chunky product can read 4.2 in the serum
+      while the inside of a pepper piece is still above 4.6, and the piece is where growth happens. Measure
+      after homogenising, and after the product has stood long enough for the pieces to equilibrate.
+
+      '
+  - id: P.water_activity
+    question_origin: defining
+    plausible_range: 0.60 - 0.99
+    range_basis: C. botulinum growth is inhibited below 0.93; most bacteria below 0.91; moulds and osmophilic
+      yeasts persist to ~0.61.
+    range_source: copied from Suspension (solid-in-liquid dispersion)
+    range_confidence: draft
+    governing_mechanism: Available water for microbial growth. A hurdle that combines multiplicatively
+      with pH and temperature rather than substituting for either.
+    driven_by:
+    - FT.aw_depressant
+    role: primary
+  - id: P.salt_in_water_phase
+    question_origin: derived
+    plausible_range: 0 - 25 %
+    range_basis: Roughly 10% water-phase salt approaches the aw threshold that inhibits C. botulinum.
+    range_source: copied from Suspension (solid-in-liquid dispersion)
+    range_confidence: draft
+    governing_mechanism: Microbial inhibition depends on concentration in the water, not on the whole-product
+      figure.
+    driven_by:
+    - FT.aw_depressant
+    - FT.umami_source
+    role: secondary
+    note: Routinely confused with total salt. In a 40% oil sauce the water-phase salt is nearly double
+      the label figure, and it is the water-phase figure that preserves.
+  - id: P.capsaicinoid_shu
+    question_origin: defining
+    plausible_range: 0 - 50,000 SHU
+    range_basis: Table sauces span roughly 500-30,000 SHU; above that the category is a specialty extract
+      product.
+    range_source: copied from Suspension (solid-in-liquid dispersion)
+    range_confidence: draft
+    governing_mechanism: Capsaicinoid concentration drives TRPV1 activation. Perceived heat is sublinear
+      in concentration and is blunted by fat and by sugar.
+    driven_by:
+    - FT.pungent_principle
+    - P.oil_phase_fraction
+    role: primary
+    cross_links:
+    - L.ch.pungent_hot
+    note: Calculating from raw-material SHU is only meaningful with a certificated raw material. Whole
+      chillies vary severalfold pod to pod, so a calculated SHU from fresh produce is an estimate, not
+      a value.
+  flavor_slots: 2
+  relevant_attributes:
+  - id: L.ta.salty
+    tier: core
+    default_goal: maintain
+  - id: L.ta.sour
+    tier: core
+    default_goal: maintain
+  - id: L.ta.sweet
+    tier: core
+    default_goal: maintain
+  - id: L.ta.umami
+    tier: core
+    default_goal: maintain
+  - id: L.tx.thickness
+    tier: core
+    default_goal: maintain
+  - id: L.tx.grittiness
+    tier: core
+    default_goal: minimize
+  - id: L.ta.bitter
+    tier: monitored
+    default_goal: minimize
+  - id: L.ta.aftertaste_length
+    tier: monitored
+    default_goal: maintain
+  - id: L.tx.pourability
+    tier: monitored
+    default_goal: maintain
+  - id: L.tx.perceived_piece_size
+    tier: monitored
+    default_goal: target
+  - id: L.tx.cling
+    tier: monitored
+    default_goal: maintain
+  - id: L.ap.serum_layer
+    tier: monitored
+    default_goal: minimize
+    evidence_required: sample_aged
+  - id: L.ap.sediment
+    tier: monitored
+    default_goal: minimize
+    evidence_required: sample_aged
+  - id: L.ap.darkened
+    tier: monitored
+    default_goal: minimize
+    evidence_required: sample_aged
+  - id: L.ar.rancid_oxidized
+    tier: monitored
+    default_goal: minimize
+    evidence_required: sample_aged
+  constraints: []
+  filler: ING.water
+  derived_from: Suspension (solid-in-liquid dispersion)
+  derived_on: '2026-09-11'
+  status: DRAFT - ranges copied from sibling, review before trusting
+- structure_class: SC.suspension
+  application: APP.soup
+  state: null
+  label: Suspension soup / stew
+  required_functions:
+  - FT.particulate
+  required_functions_note: 분산될 고체와, 그것이 가라앉지 않게 하는 수상 증점이 이 제형의 뼈대다.
+  ko:
+    label: 현탁 수프·국
+    definition: 녹지 않는 고체 입자가 연속 액상에 분산된 계. 국·찌개·수프처럼 그릇째 먹는 용도라 묽고 양이 많으며 건더기가 씹힌다.
+  definition: Solid-in-liquid dispersion eaten by the bowl; dilute, high volume, with perceptible pieces.
+  dominant_axes:
+  - dispersion
+  - stability
+  - appearance
+  - rheology
+  boundary_note: 'Against SC.solution: a solution is transparent and has no dispersed phase. Against SC.emulsion.ow:
+    the dispersed phase is solid, not liquid - it will not coalesce and cannot be refined by emulsifier
+    choice. Against SC.gel: a gel is self-supporting throughout; a suspension flows. A high-solids suspension
+    that develops a yield stress sits on that boundary and is best described as a suspension WITH yield
+    stress rather than as a gel.'
+  parameters:
+  - id: P.solids_volume_fraction
+    question_origin: defining
+    plausible_range: 0.02 - 0.60 (v/v)
+    range_basis: Below ~0.02 the product reads as a cloudy liquid. Near random close packing (~0.58-0.64)
+      particles jam, a yield stress appears and settling stops; above that the product is a paste.
+    range_source: copied from Suspension (solid-in-liquid dispersion)
+    range_confidence: draft
+    governing_mechanism: Sets opacity, body, and whether the system settles at all or jams into a network.
+    driven_by:
+    - FT.particulate
+    role: primary
+  - id: P.particle_size_d50
+    question_origin: defining
+    plausible_range: 5 - 5000 micrometre
+    range_basis: Below ~5 um most food mills cannot reach without wet colloid milling. Above ~3000 um
+      pieces are seen and chewed individually rather than felt as texture.
+    range_source: copied from Suspension (solid-in-liquid dispersion)
+    range_confidence: draft
+    governing_mechanism: Squared term in Stokes settling; also sets perceived piece size.
+    driven_by:
+    - FT.particulate
+    - process_milling
+    role: primary
+    cross_links:
+    - L.tx.perceived_piece_size
+  - id: P.particle_size_d90
+    question_origin: derived
+    plausible_range: 10 - 8000 micrometre
+    range_basis: Oral grit detection begins near 30 um. Perception tracks the COARSE TAIL, not the mean
+      - a product with a fine d50 and a coarse d90 is perceived as gritty.
+    range_source: copied from Suspension (solid-in-liquid dispersion)
+    range_confidence: draft
+    governing_mechanism: The largest particles determine perceived grittiness; the mean does not.
+    role: primary
+    cross_links:
+    - L.tx.grittiness
+    note: Reporting only a mean particle size is the standard mistake here. Two batches with the same
+      d50 can differ completely in mouthfeel.
+  - id: P.sedimentation_rate
+    question_origin: defining
+    plausible_range: 0 - 20 mm/day
+    range_basis: Zero when jammed or yield-stress-stabilised. Consumer-visible settling in a 200 mm bottle
+      appears within days above ~2 mm/day.
+    range_source: copied from Suspension (solid-in-liquid dispersion)
+    range_confidence: draft
+    governing_mechanism: 'Stokes: proportional to d^2 and to density difference, inversely to continuous-phase
+      viscosity. Suppressed entirely above the jamming threshold or above the yield stress needed to support
+      a particle.'
+    driven_by:
+    - P.particle_size_d50
+    - P.density_difference
+    - P.apparent_viscosity
+    - P.yield_stress
+    role: primary
+    cross_links:
+    - L.ap.sediment
+    note: Cheap to measure and slow to reveal itself. This is exactly the parameter a keeping trial exists
+      for - it cannot be answered at T0 by anyone.
+  - id: P.serum_separation_index
+    question_origin: defining
+    plausible_range: 0 - 30 %
+    range_basis: Above roughly 5% a clear rim is obvious in a transparent container and is read as spoilage.
+    range_source: copied from Suspension (solid-in-liquid dispersion)
+    range_confidence: draft
+    governing_mechanism: Water expelled from a weakly flocculated network, or released from soft particles
+      that shrink on standing.
+    driven_by:
+    - FT.thickener
+    - FT.particulate
+    role: primary
+    cross_links:
+    - L.ap.serum_layer
+  - id: P.pH
+    question_origin: defining
+    plausible_range: 2.5 - 7.0
+    range_basis: 4.6 is the regulatory and microbiological dividing line for acidified shelf-stable foods;
+      below ~3.0 most products are too sour to eat as a sauce.
+    range_source: copied from Suspension (solid-in-liquid dispersion)
+    range_confidence: draft
+    governing_mechanism: Governs C. botulinum outgrowth and most spoilage; also directly changes perceived
+      sourness, colour of anthocyanin and chlorophyll systems, and hydrocolloid behaviour.
+    driven_by:
+    - FT.acidulant
+    - FT.fermented_paste
+    role: primary
+    note: 'EQUILIBRIUM pH, not the pH of the liquid poured off. A chunky product can read 4.2 in the serum
+      while the inside of a pepper piece is still above 4.6, and the piece is where growth happens. Measure
+      after homogenising, and after the product has stood long enough for the pieces to equilibrate.
+
+      '
+  - id: P.water_activity
+    question_origin: defining
+    plausible_range: 0.60 - 0.99
+    range_basis: C. botulinum growth is inhibited below 0.93; most bacteria below 0.91; moulds and osmophilic
+      yeasts persist to ~0.61.
+    range_source: copied from Suspension (solid-in-liquid dispersion)
+    range_confidence: draft
+    governing_mechanism: Available water for microbial growth. A hurdle that combines multiplicatively
+      with pH and temperature rather than substituting for either.
+    driven_by:
+    - FT.aw_depressant
+    role: primary
+  - id: P.salt_in_water_phase
+    question_origin: derived
+    plausible_range: 0 - 25 %
+    range_basis: Roughly 10% water-phase salt approaches the aw threshold that inhibits C. botulinum.
+    range_source: copied from Suspension (solid-in-liquid dispersion)
+    range_confidence: draft
+    governing_mechanism: Microbial inhibition depends on concentration in the water, not on the whole-product
+      figure.
+    driven_by:
+    - FT.aw_depressant
+    - FT.umami_source
+    role: secondary
+    note: Routinely confused with total salt. In a 40% oil sauce the water-phase salt is nearly double
+      the label figure, and it is the water-phase figure that preserves.
+  - id: P.capsaicinoid_shu
+    question_origin: defining
+    plausible_range: 0 - 50,000 SHU
+    range_basis: Table sauces span roughly 500-30,000 SHU; above that the category is a specialty extract
+      product.
+    range_source: copied from Suspension (solid-in-liquid dispersion)
+    range_confidence: draft
+    governing_mechanism: Capsaicinoid concentration drives TRPV1 activation. Perceived heat is sublinear
+      in concentration and is blunted by fat and by sugar.
+    driven_by:
+    - FT.pungent_principle
+    - P.oil_phase_fraction
+    role: primary
+    cross_links:
+    - L.ch.pungent_hot
+    note: Calculating from raw-material SHU is only meaningful with a certificated raw material. Whole
+      chillies vary severalfold pod to pod, so a calculated SHU from fresh produce is an estimate, not
+      a value.
+  flavor_slots: 2
+  relevant_attributes:
+  - id: L.ta.salty
+    tier: core
+    default_goal: maintain
+  - id: L.ta.sour
+    tier: core
+    default_goal: maintain
+  - id: L.ta.sweet
+    tier: core
+    default_goal: maintain
+  - id: L.ta.umami
+    tier: core
+    default_goal: maintain
+  - id: L.tx.thickness
+    tier: core
+    default_goal: maintain
+  - id: L.tx.grittiness
+    tier: core
+    default_goal: minimize
+  - id: L.ta.bitter
+    tier: monitored
+    default_goal: minimize
+  - id: L.ta.aftertaste_length
+    tier: monitored
+    default_goal: maintain
+  - id: L.tx.pourability
+    tier: monitored
+    default_goal: maintain
+  - id: L.tx.perceived_piece_size
+    tier: monitored
+    default_goal: target
+  - id: L.tx.cling
+    tier: monitored
+    default_goal: maintain
+  - id: L.ap.serum_layer
+    tier: monitored
+    default_goal: minimize
+    evidence_required: sample_aged
+  - id: L.ap.sediment
+    tier: monitored
+    default_goal: minimize
+    evidence_required: sample_aged
+  - id: L.ap.darkened
+    tier: monitored
+    default_goal: minimize
+    evidence_required: sample_aged
+  - id: L.ar.rancid_oxidized
+    tier: monitored
+    default_goal: minimize
+    evidence_required: sample_aged
+  constraints: []
+  filler: ING.water
+  derived_from: Suspension (solid-in-liquid dispersion)
+  derived_on: '2026-09-11'
+  status: DRAFT - ranges copied from sibling, review before trusting
+

@@ -49,6 +49,18 @@ PROFILES = {
     # 도달 자체는 거의 안 변한다(plain 'SC.emulsion.ow' 로만 걸린 엣지가 태그
     # 1건뿐). 바뀌는 것은 감사가 아이스크림을 형제로 보기 시작한다는 것이다.
     # 냉동 고유 스코프 둘은 그대로 둔다 — 얼음·오버런은 진짜 냉동 전용이다.
+    'dressing': dict(   # 2026-09-11 tools/add_application.py 로 sauce_ow 에서 파생
+        cards=['layerM_cards_dressing.yaml'],
+        scopes={'any', 'SC.emulsion.ow', 'SC.emulsion.ow.dressing', 'SC.emulsion.ow|APP.dressing'}),
+    'dip': dict(   # 2026-09-11 tools/add_application.py 로 sauce_ow 에서 파생
+        cards=['layerM_cards_dip.yaml'],
+        scopes={'any', 'SC.emulsion.ow', 'SC.emulsion.ow.dip', 'SC.emulsion.ow|APP.dip'}),
+    'condiment': dict(   # 2026-09-11 tools/add_application.py 로 suspension 에서 파생
+        cards=['layerM_cards_condiment.yaml'],
+        scopes={'any', 'SC.suspension', 'SC.suspension.condiment', 'SC.suspension|APP.condiment'}),
+    'soup': dict(   # 2026-09-11 tools/add_application.py 로 suspension 에서 파생
+        cards=['layerM_cards_soup.yaml'],
+        scopes={'any', 'SC.suspension', 'SC.suspension.soup', 'SC.suspension|APP.soup'}),
     'icecream': dict(
         cards=['layerM_cards_icecream.yaml'],
         scopes={'any', 'SC.emulsion.ow', 'SC.frozen.ice_cream',
