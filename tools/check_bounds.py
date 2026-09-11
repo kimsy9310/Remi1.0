@@ -107,7 +107,13 @@ def check(onto, rows):
     return hits
 
 
-def write_drafts(onto, hdr, rows):
+def write_drafts(onto, hdr, rows, reset_old=False):
+    """
+    reset_old=False  범위가 없는 행에만 쓴다 (기본)
+    reset_old=True   옛 범위(실측 폭·손표)도 걷어내고 통상 기준으로 다시 쓴다.
+                     사용자: "기존의 중앙값은 잊고 처음부터". 옛 값은 범위근거에
+                     '이전 lo~hi' 로 남긴다. API 통상량을 검사한 뒤에 쓸 것.
+    """
     shutil.copy2(PALETTE, PALETTE.replace(".xlsx",
                  f"_백업_{datetime.datetime.now():%y%m%d_%H%M%S}.xlsx"))
     wb = openpyxl.load_workbook(PALETTE)
@@ -118,8 +124,10 @@ def write_drafts(onto, hdr, rows):
         lo, hi, typ = fnum(d.get("하한")), fnum(d.get("상한")), fnum(d.get("통상"))
         if typ is None or typ <= 0:
             continue
-        if lo is not None and hi is not None:
+        had = lo is not None and hi is not None
+        if had and not reset_old:
             continue                                   # 있는 범위는 안 건드린다
+        prev = f" · 이전 {lo}~{hi}" if had else ""
         up = api_upper(d.get("통상근거"))
         if up and up > typ:
             hi_new, why = up, "API upper(오프노트 시작)"
@@ -133,13 +141,13 @@ def write_drafts(onto, hdr, rows):
         ws.cell(r, col["상한"]).value = hi_new
         ws.cell(r, col["범위근거"]).value = (
             f"draft {datetime.date.today()} · 하한 0 (규칙) · 상한 {hi_new} = {why} · "
-            f"1 SD = {hi_new / RANGE_TO_SD:.3g}%p")
+            f"1 SD = {hi_new / RANGE_TO_SD:.3g}%p{prev}")
         n += 1
     wb.save(PALETTE)
     return n
 
 
-def main(write=False):
+def main(write=False, reset_old=False):
     onto = V2Ontology()
     hdr, rows = read_rows()
     hits = check(onto, rows)
@@ -157,12 +165,14 @@ def main(write=False):
     if len(hits) > 25:
         print(f"   … 그 밖 {len(hits) - 25}행")
     if write:
-        n = write_drafts(onto, hdr, rows)
-        print(f"\n  초안 범위를 쓴 행: {n}  (통상이 있고 범위가 없던 행만)")
+        n = write_drafts(onto, hdr, rows, reset_old=reset_old)
+        print(f"\n  초안 범위를 쓴 행: {n}  "
+              + ("(옛 범위도 걷어냄)" if reset_old else "(통상이 있고 범위가 없던 행만)"))
     else:
-        print("\n  초안을 쓰려면: python tools/check_bounds.py --write")
+        print("\n  초안을 쓰려면: python tools/check_bounds.py --write"
+              "   (옛 범위까지 다시 쓰려면 --write --reset-old)")
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main(write="--write" in sys.argv))
+    sys.exit(main(write="--write" in sys.argv, reset_old="--reset-old" in sys.argv))
