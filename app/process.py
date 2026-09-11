@@ -119,7 +119,10 @@ class Card:
         같으면 같은 공정이다. 공백과 대소문자는 무시한다 — 사람이 적는 칸이라
         "핸드블렌더" 와 "핸드 블렌더" 가 다른 공정이 되면 안 된다.
         """
-        parts = [self.profile.strip(), self.scale.strip()]
+        # 2026-09-11 검증 결함 6. block 이 빠져 있어 RM-P1 과 RM-P2 가 같은 지문을
+        # 냈다. 바로 아래 is_declared() 가 "블록 이름만으로 다른 공정과 섞이는 것을
+        # 막을 수 있다" 고 약속하는데, 지문이 블록을 안 보면 그 약속이 빈말이다.
+        parts = [self.profile.strip(), self.block.strip().lower(), self.scale.strip()]
         for k in sorted(self.answers):
             v = re.sub(r"\s+", "", str(self.answers[k] or "")).lower()
             parts.append(f"{k}={v}")

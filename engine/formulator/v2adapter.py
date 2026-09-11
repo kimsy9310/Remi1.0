@@ -193,10 +193,6 @@ class V2Ontology:
                              scopes=set(self._ref.PROFILES[base]["scopes"])))
         return out
 
-    def project_columns(self, profile):
-        """제품의 실측 컬럼 -> 축 매핑. 제품이 아니면 빈 dict."""
-        pj = self.projects.get(profile)
-        return dict((pj["manifest"].get("measurement_columns") or {})) if pj else {}
 
     # ---------------------------------------------------------------- 조회
     @property
@@ -665,6 +661,13 @@ class V2Ontology:
         # --- 1) 필러 행 제거 (불변식 8)
         fi = palette.index(filler)
         keep = [j for j in range(len(palette)) if j != fi]
+        if not keep:
+            # 2026-09-11 검증 결함 12. 필러만 남으면 자유변수가 0개다. 여기서 안
+            # 막으면 suggest() 가 scipy 에 빈 범위를 넘기고 scipy 안에서
+            # "not enough values to unpack" 으로 터진다 - 뜻 모를 오류다.
+            raise ValueError(
+                f"팔레트에 필러 {filler} 말고 재료가 없습니다. 움직일 변수가 없어 "
+                f"모형을 세울 수 없습니다 - 재료를 하나 이상 넣으세요.")
         G0 = asm["Gamma0"][keep, :]
         lam = asm["Lambda_per_edge"][keep, :]          # (q_free, m) 엣지별 유지
         free_names = [palette[j] for j in keep]
@@ -680,6 +683,14 @@ class V2Ontology:
                 lo, hi = float(bounds[g][0]), float(bounds[g][1])
                 if hi <= lo:
                     raise ValueError(f"{g} 의 범위가 뒤집혔습니다: ({lo}, {hi})")
+                if lo < 0:
+                    # 2026-09-11 검증 결함 8. 음수 하한은 오타 말고는 나올 이유가
+                    # 없고, 통과시키면 솔버가 음수 배합(-2.72%)을 낸다. "이 재료를
+                    # 빼라" 는 뜻은 하한 0 이 이미 담는다 - 0 에 닿으면 다른 재료로
+                    # 간다. (사용자: "원칙적으로 막아야 하는 부분")
+                    raise ValueError(
+                        f"{g} 의 하한이 음수입니다: {lo}. 재료 양은 0 아래로 못 "
+                        f"갑니다 - 빼고 싶으면 하한을 0 으로 두세요.")
                 zsd[i] = (hi - lo) / RANGE_TO_SD
                 zbar[i] = 0.5 * (lo + hi)
             else:
@@ -772,6 +783,16 @@ class V2Ontology:
                 t[built.y_terms.index(k)] = float(v)
         else:
             t = np.asarray(target, float)
+        # 2026-09-11 검증 결함 9·10. 척도는 ±3 이다. 그 밖의 값은 뜻이 없고,
+        # NaN 은 그 목표가 조용히 사라진다(빈 목표와 같은 배합이 나왔다).
+        # 목표 입력 화면은 이미 ±2 로 막혀 있으니 여기 오는 것은 코드 경로뿐이다.
+        # (사용자: "원칙적으로 막아야 하는 부분")
+        if np.any(np.isnan(t)):
+            bad = [built.y_terms[i] for i in np.where(np.isnan(t))[0]]
+            raise ValueError(f"목표에 숫자가 아닌 값(NaN)이 있습니다: {bad}")
+        if np.any(np.abs(t) > 3.0 + 1e-9):
+            bad = [(built.y_terms[i], float(t[i])) for i in np.where(np.abs(t) > 3.0)[0]]
+            raise ValueError(f"목표가 척도(±3)를 벗어났습니다: {bad}")
 
         if x0 is None:
             x0 = np.zeros(len(built.palette))

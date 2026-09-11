@@ -136,8 +136,8 @@ class PaletteTable:
         out = []
         for r in self._usable():
             lo, hi = r["하한"], r["상한"]
-            if lo is not None and hi is not None and hi <= lo:
-                out.append((r["온톨로지ID"], lo, hi))
+            if lo is not None and hi is not None and (hi <= lo or lo < 0):
+                out.append((r["온톨로지ID"], lo, hi))    # lo < 0: 2026-09-11 결함 8
         return out
 
     def no_axis(self):

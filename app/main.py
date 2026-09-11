@@ -715,6 +715,10 @@ def _tab_bounds():
             if lo is not None and hi is not None and hi <= lo:
                 bad2.append(f"{ing_label(e['온톨로지ID'])}: 상한({hi}) ≤ 하한({lo})")
                 continue
+            if lo is not None and lo < 0:
+                # 2026-09-11 결함 8. 여기서 안 막으면 음수 배합이 제안된다.
+                bad2.append(f"{ing_label(e['온톨로지ID'])}: 하한({lo})이 음수 — 빼려면 0 으로")
+                continue
             out.append({"프로파일": profile, "목적": variant or "",
                         "슬롯": e["슬롯"], "재료": e["재료"],
                         "온톨로지ID": e["온톨로지ID"], "등급": e["등급"],
