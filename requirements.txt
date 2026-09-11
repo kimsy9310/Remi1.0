@@ -8,3 +8,5 @@ pyyaml>=6.0
 # 멈추지 않고 틀리는 쪽이라 명시한다.
 scipy>=1.10
 streamlit>=1.30
+# 2026-09-11 첫 API 사용 - tools/fill_typical_api.py (통상 사용량 초안). 키는 환경변수.
+anthropic>=1.0
