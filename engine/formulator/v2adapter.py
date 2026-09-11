@@ -158,24 +158,27 @@ class V2Ontology:
     # ------------------------------------------------ 제품 (2026-09-10)
     def _load_projects(self):
         """
-        projects/<이름>/product.yaml 을 읽어 세션 프로파일로 올린다.
+        projects/<이름>/product_card.yaml 을 읽어 세션 프로파일로 올린다.
 
         **온톨로지가 아니다.** 제품은 스펙 2.3 의 활성 맥락(SC x APP x ST)에
         자리가 없다. 그래서 layers/ 밖에 두고, 여는 세션에서만 프로파일처럼
-        보이게 한다. 카드도 그 폴더에 있고 스코프는 `structure` 가 가리키는
-        제형에서 그대로 물려받는다 - 제품이 제 스코프를 지어내지 못하게.
+        보이게 한다. 스코프는 `structure` 가 가리키는 제형에서 그대로
+        물려받는다 - 제품이 제 스코프를 지어내지 못하게.
 
-        폴더 형식은 잠정이다(2026-09-10 기준 사용자 검토 중). 지금 읽는 것은
-        meta.id · meta.structure · cards.yaml 셋뿐이다.
+        두 층 (2026-09-11, 사용자 결정)
+            AXIS_CARD     제형별 축 카드. layers/layerM_cards_<제형>.yaml. 공유된다
+            PRODUCT_CARD  제품당 한 장. 제형 카드에서 벗어나는 것만 - drop 과 axes
+
+        제품 카드는 통째 카드 목록이 아니라 **제형 카드 위에 얹는 차이**다.
+        합성은 load_cards 래퍼가 한다 (_compose_product_cards).
         """
         root = os.path.join(os.path.dirname(self.root), PROJECTS_DIR)
         out = {}
         if not os.path.isdir(root):
             return out
         for name in sorted(os.listdir(root)):
-            man = os.path.join(root, name, "product.yaml")
-            cards = os.path.join(root, name, "cards.yaml")
-            if not (os.path.exists(man) and os.path.exists(cards)):
+            man = os.path.join(root, name, "product_card.yaml")
+            if not os.path.exists(man):
                 continue
             with open(man, encoding="utf-8") as fh:
                 doc = yaml.safe_load(fh) or {}
@@ -185,13 +188,58 @@ class V2Ontology:
                 raise ValueError(
                     f"프로젝트 {name} 의 structure '{base}' 가 STRUCTURE 에 없습니다. "
                     f"가능: {sorted(self._ref.PROFILES)}")
-            out[meta.get("id") or name] = dict(
+            pid = meta.get("id") or name
+            if pid in self._ref.PROFILES or pid in EXTRA_PROFILES:
+                # 2026-09-11 검증 결함 2. 제품 id 가 제형 이름과 겹치면 등록부에서
+                # 제품이 제형을 조용히 덮어썼다 (beverage 카드 16 -> 6). 막는다.
+                raise ValueError(
+                    f"프로젝트 id '{pid}' 가 제형 이름과 겹칩니다. 제품 이름은 제형과 "
+                    f"달라야 합니다. 제형: {sorted(self._ref.PROFILES)}")
+            out[pid] = dict(
                 dir=os.path.join(root, name),
-                manifest=doc,
-                profile=dict(cards=[cards],          # 절대 경로. layers/ 밖이다
+                card=doc,
+                structure=base,
+                profile=dict(cards=[],               # 실물 파일 없음. 합성한다
                              scopes=set(self._ref.PROFILES[base]["scopes"])))
         return out
 
+    def _compose_product_cards(self, pj, base_cards):
+        """
+        제형의 AXIS_CARD 위에 PRODUCT_CARD 의 차이를 얹는다.
+
+            1 제형 카드를 전부 가져온다
+            2 drop 에 있는 축을 뺀다
+            3 axes: 제형에 있는 축이면 적힌 필드만 덮고(ko 는 안쪽까지),
+                    없는 축이면 통째로 더한다
+        보편 축 채우기는 이 다음에 래퍼가 평소처럼 한다.
+        """
+        doc = pj["card"]
+        drop = set(doc.get("drop") or [])
+        axes = doc.get("axes") or {}
+        out = []
+        seen = set()
+        for c in base_cards:
+            t = c["term_id"]
+            if t in drop:
+                continue
+            c = dict(c)
+            if t in axes:
+                ov = dict(axes[t])
+                ko_ov = ov.pop("ko", None)
+                c.update(ov)
+                if ko_ov:
+                    c["ko"] = {**(c.get("ko") or {}), **ko_ov}
+            c["from_product"] = t in axes
+            out.append(c)
+            seen.add(t)
+        for t, full in axes.items():
+            if t in seen or t in drop:
+                continue
+            c = dict(full)
+            c["term_id"] = t
+            c["from_product"] = True
+            out.append(c)
+        return out
 
     # ---------------------------------------------------------------- 조회
     @property
@@ -238,10 +286,10 @@ class V2Ontology:
             # 이어 붙이는 구조라 절대 경로를 못 받는다. 여기서 가로챈다.
             pj = self.projects.get(profile)
             if pj:
-                cards = []
-                for fn in pj["profile"]["cards"]:
-                    with open(fn, encoding="utf-8") as fh:
-                        cards += (yaml.safe_load(fh) or {})["measurement_cards"]
+                # 두 층: 제형의 AXIS_CARD 를 가져와 PRODUCT_CARD 의 차이를 얹는다
+                base = pj["structure"]
+                base_cards = inner(base, layers_dir) if layers_dir else inner(base)
+                cards = self._compose_product_cards(pj, base_cards)
             else:
                 cards = inner(profile, layers_dir) if layers_dir else inner(profile)
             have = {c["term_id"] for c in cards}

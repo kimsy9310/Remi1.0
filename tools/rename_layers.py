@@ -56,7 +56,7 @@ NAMES = {
     "C": "INGREDIENT",       # 2026-09-10 EFFECT -> 2026-09-11 INGREDIENT
     "R": "RELATION",
     "S": "STRUCTURE",
-    "M": "PRODUCT_CARD",     # 2026-09-10 MEASUREMENT -> 2026-09-11 PRODUCT_CARD
+    "M": "AXIS_CARD",        # MEASUREMENT -> PRODUCT_CARD -> AXIS_CARD (09-11 두 층)
     "O": "PROCESS",
 }
 
@@ -70,7 +70,17 @@ DEAD = {"B": "LEXICON"}
 #   EFFECT       "이름이 왜 EFFECT 인지" (사용자). 그 층은 재료 데이터베이스인데
 #                이름이 그 안의 엣지를 가리켰다. INGREDIENT.
 # 대문자 통째 낱말만 잡는다. `effects:` 같은 YAML 키는 소문자라 안 걸린다.
-WORDS = {"MEASUREMENT": "PRODUCT_CARD", "EFFECT": "INGREDIENT"}
+# 3단계 (2026-09-11 오후): 두 층으로 가르면서 이름이 한 번 더 움직인다.
+#   제형 축 카드(layerM_cards_<제형>.yaml, 공유)      -> AXIS_CARD
+#   제품 한 장(projects/<제품>/product_card.yaml)      -> 이것이 진짜 PRODUCT_CARD
+# 순서가 중요하다 - MEASUREMENT 와 PRODUCT_CARD 가 둘 다 AXIS_CARD 로 가야
+# 옛 문서와 새 문서가 같은 자리에 닿는다.
+WORDS = {"MEASUREMENT": "AXIS_CARD", "PRODUCT_CARD": "AXIS_CARD",
+         "EFFECT": "INGREDIENT"}
+
+# 제품 한 장을 말하는 자리는 PRODUCT_CARD 그대로 둔다.
+# CLAUDE.md 는 이름의 이력을 적고 있어 손으로 고친다.
+WORDS_SKIP = {"product_card.yaml", "v2adapter.py", "CLAUDE.md"}
 
 # 이 파일의 Layer B 는 전부 v1.1 감사 이력이다. 건드리지 않는다.
 DEAD_SKIP = {"layerL_lexicon.yaml"}
@@ -118,10 +128,11 @@ def convert(text, fname):
                 pat = re.compile(r"\bLayer " + letter + r"\b")
                 text, k = pat.subn(word, text)
                 n += k
-    for old_w, new_w in WORDS.items():
-        pat = re.compile(r"\b" + old_w + r"\b")
-        text, k = pat.subn(new_w, text)
-        n += k
+    if fname not in WORDS_SKIP:
+        for old_w, new_w in WORDS.items():
+            pat = re.compile(r"\b" + old_w + r"\b")
+            text, k = pat.subn(new_w, text)
+            n += k
     return text, n
 
 
