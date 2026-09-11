@@ -16,18 +16,16 @@ measurement_cards:
       '-3': '기준보다 뚜렷하게 덜 걸쭉하다'
       '0': '기준과 구분되지 않는다'
       '+3': '기준보다 뚜렷하게 더 걸쭉하다'
-    jar_target: '기준과 같게'
     evaluation_note: '바디감과 헷갈리기 쉽습니다. 바디감은 묽은 음료에도 쓰는 말이고, 걸쭉함은 풀바디를 넘어선 구간입니다. 스푼으로 떠서 흐르는 모양을 보면 갈라집니다.'
   active_in:
   - SC.emulsion.ow|APP.beverage
   tier: monitored
-  method: JAR
-  scale_type: jar_5
+  method: benchmark_difference
+  scale_type: diff_7
   benchmark: current_recipe
   default_goal: maintain
   reliability: medium
   evidence_required: sample
-  jar_target: match benchmark
   note: >-
     Monitored by default, not core. Most beverages are asked about BODY; a thick
     beverage (yogurt smoothie, drinkable yogurt) is asked about THICKNESS instead.
@@ -42,18 +40,16 @@ measurement_cards:
       '-3': '기준보다 뚜렷하게 덜 달다'
       '0': '기준과 구분되지 않는다'
       '+3': '기준보다 뚜렷하게 더 달다'
-    jar_target: '기준과 같게'
     evaluation_note: '마시는 온도에서 평가하세요. 차가우면 단맛이 눌립니다(R-2 저온→단맛).'
   active_in: &id001
   - SC.emulsion.ow|APP.beverage
   tier: core
-  method: JAR
-  scale_type: jar_5
+  method: benchmark_difference
+  scale_type: diff_7
   benchmark: current_recipe
   default_goal: maintain
   reliability: high
   evidence_required: sample
-  jar_target: match benchmark
   evaluation_note: 'Serve at drinking temperature: cold suppresses sweetness (R-2 cold->sweet).'
 - term_id: L.ta.sour
   ko:
@@ -61,32 +57,28 @@ measurement_cards:
       '-3': '기준보다 뚜렷하게 덜 시다'
       '0': '기준과 구분되지 않는다'
       '+3': '기준보다 뚜렷하게 더 시다'
-    jar_target: '기준과 같게'
   active_in: *id001
   tier: core
-  method: JAR
-  scale_type: jar_5
+  method: benchmark_difference
+  scale_type: diff_7
   benchmark: current_recipe
   default_goal: maintain
   reliability: high
   evidence_required: sample
-  jar_target: match benchmark
 - term_id: L.tx.body
   ko:
     anchors:
       '-3': '기준보다 뚜렷하게 묽고 물 같다'
       '0': '기준과 구분되지 않는다'
       '+3': '기준보다 뚜렷하게 묵직하고 꽉 찬다'
-    jar_target: '기준과 같게'
   active_in: *id001
   tier: core
-  method: JAR
-  scale_type: jar_5
+  method: benchmark_difference
+  scale_type: diff_7
   benchmark: current_recipe
   default_goal: maintain
   reliability: medium
   evidence_required: sample
-  jar_target: match benchmark
   note: Term body (absorbs v1 body_mouthfeel). Sugar reduction -> watery defect.
 - term_id: L.ap.cloudy
   ko:
@@ -111,8 +103,8 @@ measurement_cards:
       '+3': '뒷맛이 기준보다 뚜렷하게 오래 남는다'
   active_in: *id001
   tier: monitored
-  method: JAR
-  scale_type: jar_5
+  method: benchmark_difference
+  scale_type: diff_7
   benchmark: current_recipe
   default_goal: maintain
   reliability: low
@@ -138,16 +130,14 @@ measurement_cards:
       '-3': '기준보다 뚜렷하게 깨끗하다'
       '0': '기준과 구분되지 않는다'
       '+3': '쩐내·종이·절은 기름 냄새가 기준보다 뚜렷하다'
-    jar_target: '느껴지지 않을 것'
   active_in: *id001
   tier: monitored
-  method: JAR
-  scale_type: jar_5
+  method: benchmark_difference
+  scale_type: diff_7
   benchmark: current_recipe
   default_goal: minimize
   reliability: low
   evidence_required: sample_aged
-  jar_target: none detectable
   note: Representative defect-watch card for v1 SA.off_flavor (decomposed into off_note terms); oxidation is the
     beverage-relevant failure.
 - term_id: L.ap.oil_ring
@@ -156,17 +146,15 @@ measurement_cards:
       '-3': '기준보다 확실히 깨끗하다 (고리가 보이지 않는다)'
       '0': '기준과 구분되지 않는다'
       '+3': '기준보다 뚜렷한 기름 고리가 목이나 표면에 보인다'
-    jar_target: '눈에 보이는 기름 고리가 없을 것'
     evaluation_note: '따로 보관해 둔 병으로 하는 저장 후 합·부 판정입니다(스펙 5.8).'
   active_in: *id001
   tier: monitored
-  method: JAR
-  scale_type: jar_5
+  method: benchmark_difference
+  scale_type: diff_7
   benchmark: current_recipe
   default_goal: minimize
   reliability: high
   evidence_required: sample_aged
-  jar_target: no visible ring
   evaluation_note: Aged pass/fail check on the set-aside bottle (§5.8).
 
 - term_id: L.tx.pourability
@@ -197,13 +185,12 @@ measurement_cards:
       '-3': 코팅감이 기준보다 뚜렷하게 빨리 사라진다
       '0': 기준과 구분되지 않는다
       '+3': 코팅감이 기준보다 뚜렷하게 오래 남는다
-    jar_target: 기준과 같게
     evaluation_note: 삼킨 뒤 10초쯤 지나 입안에 남은 막을 봅니다. 시간 축이라 편차가 큽니다 - core 로 올린다면 반복 시료가 필요합니다.
   active_in:
   - SC.emulsion.ow|APP.beverage
   tier: monitored
-  method: JAR
-  scale_type: jar_5
+  method: benchmark_difference
+  scale_type: diff_7
   benchmark: current_recipe
   default_goal: maintain
   reliability: low
@@ -220,18 +207,16 @@ measurement_cards:
       '-3': 기준보다 확실히 안정적이다 (분리 흔적 없음)
       '0': 기준과 구분되지 않는다
       '+3': 기준보다 층이 뚜렷하게 갈라졌다
-    jar_target: 눈에 보이는 층 갈라짐이 없을 것
     evaluation_note: 따로 보관해 둔 병으로 하는 저장 후 합·부 판정입니다(스펙 5.8). 크리밍·웃물·자유 기름을 봅니다.
   active_in:
   - SC.emulsion.ow|APP.beverage
   tier: monitored
-  method: JAR
-  scale_type: jar_5
+  method: benchmark_difference
+  scale_type: diff_7
   benchmark: current_recipe
   default_goal: minimize
   reliability: high
   evidence_required: sample_aged
-  jar_target: no visible phase split
   note: >-
     Added 2026-09-07 with PO.0065. Visible phase split is the most common storage
     failure of an emulsion beverage, and the beverage profile carried the oil-ring

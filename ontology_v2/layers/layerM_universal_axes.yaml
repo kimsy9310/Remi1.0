@@ -82,15 +82,13 @@ measurement_cards:
       '-3': '기준보다 뚜렷하게 덜 달다'
       '0': '기준과 구분되지 않는다'
       '+3': '기준보다 뚜렷하게 더 달다'
-    jar_target: '기준과 같게'
   tier: monitored
-  method: JAR
-  scale_type: jar_5
+  method: benchmark_difference
+  scale_type: diff_7
   benchmark: current_recipe
   default_goal: maintain
   reliability: high
   evidence_required: sample
-  jar_target: match benchmark
 
 - term_id: L.ta.salty
   ko:
@@ -98,15 +96,13 @@ measurement_cards:
       '-3': '기준보다 뚜렷하게 덜 짜다'
       '0': '기준과 구분되지 않는다'
       '+3': '기준보다 뚜렷하게 더 짜다'
-    jar_target: '기준과 같게'
   tier: monitored
-  method: JAR
-  scale_type: jar_5
+  method: benchmark_difference
+  scale_type: diff_7
   benchmark: current_recipe
   default_goal: maintain
   reliability: high
   evidence_required: sample
-  jar_target: match benchmark
   note: >-
     Absent from the ice cream, beverage and rice-milk profile files until
     2026-09-07, although ING.salt has carried a scope-any edge to this term all
@@ -119,15 +115,13 @@ measurement_cards:
       '-3': '기준보다 뚜렷하게 덜 시다'
       '0': '기준과 구분되지 않는다'
       '+3': '기준보다 뚜렷하게 더 시다'
-    jar_target: '기준과 같게'
   tier: monitored
-  method: JAR
-  scale_type: jar_5
+  method: benchmark_difference
+  scale_type: diff_7
   benchmark: current_recipe
   default_goal: maintain
   reliability: high
   evidence_required: sample
-  jar_target: match benchmark
 
 - term_id: L.ta.umami
   ko:
@@ -135,16 +129,14 @@ measurement_cards:
       '-3': '기준보다 뚜렷하게 감칠맛이 덜하다'
       '0': '기준과 구분되지 않는다'
       '+3': '기준보다 뚜렷하게 감칠맛이 더하다'
-    jar_target: '기준과 같게'
     evaluation_note: '짠맛과 함께 오르내리기 쉽습니다. 소금을 바꾼 시료라면 둘을 따로 보기 어렵습니다.'
   tier: monitored
-  method: JAR
-  scale_type: jar_5
+  method: benchmark_difference
+  scale_type: diff_7
   benchmark: current_recipe
   default_goal: maintain
   reliability: medium
   evidence_required: sample
-  jar_target: match benchmark
 
 - term_id: L.ta.bitter
   ko:
@@ -152,16 +144,14 @@ measurement_cards:
       '-3': '기준보다 뚜렷하게 쓴맛이 덜하다'
       '0': '기준과 구분되지 않는다'
       '+3': '기준보다 뚜렷하게 쓴맛이 더하다'
-    jar_target: '느껴지지 않을 것'
     evaluation_note: '결함 축입니다. 다만 커피·카카오처럼 쓴맛이 제품의 성격인 경우에는 제형 카드가 이 기본값을 덮습니다.'
   tier: monitored
-  method: JAR
-  scale_type: jar_5
+  method: benchmark_difference
+  scale_type: diff_7
   benchmark: current_recipe
   default_goal: minimize
   reliability: medium
   evidence_required: sample
-  jar_target: none detectable
   note: >-
     Defect watch by default. Coffee milk promotes it to a positioning axis
     (default_goal target) in its own card; that is exactly the override this
@@ -173,16 +163,14 @@ measurement_cards:
       '-3': '기준보다 뚜렷하게 여운이 더 짧다'
       '0': '기준과 구분되지 않는다'
       '+3': '기준보다 뚜렷하게 여운이 더 길다'
-    jar_target: '기준과 같게'
     evaluation_note: '삼킨 뒤 15초쯤 지나 판정합니다. 여섯 축 중 편차가 가장 큽니다.'
   tier: monitored
-  method: JAR
-  scale_type: jar_5
+  method: benchmark_difference
+  scale_type: diff_7
   benchmark: current_recipe
   default_goal: maintain
   reliability: low
   evidence_required: sample
-  jar_target: match benchmark
   note: >-
     Temporal attribute, highest variance of the six. Kept monitored everywhere;
     promoting it needs replicates.
