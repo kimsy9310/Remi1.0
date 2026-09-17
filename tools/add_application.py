@@ -26,6 +26,14 @@ STRUCTURE 에 용도(APP)를 늘린다 — 가장 가까운 기존 제형에서 
 
     python tools/add_application.py            # 무엇이 생기고 몇 축에 닿는지
     python tools/add_application.py --write
+
+되돌리기·범위 고치기 (2026-09-12)
+  --tidy 는 아래 TIDY 절의 결정을 적용한다 - 프로파일 빼기 · APP 이름 되돌리기 ·
+  파라미터 범위 확정. 같은 파일(S2 · 카드 · 등록부)을 반대 방향으로 만지므로
+  여기 둔다. 두 번 돌려도 이미 된 것은 건너뛴다.
+
+    python tools/add_application.py --tidy            # 무엇이 바뀌나
+    python tools/add_application.py --tidy --write
 """
 from __future__ import annotations
 
@@ -57,23 +65,10 @@ sys.path[:0] = [os.path.join(ROOT, "engine")]
 # SC 에서 온다. 베끼지도, 크기를 고르지도 않는다.
 # ---------------------------------------------------------------------------
 NEW = [
-    # 2026-09-11 (b): beverage 를 cloud / milk 로 갈랐다. 원래 beverage 정의가 주스·탄산의
-    # 클라우드 에멀전(기름 ppm~수 %)이라 API 통상량이 유지 0.15% 로 나왔다. 쌀음료 같은
-    # 식물성 밀크는 지방 1~3%·고형분 8~12% 의 다른 물건이다. 형제는 cloud, 가족 스코프
-    # (SC.emulsion.ow.beverage / |APP.beverage)는 둘이 같이 물려받는다 - R-1 음료 관계는
-    # 바디·백탁·크리밍·기름 고리라 둘 다에 맞는다.
-    dict(key="beverage_milk", app="APP.beverage.milk", sibling="beverage_cloud", sibling_app="APP.beverage.cloud",
-         sc="SC.emulsion.ow", dot="SC.emulsion.ow.beverage.milk",
-         family=["SC.emulsion.ow.beverage", "SC.emulsion.ow|APP.beverage"],
-         label="Oil-in-water emulsion milk-type beverage",
-         ko_label="수중유 에멀전 밀크형 음료",
-         ko_def="연속상이 물이고 지방 방울(1~3% 안팎)과 단백질·전분·고형분이 분산된 O/W 음료. "
-                "우유·두유·쌀음료·귀리음료처럼 뿌옇게 희고 가벼운 바디가 있으며, 크리밍·침전 없이 "
-                "고르게 유지되어야 하고 낮은 점도로 마신다.",
-         definition="O/W beverage with dispersed fat droplets (about 1-3%) plus protein, starch and "
-                    "solids: milk, soy, rice or oat drinks. Opaque white, light body, must stay "
-                    "uniform without creaming or sedimentation; low viscosity, consumed as a liquid.",
-         required=["FT.fat_source", "FT.emulsifier"]),
+    # 2026-09-11 (b) 에 beverage 를 cloud / milk 로 갈랐다가 09-12 에 되돌렸다 (TIDY 절).
+    # 유음료는 SC.emulsion.ow x APP.beverage 에 ING.milk 가 든 제품이지 별도 APP 이
+    # 아니다 - CLAUDE.md "제품의존은 없다". 음료 프로파일 하나가 클라우드와 유음료를
+    # 다 담도록 범위를 넓혔다.
     dict(key="dressing", app="APP.dressing", sibling="sauce_ow",
          sc="SC.emulsion.ow", dot="SC.emulsion.ow.dressing", dose_parent="SC.emulsion.ow.sauce",
          label="Oil-in-water emulsion dressing",
@@ -101,6 +96,11 @@ NEW = [
          definition="Solid-in-liquid dispersion used as a condiment or paste in small "
                     "amounts; concentrated in aroma and salt, spooned or spread.",
          required=["FT.particulate", "FT.thickener"]),
+]
+
+# 보류 (2026-09-12 사용자 결정). NEW 에 있으면 --write 가 다시 만들므로 여기 둔다.
+# 국·찌개는 제형이 아니라 음식이고, 건더기(>=5 mm 조각)는 particle 로 잴지부터 안 정해졌다.
+HELD = [
     dict(key="soup", app="APP.soup", sibling="suspension",
          sc="SC.suspension", dot="SC.suspension.soup",
          label="Suspension soup / stew",
@@ -181,6 +181,307 @@ def reach_count(scopes):
     return len(axes)
 
 
+# ---------------------------------------------------------------------------
+# TIDY (2026-09-12) - 사용자 결정. --tidy 로 적용.
+#   * beverage_milk 삭제, beverage_cloud -> beverage 되돌림. 재 보니 분리가 실어 나른
+#     것은 범위 두 행뿐이었다 (카드는 active_in 만 다르고, INGREDIENT 25건·RELATION
+#     12건 모두 가족 스코프에만 걸려 있었다).
+#   * soup 삭제 (보류. 사양은 HELD 에).
+#   * dressing · dip · condiment 와 부모(sauce · beverage) 범위 확정. 자식 범위는
+#     부모 안에 있어야 하므로 부모 행부터 적는다.
+# ---------------------------------------------------------------------------
+TIDY_REMOVE = ["beverage_milk", "soup"]
+TIDY_RENAME = dict(key="beverage_cloud", new_key="beverage",
+                   app="APP.beverage.cloud", new_app="APP.beverage",
+                   label="Oil-in-water emulsion cloud beverage", new_label="Oil-in-water emulsion beverage",
+                   ko_label="수중유 에멀전 클라우드 음료", new_ko_label="수중유 에멀전 음료")
+CONFIRMED = "literature; confirmed by user 2026-09-12"
+# (application, parameter, {field: value})
+TIDY_RANGES = [
+    # ---- beverage (부모): 클라우드 + 유음료를 한 프로파일이 담는다
+    ("APP.beverage", "P.oil_phase_fraction", dict(
+        range_basis="Flavor/cloud emulsions carry 10-100 ppm oil in the drink; milk-type beverages "
+                    "(ING.milk, plant milks) 0.1-4% fat, cream-added up to 5%. Which one it is comes "
+                    "from the ingredients, not the application. High phi belongs to sauce class.")),
+    ("APP.beverage", "P.droplet_size_d32", dict(
+        plausible_range="0.1 - 2.0 (cloud emulsions 0.2-0.5; homogenised milk-type 0.3-0.8, plant milks up to ~2)",
+        range_basis="Sub-micron droplets resist creaming and give stable cloud; milk-type tolerates up to ~2 um "
+                    "because protein and higher continuous-phase viscosity slow creaming; >2 um rings within shelf life.",
+        range_source="literature; widened 2026-09-12 to cover milk-type (was 0.1-1.0 cloud-only)",
+        range_confidence="medium")),
+    ("APP.beverage", "P.pH", dict(
+        plausible_range="2.8 - 7.2",
+        range_basis="Acidified cloud beverages (juice, carbonated) 2.8-3.8; milk-type neutral 6.2-7.2. "
+                    "Two stability regimes (electrostatic vs protein-stabilised), set by the ingredients.",
+        range_source="literature 2026-09-12", range_confidence="medium")),
+    ("APP.beverage", "P.soluble_solids_brix", dict(
+        plausible_range="0 - 15 degBx",
+        range_basis="Zero-sugar soft drinks near 0; juice drinks and sodas 8-13; milk and plant milks 6-13.",
+        range_source="literature 2026-09-12", range_confidence="medium")),
+    ("APP.beverage", "P.apparent_viscosity", dict(
+        plausible_range="0.001 - 0.05 Pa.s @50 1/s",
+        range_basis="Water 0.001, milk 0.002-0.003, starch-bearing plant milks and thick drinkable products 0.01-0.05.",
+        range_source="literature 2026-09-12", range_confidence="medium")),
+    # ---- sauce (부모): 09-11 draft 네 행 확정
+    ("APP.sauce", "P.apparent_viscosity", dict(range_source=CONFIRMED, range_confidence="medium")),
+    ("APP.sauce", "P.yield_stress", dict(range_source=CONFIRMED, range_confidence="medium")),
+    ("APP.sauce", "P.pH", dict(range_source=CONFIRMED, range_confidence="medium")),
+    ("APP.sauce", "P.soluble_solids_brix", dict(range_source=CONFIRMED, range_confidence="medium")),
+    # ---- dressing
+    ("APP.dressing", "P.oil_phase_fraction", dict(
+        plausible_range="0.05 - 0.60 (w/w)",
+        range_basis="pourable: vinaigrette 30-50%, creamy pourable (ranch, caesar) 45-55%, low-fat 5-20%",
+        range_source=CONFIRMED, range_confidence="medium")),
+    ("APP.dressing", "P.droplet_size_d32", dict(range_source=CONFIRMED, range_confidence="medium")),
+    ("APP.dressing", "P.apparent_viscosity", dict(range_source=CONFIRMED, range_confidence="medium")),
+    ("APP.dressing", "P.yield_stress", dict(
+        plausible_range="0 - 15 Pa",
+        range_basis="little or no standing structure - runs off a spoon; creamy pourable dressings 5-15 Pa; "
+                    "dip begins at 20",
+        range_source=CONFIRMED, range_confidence="medium")),
+    ("APP.dressing", "P.pH", dict(range_source=CONFIRMED, range_confidence="medium")),
+    ("APP.dressing", "P.soluble_solids_brix", dict(
+        plausible_range="5 - 30 degBx",
+        range_basis="sweet styles (honey-mustard, oriental) reach 25-30; a refractometer reads poorly on "
+                    "emulsions - calculate from the recipe",
+        range_source=CONFIRMED, range_confidence="medium")),
+    # ---- dip
+    ("APP.dip", "P.oil_phase_fraction", dict(
+        plausible_range="0.15 - 0.70 (w/w)",
+        range_basis="sour-cream/yogurt dips 15-25%, mayonnaise-based dips (aioli-type) 60-70%; "
+                    "0.75 is mayonnaise itself = sauce",
+        range_source=CONFIRMED, range_confidence="medium")),
+    ("APP.dip", "P.droplet_size_d32", dict(range_source=CONFIRMED, range_confidence="medium")),
+    ("APP.dip", "P.apparent_viscosity", dict(range_source=CONFIRMED, range_confidence="medium")),
+    ("APP.dip", "P.yield_stress", dict(
+        plausible_range="20 - 150 Pa",
+        range_basis="stands in the bowl, scoops - the axis that separates dip from dressing; "
+                    "upper bound is the parent sauce's 150",
+        range_source=CONFIRMED, range_confidence="medium")),
+    ("APP.dip", "P.pH", dict(
+        plausible_range="3.8 - 4.6",
+        range_basis="milder than dressing; 4.6 is the shelf-stable safety line (LESSON.ph_safety). "
+                    "Fresh refrigerated dips (sour cream, 4.6-5.0) sit outside this bound",
+        range_source=CONFIRMED, range_confidence="medium")),
+    ("APP.dip", "P.soluble_solids_brix", dict(range_source=CONFIRMED, range_confidence="medium")),
+    # ---- condiment (paste)
+    ("APP.condiment", "P.solids_volume_fraction", dict(range_source=CONFIRMED, range_confidence="medium")),
+    ("APP.condiment", "P.particle_size_d50", dict(
+        plausible_range="50 - 5000 micrometre",
+        range_basis="ground chilli/grain 50-500 um; whole or coarse bean pieces in doenjang/ssamjang 2-5 mm",
+        range_source=CONFIRMED, range_confidence="medium")),
+    ("APP.condiment", "P.particle_size_d90", dict(range_source=CONFIRMED, range_confidence="medium")),
+    ("APP.condiment", "P.pH", dict(range_source=CONFIRMED, range_confidence="medium")),
+    ("APP.condiment", "P.salt_in_water_phase", dict(
+        plausible_range="6 - 25 %",
+        range_basis="concentrated, eaten in small amounts - the axis that separates condiment from soup; "
+                    "low-salt gochujang ~4% salt / 45% moisture = ~9%",
+        range_source=CONFIRMED, range_confidence="medium")),
+    ("APP.condiment", "P.water_activity", dict(
+        plausible_range="0.65 - 0.90",
+        range_basis="fermented pastes sit at aw 0.75-0.85, well below the 0.93 C. botulinum line; no paste reaches 0.99",
+        range_source=CONFIRMED, range_confidence="medium")),
+    ("APP.condiment", "P.sedimentation_rate", dict(
+        plausible_range="0 - 1 mm/day",
+        range_basis="a paste is jammed / yield-stress-stabilised and does not sediment; not a failure axis here",
+        range_source=CONFIRMED, range_confidence="medium")),
+    ("APP.condiment", "P.serum_separation_index", dict(
+        plausible_range="0 - 10 %",
+        range_basis="syneresis (liquid weeping on the surface) occurs in fermented pastes but stays small",
+        range_source=CONFIRMED, range_confidence="medium")),
+    ("APP.condiment", "P.capsaicinoid_shu", dict(range_source=CONFIRMED, range_confidence="medium")),
+]
+REVIEWED = "reviewed 2026-09-12 - ranges confirmed (see range_source); rows without a range have none in the sibling either"
+TIDY_STATUS = {"APP.dressing": REVIEWED, "APP.dip": REVIEWED, "APP.condiment": REVIEWED}
+BEV_DEF = ("An O/W emulsion consumed as a liquid: oil or fat droplets dispersed in a drinkable aqueous phase, "
+           "from dilute cloud emulsions (flavor/cloud oil at ppm-to-low-percent) to milk-type beverages "
+           "(dairy or plant milk, 1-4% fat with protein and solids). Key quality is uniform opacity with no "
+           "visible oil ring, creaming or sediment; low viscosity. Whether it is a cloud drink or a milk "
+           "beverage is set by the ingredients (e.g. ING.milk), not by the application.")
+BEV_KO_DEF = ("마실 수 있는 수상에 기름·지방 방울이 분산된 O/W 에멀전이다. 향유·백탁유가 ppm~수 % 든 묽은 "
+              "클라우드 음료부터 지방 1~4% 에 단백질·고형분이 함께 든 유음료·식물성 밀크까지 한 제형이다. "
+              "핵심 품질은 기름 고리·크리밍·침전 없이 고르게 뿌연 상태를 유지하는 것이며 점도가 낮다. "
+              "클라우드 음료인지 유음료인지는 용도가 아니라 재료(예: ING.milk)가 정한다.")
+
+
+def _yscalar(v):
+    """YAML 한 줄 스칼라. 따옴표는 yaml 이 필요할 때만 붙인다."""
+    out = yaml.safe_dump(v, allow_unicode=True, width=10 ** 6).strip()
+    return out[:-4].rstrip() if out.endswith("\n...") else out.split("\n...")[0]
+
+
+def _split_blocks(lines):
+    """S2 텍스트를 프로파일 블록으로 가른다 -> [[start, end, app]]. start 는 바로 앞의
+    '# ---- ' 머리 주석과 빈 줄을 포함한다."""
+    starts = [i for i, ln in enumerate(lines) if ln.startswith("- structure_class:")]
+    blocks = []
+    for n, i in enumerate(starts):
+        end = starts[n + 1] if n + 1 < len(starts) else len(lines)
+        while end > i and (lines[end - 1].startswith("# ---- ") or not lines[end - 1].strip()):
+            end -= 1
+        app = None
+        for ln in lines[i:end]:
+            m = re.match(r"^  application: (\S+)", ln)
+            if m:
+                app = None if m.group(1) == "null" else m.group(1)
+                break
+        blocks.append([i, end, app])
+    for n in range(1, len(blocks)):
+        s = blocks[n][0]
+        while s > blocks[n - 1][1] and (lines[s - 1].startswith("# ---- ") or not lines[s - 1].strip()):
+            s -= 1
+        blocks[n][0] = s
+    return blocks
+
+
+def _set_param_fields(lines, pid, fields, log):
+    """파라미터 소블록의 필드를 바꾸거나, 없으면 id 줄 뒤에 넣는다. 바뀐 수를 돌려준다."""
+    try:
+        i = next(k for k, ln in enumerate(lines) if ln.rstrip() == f"  - id: {pid}")
+    except StopIteration:
+        log.append(f"      !! {pid} 없음"); return 0
+    j = i + 1
+    while j < len(lines) and lines[j].startswith("    "):
+        j += 1
+    changed = 0
+    for f, v in fields.items():
+        new = f"    {f}: {_yscalar(v)}"
+        cur = next((k for k in range(i + 1, j) if re.match(rf"^    {f}:", lines[k])), None)
+        if cur is not None:
+            old = yaml.safe_load(lines[cur][len(f) + 6:])
+            if old == v:
+                continue
+            log.append(f"      {pid}.{f}: {old!s} -> {v!s}")
+            lines[cur] = new
+        else:
+            log.append(f"      {pid}.{f}: (없음) -> {v!s}")
+            lines.insert(i + 1, new); j += 1
+        changed += 1
+    return changed
+
+
+def _groupby(rows):
+    out = {}
+    for app, pid, fields in rows:
+        out.setdefault(app, []).append((pid, fields))
+    return out.items()
+
+
+def tidy(write=False):
+    print("=" * 70)
+    print("  STRUCTURE 정리 (2026-09-12)" + ("" if write else "   (미리보기)"))
+    print("=" * 70)
+    s_lines = io.open(S_FILE, encoding="utf-8").read().split("\n")
+    loader = io.open(LOADER, encoding="utf-8").read()
+    n_changes = 0
+    blocks = _split_blocks(s_lines); by_app = {b[2]: b for b in blocks}
+
+    # ---- 1 프로파일 빼기
+    for key in TIDY_REMOVE:
+        spec = next((d for d in NEW + HELD if d["key"] == key), None)
+        app = spec["app"] if spec else "APP." + key.replace("_", ".")
+        card = os.path.join(LAYERS, f"layerM_cards_{key}.yaml")
+        reg = f"    '{key}': dict("
+        b = by_app.get(app)
+        have_c, have_r = os.path.exists(card), reg in loader
+        if not (b or have_c or have_r):
+            print(f"  삭제 {key:<14} 이미 없음"); continue
+        print(f"  삭제 {key:<14} S2 {('%d줄' % (b[1] - b[0])) if b else '-':>6} · "
+              f"카드 {'있음' if have_c else '-'} · 등록 {'있음' if have_r else '-'}")
+        n_changes += 1
+        if b:
+            s_lines[b[0]:b[1]] = []
+            blocks = _split_blocks(s_lines); by_app = {x[2]: x for x in blocks}
+        if have_c and write:
+            os.remove(card)
+        if have_r:
+            a = loader.index(reg); e = loader.index("}),\n", a) + len("}),\n")
+            loader = loader[:a] + loader[e:]
+
+    # ---- 2 APP 이름 되돌리기
+    R = TIDY_RENAME
+    old_card = os.path.join(LAYERS, f"layerM_cards_{R['key']}.yaml")
+    new_card = os.path.join(LAYERS, f"layerM_cards_{R['new_key']}.yaml")
+    b = by_app.get(R["app"])
+    reg = f"    '{R['key']}': dict("
+    if b or os.path.exists(old_card) or reg in loader:
+        print(f"  이름 {R['app']} -> {R['new_app']}  ({R['key']} -> {R['new_key']}: S2 {'있음' if b else '-'} · "
+              f"카드 {'있음' if os.path.exists(old_card) else '-'} · 등록 {'있음' if reg in loader else '-'})")
+        n_changes += 1
+        if b:
+            for k in range(b[0], b[1]):
+                ln = s_lines[k]
+                if ln.startswith("  application: " + R["app"]):
+                    s_lines[k] = (f"  application: {R['new_app']}   # 2026-09-12: 09-11 의 cloud/milk 분리를 되돌렸다. "
+                                  f"유음료는 ING.milk 가 정한다 (tools/add_application.py --tidy)")
+                elif ln == f"  label: {R['label']}":
+                    s_lines[k] = f"  label: {R['new_label']}"
+                elif ln.strip() == f"label: '{R['ko_label']}'":
+                    s_lines[k] = f"    label: '{R['new_ko_label']}'"
+            k_ko = next(k for k in range(b[0], b[1]) if s_lines[k].startswith("    definition: "))
+            s_lines[k_ko] = "    definition: " + _yscalar(BEV_KO_DEF)
+            k_en = next(k for k in range(b[0], b[1]) if s_lines[k].startswith("  definition: "))
+            k_end = next(k for k in range(k_en + 1, b[1]) if not s_lines[k].startswith("    "))
+            s_lines[k_en:k_end] = ["  definition: " + _yscalar(BEV_DEF)]
+            blocks = _split_blocks(s_lines); by_app = {x[2]: x for x in blocks}
+        if os.path.exists(old_card):
+            t = io.open(old_card, encoding="utf-8").read()
+            t = t.replace(f"SC.emulsion.ow|{R['app']}", f"SC.emulsion.ow|{R['new_app']}")
+            t = t.replace(f"  profile: {R['label']}", f"  profile: {R['new_label']}")
+            print(f"      카드 {os.path.basename(old_card)} -> {os.path.basename(new_card)}  (active_in {t.count(R['new_app'])}곳)")
+            if write:
+                io.open(new_card, "w", encoding="utf-8", newline="\n").write(t)
+                os.remove(old_card)
+        if reg in loader:
+            a = loader.index(reg); e = loader.index("}),\n", a) + len("}),\n")
+            c = loader.rfind("\n    # 2026-09-11: 'beverage' 를 beverage_cloud", 0, a)
+            if c != -1 and loader[c + 1:a].count("\n") <= 5:
+                a = c + 1
+            loader = (loader[:a]
+                      + "    # 2026-09-11 에 beverage_cloud / beverage_milk 로 갈랐다가 09-12 에 되돌렸다.\n"
+                      + "    # 유음료는 SC.emulsion.ow x APP.beverage 에 ING.milk 가 든 제품이지 별도 APP 이\n"
+                      + "    # 아니다 - CLAUDE.md '제품의존은 없다'. 음료 프로파일 하나가 클라우드와 유음료를\n"
+                      + "    # 다 담도록 범위를 넓혔다 (tools/add_application.py --tidy).\n"
+                      + f"    '{R['new_key']}': dict(\n"
+                      + f"        cards=['layerM_cards_{R['new_key']}.yaml'],\n"
+                      + "        scopes={'any', 'SC.emulsion.ow', 'SC.emulsion.ow.beverage', 'SC.emulsion.ow|APP.beverage'}),\n"
+                      + loader[e:])
+    else:
+        print(f"  이름 {R['new_app']}  이미 됨")
+
+    # ---- 3 범위
+    for app, group in _groupby(TIDY_RANGES):
+        b = by_app.get(app)
+        if not b:
+            print(f"  범위 {app:<15} !! 프로파일 없음"); continue
+        seg = s_lines[b[0]:b[1]]
+        log, n = [], 0
+        for pid, fields in group:
+            n += _set_param_fields(seg, pid, fields, log)
+        st = TIDY_STATUS.get(app)
+        if st:
+            k = next((i for i, ln in enumerate(seg) if ln.startswith("  status: ")), None)
+            if k is not None and seg[k] != "  status: " + _yscalar(st):
+                log.append(f"      status: {seg[k][10:]} -> {st[:30]}..."); seg[k] = "  status: " + _yscalar(st); n += 1
+        print(f"  범위 {app:<15} 바뀌는 필드 {n}")
+        for ln in log:
+            print(ln)
+        if n:
+            s_lines[b[0]:b[1]] = seg
+            blocks = _split_blocks(s_lines); by_app = {x[2]: x for x in blocks}
+            n_changes += n
+
+    if not n_changes:
+        print("\n  바꿀 것 없음"); return 0
+    if not write:
+        print("\n  실제로 고치려면: python tools/add_application.py --tidy --write")
+        return 0
+    io.open(S_FILE, "w", encoding="utf-8", newline="\n").write("\n".join(s_lines).rstrip("\n") + "\n")
+    io.open(LOADER, "w", encoding="utf-8", newline="\n").write(loader)
+    print(f"\n  썼다: {os.path.basename(S_FILE)} · {os.path.basename(LOADER)} · 카드 파일")
+    return 0
+
+
 def main(write=False):
     S = load_s()
     have = {sp.get("application") for sp in S["structure_profiles"]}
@@ -238,4 +539,6 @@ def main(write=False):
 
 
 if __name__ == "__main__":
+    if "--tidy" in sys.argv:
+        sys.exit(tidy(write="--write" in sys.argv))
     sys.exit(main(write="--write" in sys.argv))

@@ -32,7 +32,7 @@ meta:
   id: RV_rice_milk
   ko: 쌀 음료
   kind: product
-  structure: beverage_milk   # 2026-09-11: beverage 를 cloud/milk 로 가른 뒤 milk 로. 쌀음료는 식물성 밀크다
+  structure: beverage   # 2026-09-12 [S1->S5]: beverage_milk 를 없앴다. 유음료·식물성 밀크는 APP 이 아니라 재료가 정한다 (tools/add_application.py --tidy)
   data: data/beverage_warmloop_260720.xlsx
   process_block: RM-P1
   moved_from: ontology_v2/layers/layerM_cards_beverage_rice_milk.yaml

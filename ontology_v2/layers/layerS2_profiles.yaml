@@ -211,17 +211,15 @@ structure_profiles:
   filler: ING.water
   filler_note: filler = aqueous phase of the mix (water); displaced by solids/fat additions
 - structure_class: SC.emulsion.ow
-  application: APP.beverage.cloud   # 2026-09-11: APP.beverage 를 cloud / milk 로 갈랐다. APP.beverage 는 둘의 가족 스코프로 남는다
+  application: APP.beverage   # 2026-09-12: 09-11 의 cloud/milk 분리를 되돌렸다. 유음료는 ING.milk 가 정한다 (tools/add_application.py --tidy)
   state: null
-  label: Oil-in-water emulsion cloud beverage
+  label: Oil-in-water emulsion beverage
   required_functions: [FT.fat_source, FT.emulsifier]
   required_functions_note: '분산상(기름)과 그것을 붙잡는 계면 활성이 없으면 O/W 에멀전이 아니다.'
   ko:
-    label: '수중유 에멀전 클라우드 음료'
-    definition: '마실 수 있는 수상에 기름이 묽게 분산된 O/W 에멀전이다(기름이 ppm~수 % 수준인 경우가 많다). 기름 방울이 향유·백탁·색·지용성 성분을 실어 나른다. 핵심 품질은 눈에 보이는 기름 고리 없이 고르게 뿌연 상태를 유지하는 것이며, 점도가 낮아 액체로 마신다.'
-  definition: A DILUTE O/W emulsion (oil often ppm-to-low-percent) dispersed in a drinkable aqueous phase. Oil droplets
-    carry flavor oil, cloud, color or fat-soluble actives. Key quality is a STABLE CLOUD (uniform turbidity) with
-    no visible oil ring; the system is low-viscosity and consumed as a liquid.
+    label: '수중유 에멀전 음료'
+    definition: '마실 수 있는 수상에 기름·지방 방울이 분산된 O/W 에멀전이다. 향유·백탁유가 ppm~수 % 든 묽은 클라우드 음료부터 지방 1~4% 에 단백질·고형분이 함께 든 유음료·식물성 밀크까지 한 제형이다. 핵심 품질은 기름 고리·크리밍·침전 없이 고르게 뿌연 상태를 유지하는 것이며 점도가 낮다. 클라우드 음료인지 유음료인지는 용도가 아니라 재료(예: ING.milk)가 정한다.'
+  definition: 'An O/W emulsion consumed as a liquid: oil or fat droplets dispersed in a drinkable aqueous phase, from dilute cloud emulsions (flavor/cloud oil at ppm-to-low-percent) to milk-type beverages (dairy or plant milk, 1-4% fat with protein and solids). Key quality is uniform opacity with no visible oil ring, creaming or sediment; low viscosity. Whether it is a cloud drink or a milk beverage is set by the ingredients (e.g. ING.milk), not by the application.'
   dominant_axes:
   - continuous_phase
   - dispersed_phase
@@ -233,7 +231,7 @@ structure_profiles:
   - id: P.oil_phase_fraction
     question_origin: defining
     plausible_range: 0.0001 - 0.15 (dilute; flavor/cloud emulsions often 10-100 ppm oil in final drink)
-    range_basis: Beverage emulsions are dilute; high phi belongs to sauce class.
+    range_basis: Flavor/cloud emulsions carry 10-100 ppm oil in the drink; milk-type beverages (ING.milk, plant milks) 0.1-4% fat, cream-added up to 5%. Which one it is comes from the ingredients, not the application. High phi belongs to sauce class.
     range_source: literature
     range_confidence: medium
     governing_mechanism: Sets cloud intensity and flavor load; far lower than sauce.
@@ -243,10 +241,10 @@ structure_profiles:
     role: primary
   - id: P.droplet_size_d32
     question_origin: defining
-    plausible_range: 0.1 - 1.0 (sub-micron needed for cloud stability; 0.2-0.5 typical)
-    range_basis: Sub-micron droplets resist creaming and give stable cloud; >1 um creams/rings quickly.
-    range_source: literature
-    range_confidence: high
+    plausible_range: 0.1 - 2.0 (cloud emulsions 0.2-0.5; homogenised milk-type 0.3-0.8, plant milks up to ~2)
+    range_basis: Sub-micron droplets resist creaming and give stable cloud; milk-type tolerates up to ~2 um because protein and higher continuous-phase viscosity slow creaming; >2 um rings within shelf life.
+    range_source: literature; widened 2026-09-12 to cover milk-type (was 0.1-1.0 cloud-only)
+    range_confidence: medium
     governing_mechanism: Smaller droplets = slower creaming + more uniform cloud; must be matched by enough emulsifier
       to cover interface.
     driven_by:
@@ -296,6 +294,10 @@ structure_profiles:
     - cloud_oil
     role: primary
   - id: P.apparent_viscosity
+    range_confidence: medium
+    range_source: literature 2026-09-12
+    range_basis: Water 0.001, milk 0.002-0.003, starch-bearing plant milks and thick drinkable products 0.01-0.05.
+    plausible_range: 0.001 - 0.05 Pa.s @50 1/s
     question_origin: perception
     governing_mechanism: Low in beverages; minor body/mouthfeel contribution; sugar contributes here (low-sugar
       -> watery).
@@ -304,6 +306,10 @@ structure_profiles:
     - thickener_optional
     role: secondary
   - id: P.soluble_solids_brix
+    range_confidence: medium
+    range_source: literature 2026-09-12
+    range_basis: Zero-sugar soft drinks near 0; juice drinks and sodas 8-13; milk and plant milks 6-13.
+    plausible_range: 0 - 15 degBx
     question_origin: perception
     governing_mechanism: Sweetness AND body/density; sugar reduction gives 'watery' defect (mouthfeel loss).
     driven_by:
@@ -311,6 +317,10 @@ structure_profiles:
     - sweetener
     role: primary
   - id: P.pH
+    range_confidence: medium
+    range_source: literature 2026-09-12
+    range_basis: Acidified cloud beverages (juice, carbonated) 2.8-3.8; milk-type neutral 6.2-7.2. Two stability regimes (electrostatic vs protein-stabilised), set by the ingredients.
+    plausible_range: 2.8 - 7.2
     question_origin: perception
     governing_mechanism: Sourness onset; also affects emulsifier charge & microbial stability.
     driven_by:
@@ -432,8 +442,8 @@ structure_profiles:
     role: secondary
   - id: P.apparent_viscosity
     plausible_range: '0.5 - 50 Pa.s @50 1/s'
-    range_source: literature draft 2026-09-11
-    range_confidence: draft
+    range_source: literature; confirmed by user 2026-09-12
+    range_confidence: medium
     range_basis: 'wide: pourable to spoonable. Dressing (<2) and dip (>2, yield stress) split this range'
     question_origin: perception
     governing_mechanism: Aqueous-phase thickening + droplet crowding; primary driver of thickness/cling.
@@ -444,8 +454,8 @@ structure_profiles:
     role: primary
   - id: P.yield_stress
     plausible_range: '0 - 150 Pa'
-    range_source: literature draft 2026-09-11
-    range_confidence: draft
+    range_source: literature; confirmed by user 2026-09-12
+    range_confidence: medium
     range_basis: mayonnaise-like semi-solids at the top
     question_origin: perception
     governing_mechanism: Thickener/particle network + high-phi packing; enables standing/scoopable texture.
@@ -462,8 +472,8 @@ structure_profiles:
     role: secondary
   - id: P.pH
     plausible_range: '3.2 - 4.5'
-    range_source: literature draft 2026-09-11
-    range_confidence: draft
+    range_source: literature; confirmed by user 2026-09-12
+    range_confidence: medium
     range_basis: acidified for safety and identity
     question_origin: perception
     governing_mechanism: Sets emulsifier/protein charge & stability; onset/sharpness of sour taste.
@@ -473,8 +483,8 @@ structure_profiles:
     role: secondary
   - id: P.soluble_solids_brix
     plausible_range: '5 - 30 degBx'
-    range_source: literature draft 2026-09-11
-    range_confidence: draft
+    range_source: literature; confirmed by user 2026-09-12
+    range_confidence: medium
     question_origin: perception
     governing_mechanism: Dissolved sugars/solids; objective correlate of sweetness; also adds body/viscosity.
     driven_by:
@@ -808,10 +818,10 @@ structure_profiles:
   parameters:
   - id: P.oil_phase_fraction
     question_origin: defining
-    plausible_range: 0.05 - 0.50 (w/w)
-    range_basis: 'pourable: vinaigrette 30-50%, low-fat 5-20%'
-    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
-    range_confidence: draft
+    plausible_range: 0.05 - 0.60 (w/w)
+    range_basis: 'pourable: vinaigrette 30-50%, creamy pourable (ranch, caesar) 45-55%, low-fat 5-20%'
+    range_source: literature; confirmed by user 2026-09-12
+    range_confidence: medium
     governing_mechanism: Volume fraction sets droplet packing, viscosity, opacity, richness.
     driven_by:
     - oil
@@ -821,8 +831,8 @@ structure_profiles:
     question_origin: defining
     plausible_range: 0.5 - 100 micrometre (macroemulsion; <0.2 = nanoemulsion class)
     range_basis: Below ~0.2 um = nanoemulsion (distinct structure class); above ~100 um coarse/unstable.
-    range_source: copied from Oil-in-water emulsion sauce
-    range_confidence: draft
+    range_source: literature; confirmed by user 2026-09-12
+    range_confidence: medium
     governing_mechanism: Set by emulsifier coverage and homogenization energy; smaller = whiter, creamier,
       more stable.
     driven_by:
@@ -876,8 +886,8 @@ structure_profiles:
     - oil
     - droplet_packing
     role: primary
-    range_confidence: draft
-    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
+    range_confidence: medium
+    range_source: literature; confirmed by user 2026-09-12
     plausible_range: 0.05 - 2 Pa.s @50 1/s
     range_basis: pours under gravity; the axis that separates dressing from dip
   - id: P.yield_stress
@@ -887,10 +897,10 @@ structure_profiles:
     - thickener
     - oil_phase_fraction
     role: primary
-    range_confidence: draft
-    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
-    plausible_range: 0 - 5 Pa
-    range_basis: no standing structure - it runs off a spoon
+    range_confidence: medium
+    range_source: literature; confirmed by user 2026-09-12
+    plausible_range: 0 - 15 Pa
+    range_basis: little or no standing structure - runs off a spoon; creamy pourable dressings 5-15 Pa; dip begins at 20
   - id: P.gloss_optical
     question_origin: perception
     governing_mechanism: Surface reflectance and light scattering set by droplet size and oil fraction.
@@ -907,11 +917,12 @@ structure_profiles:
     - acid
     - vinegar
     role: secondary
-    range_confidence: draft
-    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
+    range_confidence: medium
+    range_source: literature; confirmed by user 2026-09-12
     plausible_range: 3.0 - 4.2
     range_basis: acidified; acidity is usually the identity
   - id: P.soluble_solids_brix
+    range_basis: sweet styles (honey-mustard, oriental) reach 25-30; a refractometer reads poorly on emulsions - calculate from the recipe
     question_origin: perception
     governing_mechanism: Dissolved sugars/solids; objective correlate of sweetness; also adds body/viscosity.
     driven_by:
@@ -919,9 +930,9 @@ structure_profiles:
     - sweetener
     - bulking_agent
     role: primary
-    range_confidence: draft
-    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
-    plausible_range: 5 - 25 degBx
+    range_confidence: medium
+    range_source: literature; confirmed by user 2026-09-12
+    plausible_range: 5 - 30 degBx
   - id: P.titratable_acidity
     question_origin: perception
     governing_mechanism: Total acid available to neutralize; magnitude/duration of sour taste (complements
@@ -1024,7 +1035,7 @@ structure_profiles:
   filler: ING.water
   derived_from: Oil-in-water emulsion sauce
   derived_on: '2026-09-11'
-  status: DRAFT - ranges copied from sibling, review before trusting
+  status: reviewed 2026-09-12 - ranges confirmed (see range_source); rows without a range have none in the sibling either
   discriminators:
   - P.oil_phase_fraction
   - P.apparent_viscosity
@@ -1053,11 +1064,11 @@ structure_profiles:
   parameters:
   - id: P.oil_phase_fraction
     question_origin: defining
-    plausible_range: 0.15 - 0.60 (w/w)
-    range_basis: O/W stable across wide phi; near random close packing (~0.64-0.74) crowding/phase-inversion
+    plausible_range: 0.15 - 0.70 (w/w)
+    range_basis: sour-cream/yogurt dips 15-25%, mayonnaise-based dips (aioli-type) 60-70%; 0.75 is mayonnaise itself = sauce
       risk rises without HIPE-style formulation. Product targets -> profiles file.
-    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
-    range_confidence: draft
+    range_source: literature; confirmed by user 2026-09-12
+    range_confidence: medium
     governing_mechanism: Volume fraction sets droplet packing, viscosity, opacity, richness.
     driven_by:
     - oil
@@ -1067,8 +1078,8 @@ structure_profiles:
     question_origin: defining
     plausible_range: 0.5 - 100 micrometre (macroemulsion; <0.2 = nanoemulsion class)
     range_basis: Below ~0.2 um = nanoemulsion (distinct structure class); above ~100 um coarse/unstable.
-    range_source: copied from Oil-in-water emulsion sauce
-    range_confidence: draft
+    range_source: literature; confirmed by user 2026-09-12
+    range_confidence: medium
     governing_mechanism: Set by emulsifier coverage and homogenization energy; smaller = whiter, creamier,
       more stable.
     driven_by:
@@ -1122,8 +1133,8 @@ structure_profiles:
     - oil
     - droplet_packing
     role: primary
-    range_confidence: draft
-    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
+    range_confidence: medium
+    range_source: literature; confirmed by user 2026-09-12
     plausible_range: 2 - 30 Pa.s @50 1/s
     range_basis: holds on a chip
   - id: P.yield_stress
@@ -1133,10 +1144,10 @@ structure_profiles:
     - thickener
     - oil_phase_fraction
     role: primary
-    range_confidence: draft
-    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
-    plausible_range: 20 - 200 Pa
-    range_basis: stands in the bowl, scoops - the axis that separates dip from dressing
+    range_confidence: medium
+    range_source: literature; confirmed by user 2026-09-12
+    plausible_range: 20 - 150 Pa
+    range_basis: stands in the bowl, scoops - the axis that separates dip from dressing; upper bound is the parent sauce's 150
   - id: P.gloss_optical
     question_origin: perception
     governing_mechanism: Surface reflectance and light scattering set by droplet size and oil fraction.
@@ -1153,10 +1164,10 @@ structure_profiles:
     - acid
     - vinegar
     role: secondary
-    range_confidence: draft
-    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
-    plausible_range: 3.8 - 5.0
-    range_basis: milder than dressing
+    range_confidence: medium
+    range_source: literature; confirmed by user 2026-09-12
+    plausible_range: 3.8 - 4.6
+    range_basis: milder than dressing; 4.6 is the shelf-stable safety line (LESSON.ph_safety). Fresh refrigerated dips (sour cream, 4.6-5.0) sit outside this bound
   - id: P.soluble_solids_brix
     question_origin: perception
     governing_mechanism: Dissolved sugars/solids; objective correlate of sweetness; also adds body/viscosity.
@@ -1165,8 +1176,8 @@ structure_profiles:
     - sweetener
     - bulking_agent
     role: primary
-    range_confidence: draft
-    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
+    range_confidence: medium
+    range_source: literature; confirmed by user 2026-09-12
     plausible_range: 5 - 20 degBx
   - id: P.titratable_acidity
     question_origin: perception
@@ -1270,7 +1281,7 @@ structure_profiles:
   filler: ING.water
   derived_from: Oil-in-water emulsion sauce
   derived_on: '2026-09-11'
-  status: DRAFT - ranges copied from sibling, review before trusting
+  status: reviewed 2026-09-12 - ranges confirmed (see range_source); rows without a range have none in the sibling either
   discriminators:
   - P.oil_phase_fraction
   - P.apparent_viscosity
@@ -1305,18 +1316,18 @@ structure_profiles:
     question_origin: defining
     plausible_range: 0.30 - 0.60 (v/v)
     range_basis: paste; gochujang, doenjang, ssamjang
-    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
-    range_confidence: draft
+    range_source: literature; confirmed by user 2026-09-12
+    range_confidence: medium
     governing_mechanism: Sets opacity, body, and whether the system settles at all or jams into a network.
     driven_by:
     - FT.particulate
     role: primary
   - id: P.particle_size_d50
     question_origin: defining
-    plausible_range: 50 - 2000 micrometre
-    range_basis: ground grain/bean/chilli
-    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
-    range_confidence: draft
+    plausible_range: 50 - 5000 micrometre
+    range_basis: ground chilli/grain 50-500 um; whole or coarse bean pieces in doenjang/ssamjang 2-5 mm
+    range_source: literature; confirmed by user 2026-09-12
+    range_confidence: medium
     governing_mechanism: Squared term in Stokes settling; also sets perceived piece size.
     driven_by:
     - FT.particulate
@@ -1329,8 +1340,8 @@ structure_profiles:
     plausible_range: 10 - 8000 micrometre
     range_basis: Oral grit detection begins near 30 um. Perception tracks the COARSE TAIL, not the mean
       - a product with a fine d50 and a coarse d90 is perceived as gritty.
-    range_source: copied from Suspension (solid-in-liquid dispersion)
-    range_confidence: draft
+    range_source: literature; confirmed by user 2026-09-12
+    range_confidence: medium
     governing_mechanism: The largest particles determine perceived grittiness; the mean does not.
     role: primary
     cross_links:
@@ -1339,11 +1350,11 @@ structure_profiles:
       d50 can differ completely in mouthfeel.
   - id: P.sedimentation_rate
     question_origin: defining
-    plausible_range: 0 - 20 mm/day
-    range_basis: Zero when jammed or yield-stress-stabilised. Consumer-visible settling in a 200 mm bottle
+    plausible_range: 0 - 1 mm/day
+    range_basis: a paste is jammed / yield-stress-stabilised and does not sediment; not a failure axis here
       appears within days above ~2 mm/day.
-    range_source: copied from Suspension (solid-in-liquid dispersion)
-    range_confidence: draft
+    range_source: literature; confirmed by user 2026-09-12
+    range_confidence: medium
     governing_mechanism: 'Stokes: proportional to d^2 and to density difference, inversely to continuous-phase
       viscosity. Suppressed entirely above the jamming threshold or above the yield stress needed to support
       a particle.'
@@ -1359,10 +1370,10 @@ structure_profiles:
       for - it cannot be answered at T0 by anyone.
   - id: P.serum_separation_index
     question_origin: defining
-    plausible_range: 0 - 30 %
-    range_basis: Above roughly 5% a clear rim is obvious in a transparent container and is read as spoilage.
-    range_source: copied from Suspension (solid-in-liquid dispersion)
-    range_confidence: draft
+    plausible_range: 0 - 10 %
+    range_basis: syneresis (liquid weeping on the surface) occurs in fermented pastes but stays small
+    range_source: literature; confirmed by user 2026-09-12
+    range_confidence: medium
     governing_mechanism: Water expelled from a weakly flocculated network, or released from soft particles
       that shrink on standing.
     driven_by:
@@ -1375,8 +1386,8 @@ structure_profiles:
     question_origin: defining
     plausible_range: 4.5 - 6.0
     range_basis: fermented
-    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
-    range_confidence: draft
+    range_source: literature; confirmed by user 2026-09-12
+    range_confidence: medium
     governing_mechanism: Governs C. botulinum outgrowth and most spoilage; also directly changes perceived
       sourness, colour of anthocyanin and chlorophyll systems, and hydrocolloid behaviour.
     driven_by:
@@ -1390,11 +1401,11 @@ structure_profiles:
       '
   - id: P.water_activity
     question_origin: defining
-    plausible_range: 0.60 - 0.99
-    range_basis: C. botulinum growth is inhibited below 0.93; most bacteria below 0.91; moulds and osmophilic
+    plausible_range: 0.65 - 0.90
+    range_basis: fermented pastes sit at aw 0.75-0.85, well below the 0.93 C. botulinum line; no paste reaches 0.99
       yeasts persist to ~0.61.
-    range_source: copied from Suspension (solid-in-liquid dispersion)
-    range_confidence: draft
+    range_source: literature; confirmed by user 2026-09-12
+    range_confidence: medium
     governing_mechanism: Available water for microbial growth. A hurdle that combines multiplicatively
       with pH and temperature rather than substituting for either.
     driven_by:
@@ -1402,10 +1413,10 @@ structure_profiles:
     role: primary
   - id: P.salt_in_water_phase
     question_origin: derived
-    plausible_range: 8 - 25 %
-    range_basis: 'concentrated: eaten in small amounts - the axis that separates condiment from soup'
-    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
-    range_confidence: draft
+    plausible_range: 6 - 25 %
+    range_basis: concentrated, eaten in small amounts - the axis that separates condiment from soup; low-salt gochujang ~4% salt / 45% moisture = ~9%
+    range_source: literature; confirmed by user 2026-09-12
+    range_confidence: medium
     governing_mechanism: Microbial inhibition depends on concentration in the water, not on the whole-product
       figure.
     driven_by:
@@ -1419,8 +1430,8 @@ structure_profiles:
     plausible_range: 0 - 50,000 SHU
     range_basis: Table sauces span roughly 500-30,000 SHU; above that the category is a specialty extract
       product.
-    range_source: copied from Suspension (solid-in-liquid dispersion)
-    range_confidence: draft
+    range_source: literature; confirmed by user 2026-09-12
+    range_confidence: medium
     governing_mechanism: Capsaicinoid concentration drives TRPV1 activation. Perceived heat is sublinear
       in concentration and is blunted by fat and by sugar.
     driven_by:
@@ -1487,396 +1498,9 @@ structure_profiles:
   filler: ING.water
   derived_from: Suspension (solid-in-liquid dispersion)
   derived_on: '2026-09-11'
-  status: DRAFT - ranges copied from sibling, review before trusting
+  status: reviewed 2026-09-12 - ranges confirmed (see range_source); rows without a range have none in the sibling either
   discriminators:
   - P.solids_volume_fraction
   - P.particle_size_d50
   - P.pH
   - P.salt_in_water_phase
-- structure_class: SC.suspension
-  application: APP.soup
-  state: null
-  label: Suspension soup / stew
-  required_functions:
-  - FT.particulate
-  required_functions_note: 분산될 고체와, 그것이 가라앉지 않게 하는 수상 증점이 이 제형의 뼈대다.
-  ko:
-    label: 현탁 수프·국
-    definition: 녹지 않는 고체 입자가 연속 액상에 분산된 계. 국·찌개·수프처럼 그릇째 먹는 용도라 묽고 양이 많으며 건더기가 씹힌다.
-  definition: Solid-in-liquid dispersion eaten by the bowl; dilute, high volume, with perceptible pieces.
-  dominant_axes:
-  - dispersion
-  - stability
-  - appearance
-  - rheology
-  boundary_note: 'Against SC.solution: a solution is transparent and has no dispersed phase. Against SC.emulsion.ow:
-    the dispersed phase is solid, not liquid - it will not coalesce and cannot be refined by emulsifier
-    choice. Against SC.gel: a gel is self-supporting throughout; a suspension flows. A high-solids suspension
-    that develops a yield stress sits on that boundary and is best described as a suspension WITH yield
-    stress rather than as a gel.'
-  parameters:
-  - id: P.solids_volume_fraction
-    question_origin: defining
-    plausible_range: 0.02 - 0.20 (v/v)
-    range_basis: dilute; eaten by the bowl
-    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
-    range_confidence: draft
-    governing_mechanism: Sets opacity, body, and whether the system settles at all or jams into a network.
-    driven_by:
-    - FT.particulate
-    role: primary
-  - id: P.particle_size_d50
-    question_origin: defining
-    plausible_range: 500 - 5000 micrometre
-    range_basis: pieces you chew
-    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
-    range_confidence: draft
-    governing_mechanism: Squared term in Stokes settling; also sets perceived piece size.
-    driven_by:
-    - FT.particulate
-    - process_milling
-    role: primary
-    cross_links:
-    - L.tx.perceived_piece_size
-  - id: P.particle_size_d90
-    question_origin: derived
-    plausible_range: 10 - 8000 micrometre
-    range_basis: Oral grit detection begins near 30 um. Perception tracks the COARSE TAIL, not the mean
-      - a product with a fine d50 and a coarse d90 is perceived as gritty.
-    range_source: copied from Suspension (solid-in-liquid dispersion)
-    range_confidence: draft
-    governing_mechanism: The largest particles determine perceived grittiness; the mean does not.
-    role: primary
-    cross_links:
-    - L.tx.grittiness
-    note: Reporting only a mean particle size is the standard mistake here. Two batches with the same
-      d50 can differ completely in mouthfeel.
-  - id: P.sedimentation_rate
-    question_origin: defining
-    plausible_range: 0 - 20 mm/day
-    range_basis: Zero when jammed or yield-stress-stabilised. Consumer-visible settling in a 200 mm bottle
-      appears within days above ~2 mm/day.
-    range_source: copied from Suspension (solid-in-liquid dispersion)
-    range_confidence: draft
-    governing_mechanism: 'Stokes: proportional to d^2 and to density difference, inversely to continuous-phase
-      viscosity. Suppressed entirely above the jamming threshold or above the yield stress needed to support
-      a particle.'
-    driven_by:
-    - P.particle_size_d50
-    - P.density_difference
-    - P.apparent_viscosity
-    - P.yield_stress
-    role: primary
-    cross_links:
-    - L.ap.sediment
-    note: Cheap to measure and slow to reveal itself. This is exactly the parameter a keeping trial exists
-      for - it cannot be answered at T0 by anyone.
-  - id: P.serum_separation_index
-    question_origin: defining
-    plausible_range: 0 - 30 %
-    range_basis: Above roughly 5% a clear rim is obvious in a transparent container and is read as spoilage.
-    range_source: copied from Suspension (solid-in-liquid dispersion)
-    range_confidence: draft
-    governing_mechanism: Water expelled from a weakly flocculated network, or released from soft particles
-      that shrink on standing.
-    driven_by:
-    - FT.thickener
-    - FT.particulate
-    role: primary
-    cross_links:
-    - L.ap.serum_layer
-  - id: P.pH
-    question_origin: defining
-    plausible_range: 5.0 - 7.0
-    range_basis: 4.6 is the regulatory and microbiological dividing line for acidified shelf-stable foods;
-      below ~3.0 most products are too sour to eat as a sauce.
-    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
-    range_confidence: draft
-    governing_mechanism: Governs C. botulinum outgrowth and most spoilage; also directly changes perceived
-      sourness, colour of anthocyanin and chlorophyll systems, and hydrocolloid behaviour.
-    driven_by:
-    - FT.acidulant
-    - FT.fermented_paste
-    role: primary
-    note: 'EQUILIBRIUM pH, not the pH of the liquid poured off. A chunky product can read 4.2 in the serum
-      while the inside of a pepper piece is still above 4.6, and the piece is where growth happens. Measure
-      after homogenising, and after the product has stood long enough for the pieces to equilibrate.
-
-      '
-  - id: P.water_activity
-    question_origin: defining
-    plausible_range: 0.60 - 0.99
-    range_basis: C. botulinum growth is inhibited below 0.93; most bacteria below 0.91; moulds and osmophilic
-      yeasts persist to ~0.61.
-    range_source: copied from Suspension (solid-in-liquid dispersion)
-    range_confidence: draft
-    governing_mechanism: Available water for microbial growth. A hurdle that combines multiplicatively
-      with pH and temperature rather than substituting for either.
-    driven_by:
-    - FT.aw_depressant
-    role: primary
-  - id: P.salt_in_water_phase
-    question_origin: derived
-    plausible_range: 0.5 - 2.0 %
-    range_basis: seasoning level - the axis that separates soup from condiment
-    range_source: literature draft 2026-09-11 (tools/add_application.py + hand ranges)
-    range_confidence: draft
-    governing_mechanism: Microbial inhibition depends on concentration in the water, not on the whole-product
-      figure.
-    driven_by:
-    - FT.aw_depressant
-    - FT.umami_source
-    role: secondary
-    note: Routinely confused with total salt. In a 40% oil sauce the water-phase salt is nearly double
-      the label figure, and it is the water-phase figure that preserves.
-  - id: P.capsaicinoid_shu
-    question_origin: defining
-    plausible_range: 0 - 50,000 SHU
-    range_basis: Table sauces span roughly 500-30,000 SHU; above that the category is a specialty extract
-      product.
-    range_source: copied from Suspension (solid-in-liquid dispersion)
-    range_confidence: draft
-    governing_mechanism: Capsaicinoid concentration drives TRPV1 activation. Perceived heat is sublinear
-      in concentration and is blunted by fat and by sugar.
-    driven_by:
-    - FT.pungent_principle
-    - P.oil_phase_fraction
-    role: primary
-    cross_links:
-    - L.ch.pungent_hot
-    note: Calculating from raw-material SHU is only meaningful with a certificated raw material. Whole
-      chillies vary severalfold pod to pod, so a calculated SHU from fresh produce is an estimate, not
-      a value.
-  flavor_slots: 2
-  relevant_attributes:
-  - id: L.ta.salty
-    tier: core
-    default_goal: maintain
-  - id: L.ta.sour
-    tier: core
-    default_goal: maintain
-  - id: L.ta.sweet
-    tier: core
-    default_goal: maintain
-  - id: L.ta.umami
-    tier: core
-    default_goal: maintain
-  - id: L.tx.thickness
-    tier: core
-    default_goal: maintain
-  - id: L.tx.grittiness
-    tier: core
-    default_goal: minimize
-  - id: L.ta.bitter
-    tier: monitored
-    default_goal: minimize
-  - id: L.ta.aftertaste_length
-    tier: monitored
-    default_goal: maintain
-  - id: L.tx.pourability
-    tier: monitored
-    default_goal: maintain
-  - id: L.tx.perceived_piece_size
-    tier: monitored
-    default_goal: target
-  - id: L.tx.cling
-    tier: monitored
-    default_goal: maintain
-  - id: L.ap.serum_layer
-    tier: monitored
-    default_goal: minimize
-    evidence_required: sample_aged
-  - id: L.ap.sediment
-    tier: monitored
-    default_goal: minimize
-    evidence_required: sample_aged
-  - id: L.ap.darkened
-    tier: monitored
-    default_goal: minimize
-    evidence_required: sample_aged
-  - id: L.ar.rancid_oxidized
-    tier: monitored
-    default_goal: minimize
-    evidence_required: sample_aged
-  constraints: []
-  filler: ING.water
-  derived_from: Suspension (solid-in-liquid dispersion)
-  derived_on: '2026-09-11'
-  status: DRAFT - ranges copied from sibling, review before trusting
-  discriminators:
-  - P.solids_volume_fraction
-  - P.particle_size_d50
-  - P.pH
-  - P.salt_in_water_phase
-
-# ---- 2026-09-11 용도 확장 (tools/add_application.py). 전부 DRAFT ----
-- structure_class: SC.emulsion.ow
-  application: APP.beverage.milk
-  state: null
-  label: Oil-in-water emulsion milk-type beverage
-  required_functions:
-  - FT.fat_source
-  - FT.emulsifier
-  required_functions_note: 분산상(기름)과 그것을 붙잡는 계면 활성이 없으면 O/W 에멀전이 아니다.
-  ko:
-    label: 수중유 에멀전 밀크형 음료
-    definition: 연속상이 물이고 지방 방울(1~3% 안팎)과 단백질·전분·고형분이 분산된 O/W 음료. 우유·두유·쌀음료·귀리음료처럼 뿌옇게 희고 가벼운 바디가 있으며,
-      크리밍·침전 없이 고르게 유지되어야 하고 낮은 점도로 마신다.
-  definition: 'O/W beverage with dispersed fat droplets (about 1-3%) plus protein, starch and solids:
-    milk, soy, rice or oat drinks. Opaque white, light body, must stay uniform without creaming or sedimentation;
-    low viscosity, consumed as a liquid.'
-  dominant_axes:
-  - continuous_phase
-  - dispersed_phase
-  - stabilization
-  - physical_state
-  boundary_note: ''
-  parameters:
-  - id: P.oil_phase_fraction
-    question_origin: defining
-    plausible_range: '0.005 - 0.04 (milk-type, 0.5-4% fat; whole milk 3.5, plant milks 1-3)'
-    range_basis: Beverage emulsions are dilute; high phi belongs to sauce class.
-    range_source: copied from Oil-in-water emulsion cloud beverage (oil fraction · d32 rewritten for milk-type, draft)
-    range_confidence: draft
-    governing_mechanism: Sets cloud intensity and flavor load; far lower than sauce.
-    driven_by:
-    - flavor_oil
-    - cloud_oil
-    role: primary
-  - id: P.droplet_size_d32
-    question_origin: defining
-    plausible_range: 0.3 - 2.0 (homogenised milk-type; <1 um keeps creaming slow over shelf life)
-    range_basis: Sub-micron droplets resist creaming and give stable cloud; >1 um creams/rings quickly.
-    range_source: copied from Oil-in-water emulsion cloud beverage (oil fraction · d32 rewritten for milk-type, draft)
-    range_confidence: draft
-    governing_mechanism: Smaller droplets = slower creaming + more uniform cloud; must be matched by enough
-      emulsifier to cover interface.
-    driven_by:
-    - emulsifier
-    - process_homogenization
-    role: primary
-  - id: P.density_difference
-    question_origin: defining
-    governing_mechanism: 'Creaming rate is proportional to delta-rho (Stokes). Flavor oils are less dense
-      than water -> droplets rise -> ring. Weighting agents raise droplet density to match water and near-eliminate
-      creaming.
-
-      '
-    driven_by:
-    - weighting_agent
-    - oil_type
-    role: primary
-    range_confidence: draft
-    range_source: copied from Oil-in-water emulsion cloud beverage (oil fraction · d32 rewritten for milk-type, draft)
-  - id: P.ring_formation
-    question_origin: failure
-    governing_mechanism: Gravitational rise of droplets forms a white/oily ring at the container neck
-      - a major beverage defect.
-    driven_by:
-    - density_difference
-    - droplet_size_d32
-    - thickener_optional
-    role: primary
-    range_confidence: draft
-    range_source: copied from Oil-in-water emulsion cloud beverage (oil fraction · d32 rewritten for milk-type, draft)
-  - id: P.creaming_index
-    question_origin: failure
-    target: minimize
-    governing_mechanism: Bulk droplet migration; suppressed by small d32 and density matching.
-    driven_by:
-    - density_difference
-    - droplet_size_d32
-    role: primary
-    range_confidence: draft
-    range_source: copied from Oil-in-water emulsion cloud beverage (oil fraction · d32 rewritten for milk-type, draft)
-  - id: P.ostwald_ripening
-    question_origin: failure
-    driven_by:
-    - flavor_oil
-    - droplet_size_d32
-    role: primary
-    range_confidence: draft
-    range_source: copied from Oil-in-water emulsion cloud beverage (oil fraction · d32 rewritten for milk-type, draft)
-  - id: P.turbidity_cloud
-    question_origin: perception
-    governing_mechanism: Light scattering by droplets; a DESIRED appearance in cloudy beverages. Set by
-      droplet number, size and oil load.
-    driven_by:
-    - oil_phase_fraction
-    - droplet_size_d32
-    - cloud_oil
-    role: primary
-    range_confidence: draft
-    range_source: copied from Oil-in-water emulsion cloud beverage (oil fraction · d32 rewritten for milk-type, draft)
-  - id: P.apparent_viscosity
-    question_origin: perception
-    governing_mechanism: Low in beverages; minor body/mouthfeel contribution; sugar contributes here (low-sugar
-      -> watery).
-    driven_by:
-    - sugar
-    - thickener_optional
-    role: secondary
-    range_confidence: draft
-    range_source: copied from Oil-in-water emulsion cloud beverage (oil fraction · d32 rewritten for milk-type, draft)
-  - id: P.soluble_solids_brix
-    question_origin: perception
-    governing_mechanism: Sweetness AND body/density; sugar reduction gives 'watery' defect (mouthfeel
-      loss).
-    driven_by:
-    - sugar
-    - sweetener
-    role: primary
-    range_confidence: draft
-    range_source: copied from Oil-in-water emulsion cloud beverage (oil fraction · d32 rewritten for milk-type, draft)
-  - id: P.pH
-    question_origin: perception
-    governing_mechanism: Sourness onset; also affects emulsifier charge & microbial stability.
-    driven_by:
-    - acid
-    role: secondary
-    range_confidence: draft
-    range_source: copied from Oil-in-water emulsion cloud beverage (oil fraction · d32 rewritten for milk-type, draft)
-  relevant_attributes:
-  - id: L.ta.sweet
-    tier: core
-    default_goal: maintain
-  - id: L.ta.sour
-    tier: core
-    default_goal: maintain
-  - id: L.tx.body
-    tier: core
-    default_goal: maintain
-  - id: L.ap.cloudy
-    tier: core
-    default_goal: maintain
-  - id: L.ta.aftertaste_length
-    tier: monitored
-    default_goal: maintain
-  - id: L.ap.color_intensity
-    tier: monitored
-    default_goal: maintain
-  - id: L.ar.rancid_oxidized
-    tier: monitored
-    default_goal: minimize
-    evidence_required: sample_aged
-  - id: L.ap.oil_ring
-    tier: monitored
-    default_goal: minimize
-    evidence_required: sample_aged
-  constraints:
-  - id: LESSON.weighting_agent_regulatory
-    statement: Weighting agents are regulated and region-specific (e.g., BVO withdrawn in many markets;
-      SAIB/ester gum have use limits). Choice constrained by target market.
-    type: regulatory_bound
-  - id: LESSON.emulsifier_load_vs_size
-    statement: Reducing droplet size without increasing emulsifier under-covers the interface -> instability.
-      Stabilizer dose must track oil load & size.
-    type: functional_coupling
-  - id: LESSON.dilute_oil
-    statement: Oil load is low (ppm-low%); high phi would make it a sauce/dressing, not a beverage.
-    type: class_boundary
-  filler: ING.water
-  derived_from: Oil-in-water emulsion cloud beverage
-  derived_on: '2026-09-11'
-  status: DRAFT - ranges copied from sibling, review before trusting
-
