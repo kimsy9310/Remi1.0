@@ -37,6 +37,28 @@ v2 온톨로지(L·A·M·C·S·R) → MixtureModel 어댑터.
                        bounds={"ING.allulose": (0.0, 15.0), ...})
     built.model                               # 적합된 MixtureModel
     built.y_terms                             # 반응 축 이름
+
+문법(docs/grammar/RULES.en.md)과의 대응 — 2026-09-17
+----------------------------------------------------
+이 모듈이 읽는 것을 법전의 말로 쓰면:
+
+    엣지 하나 {to, direction, magnitude, ...}     component  (A11)
+    한 재료의 엣지 전부                            vector over L
+    팔레트 전체의 Γ₀ (ING x L)                     matrix     (§0)
+    load_cards 가 돌려주는 축 한 장                card = view (D1) — 저장 레코드가 아니다
+
+**필드 이름은 아직 옛 꼴이다.** F4 에 따라 이름·모양은 1.1 이관에서 한 번에 바꾼다.
+그때까지 여기서 읽는 옛 이름은 `docs/grammar/00_change.md` 이관표의 별칭이다 —
+`scoped_to_structure_class`(#1) · 점 스코프(#2) · `term_id`(#3) · `reliability`(#4) ·
+`meta.structure`(#8) · `relations_proxy`(#11) · 보편 카드 파일과 `active_in`(#13 #20) ·
+`ko`(#23). 이관 때 이 모듈의 읽기 경로가 통째로 바뀐다.
+
+용량-반응 형태 필드의 정식 이름은 `functional_form` (A9). 재료 엣지 10건의
+`dose_response_shape` 와 팔레트 `통상근거` 의 라벨은 그 별칭이다 — 모형이 읽게 될 때
+둘 다 받되 새로 쓰는 것은 `functional_form` 이다.
+
+가시성(E4): `BuiltModel.report()` · `smoke()` 는 개발자 CLI 다. Γ₀ 의 값·Λ 는 3급(분류)
+이라 사용자 화면·API 로 나가면 안 된다. 앱은 방향과 순위까지만 보여 준다(S5, 이관표 #26).
 """
 from __future__ import annotations
 

@@ -1,5 +1,6 @@
 """
-Fine-tuning DoE generator. Given a CONFIRMED base recipe and a few ACTIVE levers
+Fine-tuning DoE builder (classical factorial / CCF, Box-Wilson 1951 — deterministic,
+no learned model). Given a CONFIRMED base recipe and a few ACTIVE levers
 (ingredients being added/changed), propose a small, efficient set of experiments
 that map how those levers move the target attributes — minimal runs, informative.
 

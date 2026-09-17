@@ -6,7 +6,8 @@ Why these two:
   - PLS (NIPALS, multi-response): built for small-n / many correlated ingredients
     (p>n) and correlated responses -> absorbs attribute-attribute correlation,
     interpretable. Linear by default.
-  - GP (RBF): nonlinear, gives predictive uncertainty (feeds BO), but data-hungry
+  - GP (RBF): nonlinear, gives predictive uncertainty (LOO comparison only —
+    not a surrogate for any acquisition loop; see docs/특허_경계_TuringLabs_모형.md §6), but data-hungry
     and prior-sensitive at small n.
 
 Pure numpy (sandbox has no sklearn). Reads the warm-loop Excel template.
