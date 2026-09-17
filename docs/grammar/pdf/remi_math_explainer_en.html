@@ -1,0 +1,215 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>How Remi's terms relate mathematically</title><style>
+@page { size: A4; margin: 18mm 16mm 18mm 16mm; }
+body { font-family: "Segoe UI", "Malgun Gothic", "Noto Sans KR", sans-serif; font-size: 10.5pt; line-height: 1.55; color: #1f1f1f; margin: 0; }
+h1 { font-size: 20pt; font-weight: 600; margin: 0 0 4pt; }
+.sub { color: #5f5e5a; font-size: 10pt; margin-bottom: 14pt; }
+h2 { font-size: 13.5pt; font-weight: 600; margin: 16pt 0 6pt; border-bottom: 0.5pt solid #d3d1c7; padding-bottom: 3pt; page-break-after: avoid; }
+h3 { font-size: 11.5pt; font-weight: 600; margin: 10pt 0 4pt; page-break-after: avoid; }
+p { margin: 4pt 0 6pt; }
+.step { border: 0.5pt solid #d3d1c7; border-radius: 6pt; padding: 8pt 12pt; margin: 6pt 0 10pt; background: #fafaf8; }
+.eq { font-family: Consolas, "Cascadia Mono", "D2Coding", monospace; font-size: 9.2pt; background: #ffffff; border: 0.5pt solid #d3d1c7; border-radius: 4pt; padding: 7pt 9pt; margin: 6pt 0; white-space: pre; line-height: 1.45; page-break-inside: avoid; }
+table { border-collapse: collapse; font-size: 9.5pt; margin: 6pt 0; page-break-inside: avoid; }
+.grid { page-break-inside: avoid; }
+th, td { border: 0.5pt solid #d3d1c7; padding: 3pt 8pt; text-align: center; }
+th { background: #f1efe8; font-weight: 600; color: #444441; }
+td.h { background: #f1efe8; font-weight: 600; text-align: left; color: #444441; }
+.note { font-size: 9.5pt; color: #5f5e5a; }
+.tag { display: inline-block; font-size: 8.5pt; padding: 0 6pt; border-radius: 8pt; border: 0.5pt solid #b4b2a9; color: #5f5e5a; margin-right: 4pt; }
+.neg { color: #a32d2d; } .pos { color: #3b6d11; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8pt; }
+code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 9.2pt; background: #f1efe8; padding: 0 3pt; border-radius: 3pt; }
+.fig { page-break-inside: avoid; margin: 8pt 0; }
+.t { font-family: "Segoe UI", "Malgun Gothic", sans-serif; font-size: 12px; fill: #1f1f1f; }
+.th { font-family: "Segoe UI", "Malgun Gothic", sans-serif; font-size: 12.5px; font-weight: 600; }
+.ts { font-family: "Segoe UI", "Malgun Gothic", sans-serif; font-size: 10.5px; }
+.arr { stroke: #888780; stroke-width: 1; fill: none; }
+</style></head><body>
+<h1>How Remi's terms relate mathematically</h1><div class="sub">A walkthrough with a three-axis toy example · S1 ONTOLOGY · 2026-09-16</div>
+
+<h2>0. The one idea everything rests on</h2>
+<div class="step">
+<p><b>Every sensory word is a coordinate axis.</b> Remi has 216 lexicon words, so a product's sensory state is a point in a 216-dimensional space. To keep the example readable we use <b>three axes</b>:</p>
+<div class="eq">L-space (toy)   axis 1 = L.ta.sweet     axis 2 = L.tx.thickness     axis 3 = L.ta.sour
+
+a score vector   s = ( s_sweet , s_thick , s_sour )        each entry is a ±3 panel score
+the origin       o = ( 0 , 0 , 0 )                          = the benchmark: "same as reference"</div>
+<p class="note">That is why the field is called <code>axis</code>: an <code>L</code> id names one coordinate.</p>
+</div>
+
+<h2>1. Node → vector: what one ingredient "is" to the model</h2>
+<div class="step">
+<p>An ingredient node has an id and nothing else. What the model uses is its <b>vector</b>: one number per axis, "how far a typical dose moves the score". In YAML we store only the non-zero entries, each as a <b>component</b> record:</p>
+<div class="grid">
+<div class="eq">ING.xanthan_gum
+  effects:
+  - {axis: L.tx.thickness, direction: increase,
+     magnitude: strong}          # +1.0
+  - {axis: L.ta.sweet,     direction: decrease,
+     magnitude: weak}            # −0.3  (gum masks sweetness)</div>
+<div class="eq">the same thing as a vector
+
+v(xanthan) = ( −0.3 , +1.0 , 0 )
+               sweet   thick   sour
+
+words → numbers (loader):
+weak 0.3 · medium 0.6 · strong 1.0
+decrease → minus sign</div>
+</div>
+<p class="note"><span class="tag">component</span> one entry, e.g. "+1.0 on thickness" — the record carries its axis, sign, size, scope, confidence. <span class="tag">vector</span> the whole list = the ingredient's row of numbers. A zero is simply an axis that is not listed.</p>
+</div>
+
+<h2>2. Roles: where most of an ingredient's vector comes from</h2>
+<div class="step">
+<p>Ingredients rarely list all their effects themselves. They inherit the vector of each <b>role</b> (<code>FT</code>) they belong to, scaled by the role weight, and then override what is special to them:</p>
+<div class="eq">v(ING) = Σ over roles  w_role · v(FT_role)   +  overrides
+
+sugar   : roles = [ FT.sweetener (strong) ]
+          v(FT.sweetener) = ( +1.0 , +0.3 , 0 )        sweeteners add sweetness and a little body
+          v(sugar)        = 1.0 · ( +1.0 , +0.3 , 0 ) = ( +1.0 , +0.3 , 0 )
+
+xanthan : roles = [ FT.thickener (strong) ]
+          v(FT.thickener) = ( 0 , +1.0 , 0 )
+          override on sweet: −0.3
+          v(xanthan)      = ( −0.3 , +1.0 , 0 )</div>
+<p class="note">This is the INGREDIENT layer's 2-tier design: shared numbers live on the role, exceptions on the ingredient. Role weights stay words (weak/medium/strong); learned numbers land on the ingredient's own components (rule A10).</p>
+</div>
+
+<h2>3. Vectors stacked = the matrix Γ</h2>
+<div class="step">
+<p>Put one ingredient per row and one axis per column. That table is Γ — the thing the model actually multiplies.</p>
+<table><tr><th>Γ</th><th>sweet</th><th>thick</th><th>sour</th></tr>
+<tr><td class="h">sugar</td><td class="pos">+1.0</td><td class="pos">+0.3</td><td>0</td></tr>
+<tr><td class="h">xanthan</td><td class="neg">−0.3</td><td class="pos">+1.0</td><td>0</td></tr></table>
+<p class="note"><span class="tag">matrix</span> is never written in YAML. It is what you get by stacking every ingredient's vector; the loader builds it. Real size: ~118 ingredients × 216 axes.</p>
+</div>
+
+<h2>4. The three multiplications</h2>
+<div class="step">
+<h3>4a. Predict — stage D1: "if I change the recipe, how do the scores move?"</h3>
+<p>The recipe change is a vector <code>x</code> with one entry per ingredient, in units of "typical doses added". Add one dose of sugar and half a dose of xanthan:</p>
+<div class="eq">x  = ( +1.0 , +0.5 )              (sugar, xanthan)
+
+Δs = xᵀ Γ                          row-vector × matrix
+
+Δs_sweet = 1.0·(+1.0) + 0.5·(−0.3) = +0.85
+Δs_thick = 1.0·(+0.3) + 0.5·(+1.0) = +0.80
+Δs_sour  = 1.0·( 0 )  + 0.5·( 0 )  =  0
+
+Δs = ( +0.85 , +0.80 , 0 )         "a bit sweeter, noticeably thicker, sourness unchanged"</div>
+<p class="note">Each score is a sum down one column: every ingredient's contribution to that axis, weighted by how much of it you added. This is the whole of "build a theoretical recipe" — the optimiser just searches for the <code>x</code> whose Δs is closest to the target.</p>
+
+<h3>4b. Interact — R-3: "perceptions also shift each other"</h3>
+<p>Some axes change other axes on their own — sweetness suppresses sourness. Those are the <code>IN</code> scalars, entries of an axis-by-axis matrix M. Our toy has one:</p>
+<div class="grid">
+<div><table><tr><th>M</th><th>→ sweet</th><th>→ thick</th><th>→ sour</th></tr>
+<tr><td class="h">sweet →</td><td>0</td><td>0</td><td class="neg">−0.6</td></tr>
+<tr><td class="h">thick →</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td class="h">sour →</td><td>0</td><td>0</td><td>0</td></tr></table></div>
+<div class="eq">s′ = s + M s
+
+sour′ = 0 + (−0.6)·(+0.85) = −0.51
+
+s′ = ( +0.85 , +0.80 , −0.51 )
+"…and it will taste a little less sour"</div>
+</div>
+<p class="note"><span class="tag">scalar</span> one <code>IN</code> record = one cell of M. The matrix is almost empty on purpose (rule C4: only well-established causal interactions).</p>
+
+<h3>4c. Measure — stage E1: "what would the lab see, and does it agree?"</h3>
+<p>A parameter is a lab reading that stands in for some axes. Its <code>axes</code> list is a vector over L; stacked, they form Π. Viscosity stands in for thickness:</p>
+<div class="grid">
+<div><table><tr><th>Π</th><th>sweet</th><th>thick</th><th>sour</th></tr>
+<tr><td class="h">P.apparent_viscosity</td><td>0</td><td class="pos">+1.0</td><td>0</td></tr>
+<tr><td class="h">P.pH</td><td>0</td><td>0</td><td class="neg">−1.0</td></tr></table></div>
+<div class="eq">m = Π s
+
+m_viscosity = +0.80   (expected reading, scaled)
+m_pH        = +0.51   (less sour → higher pH)
+
+if the lab reads viscosity ≈ +0.8:
+  confidence in s_thick goes up   (rule A4)
+if it reads something else:
+  the xanthan→thick component is corrected (E1)</div>
+</div>
+<p class="note">The model runs on Δs alone; Π is only used when a reading exists. That is what "P is auxiliary" means in equations.</p>
+</div>
+
+<h2>5. The tuple switches components on and off</h2>
+<div class="step">
+<p>The same ingredient does not behave the same in every product. Each component carries a <b>scope</b>; the profile tuple decides which components are active, so Γ is really Γ(t):</p>
+<div class="eq">xanthan → thickness :  {scope: SC.emulsion.ow|APP.sauce,     magnitude: strong}   → +1.0
+                       {scope: SC.emulsion.ow|APP.beverage,  magnitude: medium}   → +0.6
+
+t = [SC.emulsion.ow, APP.sauce,    ST.ambient]  →  Γ_t[xanthan, thick] = +1.0
+t = [SC.emulsion.ow, APP.beverage, ST.ambient]  →  Γ_t[xanthan, thick] = +0.6
+
+matching rule (B5): a scope is "on" when every part it writes equals the profile's part;
+a blank part matches anything. If two scopes match, the one with more parts written wins (B6).</div>
+<p class="note"><span class="tag">tuple</span> the profile <code>[SC, APP, ST]</code> is not a number — it is a selector. It never enters the multiplication; it chooses which numbers do.</p>
+</div>
+
+<h2>6. Where the product sits</h2>
+<div class="step">
+<div class="eq">product = ( t , key ingredients , identity axes I ⊂ L , origin o )
+
+o  = the reference sample; all scores are 0 there
+g  = the goal vector the user asked for, e.g. g = ( −1 , +1 , 0 )  "less sweet, thicker"
+D1 searches for x such that  Δs(x) ≈ g   subject to ranges and the palette</div>
+<p class="note">Two products with the same tuple but different key ingredients have different Γ rows in play and different origins — that is the "same ruler" rule (B9): scores are only comparable when t, key ingredients and o all match.</p>
+</div>
+
+<h2>7. The map</h2>
+<div class="fig"><svg width="100%" viewBox="0 0 680 560" xmlns="http://www.w3.org/2000/svg">
+<defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#888780" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+<rect x="20" y="40" width="100" height="60" rx="4" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.7"/><text class="th" x="70.0" y="64" text-anchor="middle" fill="#444441">Nodes</text><text class="ts" x="70.0" y="82" text-anchor="middle" fill="#5F5E5A">id only</text>
+<rect x="20" y="150" width="100" height="70" rx="4" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.7"/><text class="th" x="70.0" y="174" text-anchor="middle" fill="#444441">Vectors</text><text class="ts" x="70.0" y="192" text-anchor="middle" fill="#5F5E5A">in L-space R²¹⁶</text>
+<rect x="20" y="270" width="100" height="70" rx="4" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.7"/><text class="th" x="70.0" y="294" text-anchor="middle" fill="#444441">Matrices</text><text class="ts" x="70.0" y="312" text-anchor="middle" fill="#5F5E5A">vectors stacked</text>
+<rect x="20" y="390" width="100" height="80" rx="4" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.7"/><text class="th" x="70.0" y="414" text-anchor="middle" fill="#444441">Model</text><text class="ts" x="70.0" y="432" text-anchor="middle" fill="#5F5E5A">three products</text>
+<rect x="130" y="40" width="94" height="60" rx="4" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.7"/><text class="th" x="177.0" y="64" text-anchor="middle" fill="#3C3489">FT</text><text class="ts" x="177.0" y="82" text-anchor="middle" fill="#534AB7">role</text>
+<rect x="234" y="40" width="94" height="60" rx="4" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.7"/><text class="th" x="281.0" y="64" text-anchor="middle" fill="#3C3489">ING</text><text class="ts" x="281.0" y="82" text-anchor="middle" fill="#534AB7">ingredient</text>
+<rect x="338" y="40" width="94" height="60" rx="4" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.7"/><text class="th" x="385.0" y="64" text-anchor="middle" fill="#3C3489">P</text><text class="ts" x="385.0" y="82" text-anchor="middle" fill="#534AB7">parameter</text>
+<rect x="442" y="40" width="94" height="60" rx="4" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.7"/><text class="th" x="489.0" y="64" text-anchor="middle" fill="#3C3489">IN</text><text class="ts" x="489.0" y="82" text-anchor="middle" fill="#534AB7">interaction</text>
+<rect x="546" y="40" width="94" height="60" rx="4" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.7"/><text class="th" x="593.0" y="64" text-anchor="middle" fill="#3C3489">DC</text><text class="ts" x="593.0" y="82" text-anchor="middle" fill="#534AB7">idiom</text>
+<line class="arr" x1="177" y1="100" x2="177" y2="150" marker-end="url(#ar)"/>
+<line class="arr" x1="281" y1="100" x2="281" y2="150" marker-end="url(#ar)"/>
+<line class="arr" x1="385" y1="100" x2="385" y2="150" marker-end="url(#ar)"/>
+<line class="arr" x1="489" y1="100" x2="489" y2="150" marker-end="url(#ar)"/>
+<line class="arr" x1="593" y1="100" x2="593" y2="150" marker-end="url(#ar)"/>
+<rect x="130" y="150" width="94" height="70" rx="4" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.7"/><text class="th" x="177.0" y="174" text-anchor="middle" fill="#085041">v(FT)</text><text class="ts" x="177.0" y="192" text-anchor="middle" fill="#0F6E56">shared effects</text>
+<rect x="234" y="150" width="94" height="70" rx="4" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.7"/><text class="th" x="281.0" y="174" text-anchor="middle" fill="#085041">v(ING)</text><text class="ts" x="281.0" y="192" text-anchor="middle" fill="#0F6E56">Σ w·v(FT) + own</text>
+<rect x="338" y="150" width="94" height="70" rx="4" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.7"/><text class="th" x="385.0" y="174" text-anchor="middle" fill="#085041">v(P)</text><text class="ts" x="385.0" y="192" text-anchor="middle" fill="#0F6E56">P.axes</text>
+<rect x="442" y="150" width="94" height="70" rx="4" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.7"/><text class="th" x="489.0" y="174" text-anchor="middle" fill="#085041">M[from,to]</text><text class="ts" x="489.0" y="192" text-anchor="middle" fill="#0F6E56">one scalar</text>
+<rect x="546" y="150" width="94" height="70" rx="4" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.7"/><text class="th" x="593.0" y="174" text-anchor="middle" fill="#085041">v(DC)</text><text class="ts" x="593.0" y="192" text-anchor="middle" fill="#0F6E56">idiom over L</text>
+<line class="arr" x1="281" y1="220" x2="281" y2="270" marker-end="url(#ar)"/>
+<line class="arr" x1="385" y1="220" x2="385" y2="270" marker-end="url(#ar)"/>
+<line class="arr" x1="489" y1="220" x2="489" y2="270" marker-end="url(#ar)"/>
+<rect x="130" y="270" width="94" height="70" rx="4" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.7" stroke-dasharray="4 3"/><text class="th" x="177.0" y="294" text-anchor="middle" fill="#444441">tuple t</text><text class="ts" x="177.0" y="312" text-anchor="middle" fill="#5F5E5A">[SC, APP, ST]</text>
+<rect x="234" y="270" width="94" height="70" rx="4" fill="#FAECE7" stroke="#993C1D" stroke-width="0.7"/><text class="th" x="281.0" y="294" text-anchor="middle" fill="#712B13">Γ</text><text class="ts" x="281.0" y="312" text-anchor="middle" fill="#993C1D">ING × L</text>
+<rect x="338" y="270" width="94" height="70" rx="4" fill="#FAECE7" stroke="#993C1D" stroke-width="0.7"/><text class="th" x="385.0" y="294" text-anchor="middle" fill="#712B13">Π</text><text class="ts" x="385.0" y="312" text-anchor="middle" fill="#993C1D">P × L</text>
+<rect x="442" y="270" width="94" height="70" rx="4" fill="#FAECE7" stroke="#993C1D" stroke-width="0.7"/><text class="th" x="489.0" y="294" text-anchor="middle" fill="#712B13">M</text><text class="ts" x="489.0" y="312" text-anchor="middle" fill="#993C1D">L × L</text>
+<line class="arr" x1="224" y1="305" x2="234" y2="305" marker-end="url(#ar)"/>
+<line class="arr" x1="281" y1="340" x2="281" y2="390" marker-end="url(#ar)"/>
+<line class="arr" x1="385" y1="340" x2="385" y2="390" marker-end="url(#ar)"/>
+<line class="arr" x1="489" y1="340" x2="489" y2="390" marker-end="url(#ar)"/>
+<rect x="130" y="390" width="94" height="80" rx="4" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.7" stroke-dasharray="4 3"/><text class="th" x="177.0" y="414" text-anchor="middle" fill="#444441">scope σ</text><text class="ts" x="177.0" y="432" text-anchor="middle" fill="#5F5E5A">turns Γ entries</text><text class="ts" x="177.0" y="447" text-anchor="middle" fill="#5F5E5A">on or off (B5)</text>
+<rect x="234" y="390" width="94" height="80" rx="4" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.7"/><text class="th" x="281.0" y="414" text-anchor="middle" fill="#444441">Δs = xᵀΓ</text><text class="ts" x="281.0" y="432" text-anchor="middle" fill="#5F5E5A">predict</text><text class="ts" x="281.0" y="447" text-anchor="middle" fill="#5F5E5A">stage D1</text>
+<rect x="338" y="390" width="94" height="80" rx="4" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.7"/><text class="th" x="385.0" y="414" text-anchor="middle" fill="#444441">m = Π s</text><text class="ts" x="385.0" y="432" text-anchor="middle" fill="#5F5E5A">measure</text><text class="ts" x="385.0" y="447" text-anchor="middle" fill="#5F5E5A">stage E1</text>
+<rect x="442" y="390" width="94" height="80" rx="4" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.7"/><text class="th" x="489.0" y="414" text-anchor="middle" fill="#444441">s′ = s + Ms</text><text class="ts" x="489.0" y="432" text-anchor="middle" fill="#5F5E5A">interact</text><text class="ts" x="489.0" y="447" text-anchor="middle" fill="#5F5E5A">R-3 shift</text>
+<rect x="546" y="390" width="94" height="80" rx="4" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.7" stroke-dasharray="4 3"/><text class="th" x="593.0" y="414" text-anchor="middle" fill="#444441">product</text><text class="ts" x="593.0" y="432" text-anchor="middle" fill="#5F5E5A">origin o = 0</text><text class="ts" x="593.0" y="447" text-anchor="middle" fill="#5F5E5A">target g</text>
+<rect x="20" y="500" width="620" height="40" rx="4" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.7"/>
+<text class="ts" x="330" y="517" text-anchor="middle" fill="#444441">x = recipe (dose per ING) · s = ±3 scores over L · m = lab readings · Δs = predicted score shift</text>
+<text class="ts" x="330" y="532" text-anchor="middle" fill="#444441">purple = node · teal = vector or scalar · coral = matrix · dashed = selector, not a number</text>
+</svg></div>
+<p class="note">Read one column at a time: <code>ING</code> owns <code>v(ING)</code>; those vectors stacked are Γ; Γ is what the model multiplies by the recipe. <code>FT</code> and <code>DC</code> stop at the vector row — a role's vector is only inherited, an idiom's vector is a target direction. Dashed boxes are selectors, not numbers.</p>
+
+<h2>8. Glossary, tied to the example</h2>
+<table>
+<tr><th>Word</th><th>In the example</th><th>In the files</th></tr>
+<tr><td class="h">node</td><td>"sugar", "thickness", "viscosity" — names</td><td>an id line: <code>ING.sucrose</code>, <code>L.tx.thickness</code>, <code>P.apparent_viscosity</code></td></tr>
+<tr><td class="h">component</td><td>+1.0 on thickness</td><td>one <code>{axis, direction, magnitude, …}</code> record</td></tr>
+<tr><td class="h">vector</td><td>v(xanthan) = (−0.3, +1.0, 0)</td><td>the <code>effects</code> list of one ingredient (or <code>axes</code> of one P, one DC)</td></tr>
+<tr><td class="h">scalar</td><td>M[sweet, sour] = −0.6</td><td>one <code>IN</code> record</td></tr>
+<tr><td class="h">matrix</td><td>Γ, M, Π tables above</td><td>not stored; built by the loader from all vectors</td></tr>
+<tr><td class="h">tuple</td><td>[SC.emulsion.ow, APP.sauce, ST.ambient]</td><td>a profile entry; a scope string on a component</td></tr>
+<tr><td class="h">sentence</td><td>"gum masks sweetness — measured 2026-08"</td><td>a <code>LESSON</code> (observation) or <code>RP</code> (prescription)</td></tr>
+</table>
+</body></html>
